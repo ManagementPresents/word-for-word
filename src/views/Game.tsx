@@ -1,3 +1,6 @@
+//Adding Firebase imports
+import { collection, doc, setDoc, getDoc } from "firebase/firestore"; 
+
 import { letters, status } from '../constants'
 import { useEffect, useState } from 'react'
 import { useNavigate } from "react-router-dom";
@@ -73,11 +76,13 @@ function Game() {
   const [answer, setAnswer] = useState('');
   // const [gameState, setGameState] = useLocalStorage('stateGameState', initialStates.gameState)
   const [gameState, setGameState] = useState('playing');
+  //TO-DO: replace Local Storage with the string that exists in Firebase
   const [board, setBoard] = useLocalStorage('stateBoard', initialStates.board)
   const [cellStatuses, setCellStatuses] = useLocalStorage(
     'stateCellStatuses',
     initialStates.cellStatuses
   )
+  //TO-DO: Replace Local Storage
   const [currentRow, setCurrentRow] = useLocalStorage('stateCurrentRow', initialStates.currentRow)
   const [currentCol, setCurrentCol] = useLocalStorage('stateCurrentCol', initialStates.currentCol)
   const [letterStatuses, setLetterStatuses] = useLocalStorage(
@@ -92,7 +97,9 @@ function Game() {
   const [currentStreak, setCurrentStreak] = useLocalStorage('current-streak', 0)
   const [longestStreak, setLongestStreak] = useLocalStorage('longest-streak', 0)
   const [modalIsOpen, setIsOpen] = useState(false)
+  //To-Do: Change Local Storage to Firebase Storage for "first time" guest identification purposes
   const [firstTime, setFirstTime] = useLocalStorage('first-time', true)
+  //To-Do: Kill streaks
   const [guessesInStreak, setGuessesInStreak] = useLocalStorage(
     'guesses-in-streak',
     firstTime ? 0 : -1
@@ -100,6 +107,7 @@ function Game() {
   // const [infoModalIsOpen, setInfoModalIsOpen] = useState(firstTime)
   const [inputModalIsOpen, setInputModalIsOpen] = useState(true);
   const [settingsModalIsOpen, setSettingsModalIsOpen] = useState(false)
+  //To-Do: Remove "Difficulty"
   const [difficultyLevel, setDifficultyLevel] = useLocalStorage('difficulty', difficulty.normal)
   const getDifficultyLevelInstructions = () => {
     if (difficultyLevel === difficulty.easy) {
@@ -111,6 +119,7 @@ function Game() {
     }
   }
   const eg: { [key: number]: string } = {}
+  //To-Do: Remove Localstorage
   const [exactGuesses, setExactGuesses] = useLocalStorage('exact-guesses', eg)
   const openModal = () => setIsOpen(true)
   const closeModal = () => setIsOpen(false)
@@ -118,9 +127,11 @@ function Game() {
   const navigate = useNavigate();
 
   const isLoading = useStore((state) => state.isLoading);
+  //To-Do: Probably code we should repurpose for userID
   const { setIsLoading } = useStore();
   const { user } = useStore();
 
+  //To-Do: Strip out Dark Mode
   const [darkMode, setDarkMode] = useLocalStorage('dark-mode', false)
   const toggleDarkMode = () => setDarkMode((prev: boolean) => !prev)
 
@@ -137,6 +148,8 @@ function Game() {
     }
   }, [gameState])
 
+
+  //To-Do: Might need to change based on how our "join a game" flow ends up being
     // const handleInfoClose = () => {
   //   setFirstTime(false)
   //   setInfoModalIsOpen(false)
@@ -149,22 +162,22 @@ function Game() {
   const getCellStyles = (rowNumber: number, colNumber: number, letter: string) => {
     if (rowNumber === currentRow) {
       if (letter) {
-        return `nm-inset-background dark:nm-inset-background-dark text-primary dark:text-primary-dark ${
-          submittedInvalidWord ? 'border border-red-800' : ''
+        return `guesses-style-default border ${
+          submittedInvalidWord ? 'border guesses-border-wrong' : ''
         }`
       }
-      return 'nm-flat-background dark:nm-flat-background-dark text-primary dark:text-primary-dark'
+      return 'guesses-style-default border'
     }
 
     switch (cellStatuses[rowNumber][colNumber]) {
       case status.green:
-        return 'nm-inset-n-green text-gray-50'
+        return 'guesses-style-green'
       case status.yellow:
-        return 'nm-inset-yellow-500 text-gray-50'
+        return 'guesses-style-yellow'
       case status.gray:
-        return 'nm-inset-n-gray text-gray-50'
+        return 'guesses-style-grey'
       default:
-        return 'nm-flat-background dark:nm-flat-background-dark text-primary dark:text-primary-dark'
+        return 'guesses-style-default'
     }
   }
 
@@ -218,6 +231,7 @@ function Game() {
     setCurrentRow((prev: number) => prev + 1)
     setCurrentCol(0)
 
+    //to-do: remove streaks
     // Only calculate guesses in streak if they've
     // started a new streak since this feature was added.
     if (guessesInStreak >= 0) {
@@ -277,6 +291,7 @@ function Game() {
     return row.every((cell: string) => cell === status.green)
   }
 
+  //To-do: remove streaks
   const avgGuessesPerGame = (): number => {
     if (currentStreak > 0) {
       return guessesInStreak / currentStreak
@@ -338,6 +353,7 @@ function Game() {
     }
 
     // setAnswer(initialStates.answer())
+    //to-do: change "set answer" to grab the wordle from firebase
     setAnswer('');
     setGameState(initialStates.gameState)
     setBoard(initialStates.board)
@@ -358,7 +374,7 @@ function Game() {
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: darkMode ? 'hsl(231, 16%, 25%)' : 'hsl(231, 16%, 92%)',
+      backgroundColor: '#24191f',
       zIndex: 99,
     },
     content: {
@@ -369,11 +385,11 @@ function Game() {
       transform: 'translate(-50%, -50%)',
       height: 'calc(100% - 2rem)',
       width: 'calc(100% - 2rem)',
-      backgroundColor: darkMode ? 'hsl(231, 16%, 25%)' : 'hsl(231, 16%, 92%)',
+      backgroundColor: '#3c2a34',
       boxShadow: `${
         darkMode
-          ? '0.2em 0.2em calc(0.2em * 2) #252834, calc(0.2em * -1) calc(0.2em * -1) calc(0.2em * 2) #43475C'
-          : '0.2em 0.2em calc(0.2em * 2) #A3A7BD, calc(0.2em * -1) calc(0.2em * -1) calc(0.2em * 2) #FFFFFF'
+          ? '0.2em 0.2em calc(0.2em * 2) #3c2a34, calc(0.2em * -1) calc(0.2em * -1) calc(0.2em * 2) #3c2a34'
+          : '0.2em 0.2em calc(0.2em * 2) #3c2a34, calc(0.2em * -1) calc(0.2em * -1) calc(0.2em * 2) #3c2a34'
       }`,
       border: 'none',
       borderRadius: '1rem',
@@ -388,8 +404,8 @@ function Game() {
   } else {
     return (
       <div>
-        <div className={`flex flex-col justify-between h-fill bg-background dark:bg-background-dark`}>
-          <header className="flex items-center py-2 px-3 text-primary dark:text-primary-dark">
+        <div className={`flex flex-col justify-between h-fill bg-background`}>
+          <header className="flex items-center py-2 px-3 text-primary">
             <button
               type="button"
               onClick={() => setSettingsModalIsOpen(true)}
