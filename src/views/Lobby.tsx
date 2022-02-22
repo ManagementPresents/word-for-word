@@ -161,7 +161,7 @@ const Lobby = ({}: Props) => {
             </div>
 
             {/* @ts-ignore */}
-            <ReactModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} style={modalStyle} className={`flex border-2 border-white rounded-[5rem] bg-[#3C2A34]`}>
+            <ReactModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} style={modalStyle} className="modals-style">
                 <Fragment>
                     <i className="fixed top-6 right-6 text-6xl not-italic cursor-pointer transition-all hover:text-zinc-500" onClick={() => setIsModalOpen(false)}>X</i>
 
@@ -172,13 +172,13 @@ const Lobby = ({}: Props) => {
 
                                 <p>blah blah blah basic rules/instructions.</p>
 
-                                <button data-tip="This mode is not yet available. Check back soon!" className={'bg-[#15B097] hover:bg-green-700 text-[#F1F1F9] font-bold py-2 px-4 rounded w-full opacity-50 cursor-not-allowed'} onClick={(e) => {
+                                <button data-tip="This mode is not yet available. Check back soon!" className={'yellow-style font-bold py-2 px-4 rounded w-full opacity-50 cursor-not-allowed'} onClick={(e) => {
                                     e.preventDefault();
                                     return;
                                     //  handleModalButtonClick('specific') 
                                     }}>Invite Specific Player</button>
 
-                                <button className={'bg-[#15B097] hover:bg-green-700 text-[#F1F1F9] font-bold py-2 px-4 rounded w-full'} onClick={() => { handleModalButtonClick('open') }}>Create Open Match</button>
+                                <button className={'green-style hover:green-hover font-bold py-2 px-4 rounded w-full'} onClick={() => { handleModalButtonClick('open') }}>Create Open Match</button>
 
                                 <ReactTooltip effect='solid' type='dark' />
                             </Fragment>
@@ -203,8 +203,8 @@ const Lobby = ({}: Props) => {
                                     <input type="text" />
                                     :
                                     <div className="flex justify-center flex-col gap-y-2">
-                                        <button className="bg-[#15B097] hover:bg-green-700 text-[#F1F1F9] font-bold py-2 px-4 rounded w-full">Generate Link</button>
-                                        <button className="bg-[#FFCE47] hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded w-full" onClick={() => {
+                                        <button className="green-style hover:green-hover font-bold py-2 px-4 rounded w-full">Generate Link</button>
+                                        <button className="yellow-style hover:yellow-hover text-black font-bold py-2 px-4 rounded w-full" onClick={() => {
                                             setIsOpenMatch(false);
                                             setSpecificPlayer(false);
                                         }}>Go Back</button>

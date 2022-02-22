@@ -11,15 +11,16 @@ type Props = {
   styles: any
 }
 
+//to-do: change How to Play info to incorporate how our game ACTUALLY works
 export const InfoModal = ({ isOpen, handleClose, darkMode, styles }: Props) => (
   <Modal isOpen={isOpen} onRequestClose={handleClose} style={styles} contentLabel="Game Info Modal">
     <div className={`h-full ${darkMode ? 'dark' : ''}`}>
       <button
-        className="absolute top-4 right-4 rounded-full modals-style"
+        className="absolute top-4 right-4 rounded-full grey-button-style hover:"
         onClick={handleClose}
       >
         <Close />
-      </button>
+      </button> 
       <div className="h-full flex flex-col items-center justify-center max-w-[390px] mx-auto pt-9 text-primary dark:text-primary-dark">
         <div className="flex-1 w-full sm:text-base text-sm">
           <h1 className="text-center sm:text-3xl text-2xl">How to play</h1>

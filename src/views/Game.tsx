@@ -4,16 +4,15 @@ import { collection, doc, setDoc, getDoc } from "firebase/firestore";
 import { letters, status } from '../constants'
 import { useEffect, useState } from 'react'
 import { useNavigate } from "react-router-dom";
-
 import { EndGameModal } from '../components/EndGameModal'
-// import { InfoModal } from './components/InfoModal'
+import { InfoModal } from '../components/InfoModal'
 import { InputModal } from '../components/InputModal';
 import { Keyboard } from '../components/Keyboard'
 import { SettingsModal } from '../components/SettingsModal'
 import Loading from '../components/Loading';
 import answers from '../data/answers'
 import { useLocalStorage } from '../hooks/useLocalStorage'
-// import { ReactComponent as Info } from './data/Info.svg'
+import { ReactComponent as Info } from '../data/Info.svg'
 import { ReactComponent as Settings } from '../data/Settings.svg'
 import useStore from '../utils/store';
 import { TIMEOUT_DURATION } from '../utils/constants';
@@ -93,7 +92,7 @@ function Game() {
     'stateSubmittedInvalidWord',
     initialStates.submittedInvalidWord
   )
-
+//To-Do: Remove Streaks
   const [currentStreak, setCurrentStreak] = useLocalStorage('current-streak', 0)
   const [longestStreak, setLongestStreak] = useLocalStorage('longest-streak', 0)
   const [modalIsOpen, setIsOpen] = useState(false)
@@ -104,7 +103,7 @@ function Game() {
     'guesses-in-streak',
     firstTime ? 0 : -1
   )
-  // const [infoModalIsOpen, setInfoModalIsOpen] = useState(firstTime)
+  const [infoModalIsOpen, setInfoModalIsOpen] = useState(firstTime)
   const [inputModalIsOpen, setInputModalIsOpen] = useState(true);
   const [settingsModalIsOpen, setSettingsModalIsOpen] = useState(false)
   //To-Do: Remove "Difficulty"
@@ -140,6 +139,7 @@ function Game() {
     [darkMode]
   )
 
+//To-Do: Check this later if it pops up whatever modal, if that's a problem for our changes
   useEffect(() => {
     if (gameState !== state.playing) {
       setTimeout(() => {
@@ -150,10 +150,10 @@ function Game() {
 
 
   //To-Do: Might need to change based on how our "join a game" flow ends up being
-    // const handleInfoClose = () => {
-  //   setFirstTime(false)
-  //   setInfoModalIsOpen(false)
-  // }
+ const handleInfoClose = () => {
+  setFirstTime(false)
+    setInfoModalIsOpen(false)
+   }
 
   const handleInputClose = () => {
     setInputModalIsOpen(false);
@@ -171,11 +171,11 @@ function Game() {
 
     switch (cellStatuses[rowNumber][colNumber]) {
       case status.green:
-        return 'guesses-style-green'
+        return 'green-style'
       case status.yellow:
-        return 'guesses-style-yellow'
+        return 'yellow-style'
       case status.gray:
-        return 'guesses-style-grey'
+        return 'grey-style'
       default:
         return 'border guesses-style-default'
     }
@@ -406,23 +406,23 @@ function Game() {
       <div>
         <div className={`flex flex-col justify-between h-fill bg-background`}>
           <header className="flex items-center py-2 px-3 text-primary">
-            <button
+             {/* <button
               type="button"
               onClick={() => setSettingsModalIsOpen(true)}
               className="p-1 rounded-full"
             >
               <Settings />
-            </button>
+            </button>  */}
             <h1 className="flex-1 text-center text-xl xxs:text-2xl sm:text-4xl tracking-wide font-bold font-righteous">
               Wordles with Friendles
             </h1>
-            {/* <button
+            <button
               type="button"
               onClick={() => setInfoModalIsOpen(true)}
               className="p-1 rounded-full"
             >
               <Info />
-            </button> */}
+            </button> 
           </header>
           <div className="flex items-center flex-col py-3 flex-1 justify-center relative">
             <div className="relative">
@@ -435,7 +435,7 @@ function Game() {
                         rowNumber,
                         colNumber,
                         letter
-                      )} inline-flex items-center font-medium justify-center text-lg w-[13vw] h-[13vw] xs:w-14 xs:h-14 sm:w-20 sm:h-20 rounded-full`}
+                      )} inline-flex items-center font-medium justify-center text-lg w-[13vw] h-[13vw] xs:w-14 xs:h-14 sm:w-20 sm:h-20`}
                     >
                       {letter}
                     </span>
@@ -460,12 +460,12 @@ function Game() {
               </div>
             </div>
           </div>
-          {/* <InfoModal
+          <InfoModal
             isOpen={infoModalIsOpen}
             handleClose={handleInfoClose}
             darkMode={darkMode}
             styles={modalStyles}
-          /> */}
+          /> 
           <InputModal
             isOpen={inputModalIsOpen}
             handleClose={handleInputClose}
