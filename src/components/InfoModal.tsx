@@ -16,7 +16,7 @@ export const InfoModal = ({ isOpen, handleClose, darkMode, styles }: Props) => (
   <Modal isOpen={isOpen} onRequestClose={handleClose} style={styles} contentLabel="Game Info Modal">
     <div className={`h-full ${darkMode ? 'dark' : ''}`}>
       <button
-        className="absolute top-4 right-4 rounded-full grey-button-style hover:"
+        className="absolute top-4 right-4 rounded-full grey-button-style p-1 w-6 h-6 sm:p-2 sm:h-8 sm:w-8 hover:grey-button-hover"
         onClick={handleClose}
       >
         <Close />
