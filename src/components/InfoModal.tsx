@@ -27,6 +27,7 @@ export const InfoModal = ({ isOpen, handleClose, darkMode, styles }: Props) => (
           <ul className="list-disc pl-5 block sm:text-base text-sm">
             <li className="mt-6 mb-2">You have 6 guesses to guess the correct word.</li>
             <li className="mb-2">You can guess any valid word.</li>
+            <li className="mb-2">Alternately, you can just have fun generating 3-word urls and making up stories about them. We definitely spent a late night in development doing that. Highly reccomend.</li>
             <li className="mb-2">
               After each guess, each letter will turn green, yellow, or gray.
             </li>
