@@ -20,14 +20,16 @@ import ProtectedRoute from '../components/ProtectedRoute';
 import useStore from '../utils/store';
 import AuthRedirectRoute from "../components/AuthRedirectRoute";
 
-const { app, db } = initializeFirebase();
-
-const auth = getAuth();
-
 type Props = {};
 
 const App = ({}: Props) => {
-    useEffect(() => {
+    useEffect(() => {        
+        const { app, db } = initializeFirebase();
+        const auth = getAuth();
+
+        // @ts-ignore
+        useStore.setState({ app, db });
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 console.log('sensing a user', { user });

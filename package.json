@@ -18,11 +18,13 @@
     "firebase": "^9.6.6",
     "password-validator": "^5.2.1",
     "react": "^17.0.2",
+    "react-copy-to-clipboard": "^5.0.4",
     "react-dom": "^17.0.2",
     "react-modal": "^3.14.4",
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.0-next.58",
     "react-spinners-css": "^2.0.1",
+    "react-tooltip": "^4.2.21",
     "tailwindcss-neumorphism": "^0.1.0",
     "typescript": "^4.5.5",
     "validator": "^13.7.0",
@@ -56,6 +58,7 @@
     ]
   },
   "devDependencies": {
+    "@types/react-copy-to-clipboard": "^5.0.2",
     "@types/validator": "^13.7.1",
     "autoprefixer": "^10.4.0",
     "gh-pages": "^3.2.3",

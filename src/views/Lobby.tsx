@@ -1,5 +1,8 @@
 import { useState, useEffect, Fragment} from 'react'
 import { Default } from 'react-spinners-css';
+import { collection, addDoc } from "firebase/firestore"; 
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import ReactTooltip from 'react-tooltip';
 // import { Link } from "react-router-dom";
 // import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
@@ -30,11 +33,12 @@ const modalStyle = {
 };
 
 const Lobby = ({}: Props) => {
-    const { user } = useStore();
+    const { user, db } = useStore();
 
     const [isOpenMatch, setIsOpenMatch] = useState(false);
     const [isSpecificPlayer, setSpecificPlayer] = useState(false);
     const [openMatchLink, setOpenMatchLink] = useState('');
+    const [specificMatchLink, setSpecificMatchLink] = useState('');
     const [wordle, setWordle] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isGenerateLinkReady, setIsGenerateLinkReady] = useState(false);
@@ -62,13 +66,53 @@ const Lobby = ({}: Props) => {
 
     const handleValidateWordle = (e: React.ChangeEvent<HTMLInputElement>): void => {
         const value = e?.target.value || '';
+        // TODO: this 'message' property can be refactored away when we stop using 'password-validator.js'
+        const validationErrors = validateWordle(value).map(error => ({ message: error }));
 
         // @ts-ignore
-        setWordleValidationErrors(validateWordle(value).map(error => ({ message: error }))); // TODO: this 'message' property can be refactored away when we stop using 'password-validator.js'
+        setWordleValidationErrors(validationErrors); 
+
+        if (!validationErrors.length) {
+            setWordle(value);
+            setIsGenerateLinkReady(true);
+        } else {
+            setIsGenerateLinkReady(false);
+        }
     }
 
-    const handleGenerateLink = () => {
-        console.log('generate link');
+    const handleGenerateLink = async () => {
+        setIsGeneratingLink(true);
+
+        // TODO: Schemas need to be permanently stored and reused
+        const docRef = await addDoc(collection(db, 'matches'), {
+            players: {
+                guestId: '',
+                hostId: user.uid,
+                winner: '',
+                turns: [{
+                    activePlayer: '',
+                    currentTurn: true,
+                    guesses: [],
+                    turnState: 'playing',
+                    wordle,
+                }],
+            }
+        });
+
+        setIsGeneratingLink(false);
+        // TODO: This setOpenMatchLink thing probably needs to be abstracted
+        // @ts-ignore
+        setOpenMatchLink(`wordleswithfriendles.com/match/${docRef.id}`); // TODO: Figure out if there's any danger using this ID in the match url
+        console.log(`new match started with match id: ${docRef.id}`);
+    }
+
+    const handleShortTooltip = (e: any) => {
+        const { tip }  = e.target.dataset;
+
+        // TODO: Kludge way to ensure only the 'copied' tooltips go away automatically
+        if (tip.toLowerCase().includes('copied')) {
+            setTimeout(ReactTooltip.hide, 2000);
+        }
     }
 
 	return (
@@ -128,9 +172,15 @@ const Lobby = ({}: Props) => {
 
                                 <p>blah blah blah basic rules/instructions.</p>
 
-                                <button className={'bg-[#15B097] hover:bg-green-700 text-[#F1F1F9] font-bold py-2 px-4 rounded w-full'} onClick={() => { handleModalButtonClick('specific') }}>Invite Specific Player</button>
+                                <button data-tip="This mode is not yet available. Check back soon!" className={'bg-[#15B097] hover:bg-green-700 text-[#F1F1F9] font-bold py-2 px-4 rounded w-full opacity-50 cursor-not-allowed'} onClick={(e) => {
+                                    e.preventDefault();
+                                    return;
+                                    //  handleModalButtonClick('specific') 
+                                    }}>Invite Specific Player</button>
 
                                 <button className={'bg-[#15B097] hover:bg-green-700 text-[#F1F1F9] font-bold py-2 px-4 rounded w-full'} onClick={() => { handleModalButtonClick('open') }}>Create Open Match</button>
+
+                                <ReactTooltip effect='solid' type='dark' />
                             </Fragment>
                         }
                         {isSpecificPlayer && 
@@ -149,7 +199,7 @@ const Lobby = ({}: Props) => {
                                     <input type="text" className="text-black pd-2" placeholder="User's email"></input>
                                 </div> 
 
-                                {openMatchLink ?
+                                {specificMatchLink ?
                                     <input type="text" />
                                     :
                                     <div className="flex justify-center flex-col gap-y-2">
@@ -171,15 +221,33 @@ const Lobby = ({}: Props) => {
 
                                 <div className="flex justify-center flex-col gap-y-2">
                                     <span>Your Word</span>
+                                    
                                     <input type="text" className={`text-black ${wordleValidationErrors.length ? 'border-red-500 focus:border-red-500 focus:ring-red-500': 'border-[#15B097] focus:border-[#15B097] focus:ring-[#15B097]'}`} placeholder="Enter a word" onChange={handleValidateWordle}></input>
                                     {renderErrors(wordleValidationErrors, 'text-red-500 text-sm')}
                                 </div>
-                                <div className="flex justify-center flex-col gap-y-2">
-                                    {/* TODO: Might want to abstract into 'submit button' component */}
-                                    <button disabled={!isGenerateLinkReady} onClick={handleGenerateLink} className={`bg-[#15B097] text-[#F1F1F9] font-bold py-2 px-4 rounded w-full ${isGenerateLinkReady ? 'hover:bg-green-700' : 'opacity-50 cursor-not-allowed'} ${isGenerateLinkReady ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                        {isGeneratingLink ? <Fragment><span>Registering...</span> <Default color="#fff" size={20}/></Fragment> : <span>Generate Link</span>}
-                                    </button>
 
+                                <div className={`flex justify-center flex-col ${openMatchLink ? 'gap-y-6' : 'gap-y-3'}`}>
+                                    {/* TODO: Might want to abstract into 'submit button' component */}
+                                    {openMatchLink ? 
+                                        <div className="flex flex-col gap-y-2">
+                                            <CopyToClipboard text={openMatchLink}>
+                                                <input type="text" readOnly value={openMatchLink} className="text-black cursor-pointer" data-tip="Copied!" data-place="right" /> 
+                                            </CopyToClipboard>
+
+                                            <CopyToClipboard text={openMatchLink}>
+                                                <button className={`bg-[#15B097] text-[#F1F1F9] font-bold py-2 px-4 rounded w-full hover:bg-green-700`} data-tip="Copied!" data-place="right">
+                                                    Copy Link
+                                                </button>
+                                            </CopyToClipboard>
+
+                                            {/* TODO: Bad interaction with copy to clipboard ): */}
+                                            {/* <ReactTooltip event='click' effect='solid' type='dark' afterShow={handleShortTooltip} /> */}
+                                        </div>
+                                        :                                     
+                                        <button disabled={!isGenerateLinkReady} onClick={handleGenerateLink} className={`bg-[#15B097] text-[#F1F1F9] font-bold py-2 px-4 rounded w-full ${isGenerateLinkReady && !isGeneratingLink ? 'hover:bg-green-700' : 'opacity-50 cursor-not-allowed'} ${!isGenerateLinkReady ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                            {isGeneratingLink ? <Fragment><span>Generating...</span> <Default color="#fff" size={20}/></Fragment> : <span>Generate Link</span>}
+                                        </button>
+                                    }
                                     <button className="bg-[#FFCE47] hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded w-full" onClick={() => {
                                         setIsOpenMatch(false);
                                         setSpecificPlayer(false);
