@@ -1,9 +1,9 @@
 import { useEffect, useState, } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { TIMEOUT_DURATION } from '../utils/constants';
-import useStore from '../utils/store';
-import Loading from './Loading';
+import { TIMEOUT_DURATION } from '../../utils/constants';
+import useStore from '../../utils/store';
+import Loading from '../Loading';
 
 const AuthRedirectRoute = ({ authRedirectTarget, noAuthRedirectTarget }: any) => {
     const isLoading = useStore((state) => state.isLoading);
@@ -17,7 +17,9 @@ const AuthRedirectRoute = ({ authRedirectTarget, noAuthRedirectTarget }: any) =>
             setIsLoading(false);
 
             if (!useStore.getState().user) {
+                console.log('timed out auth redirect');
                 setIsTimedOut(true);
+                console.log('hm')
             }
 
         }, TIMEOUT_DURATION);
@@ -27,6 +29,12 @@ const AuthRedirectRoute = ({ authRedirectTarget, noAuthRedirectTarget }: any) =>
     useEffect(() => {
         if (user) setIsLoading(false);
     }, [user, setIsLoading]);
+
+    console.log({
+        isLoading,
+        user,
+        isTimedOut
+    })
 
     if (isLoading) return <Loading />;
 

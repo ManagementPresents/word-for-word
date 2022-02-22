@@ -1,16 +1,18 @@
 import { useEffect, useState, } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { TIMEOUT_DURATION } from '../utils/constants';
 import useStore from '../utils/store';
-import Loading from '../components/Loading';
+import Loading from './Loading';
 
-const ProtectedRoute = ({ children, redirectTo, }: any) => {
+const AuthRoute = ({ children, redirectTo, predicate, }: any) => {
     const isLoading = useStore((state) => state.isLoading);
     const { setIsLoading } = useStore();
     const { user } = useStore();
-    const navigate = useNavigate();
 
+    const navigate = useNavigate();
+    const params = useParams();
+    
     useEffect(() => {
         setTimeout(() => {
             setIsLoading(false);
@@ -33,4 +35,4 @@ const ProtectedRoute = ({ children, redirectTo, }: any) => {
     return isLoading && !user ? <Loading /> : children;
 };
 
-export default ProtectedRoute;
+export default AuthRoute;

@@ -5,7 +5,8 @@ import { collection, doc, setDoc, getDoc } from "firebase/firestore";
 
 import { letters, status } from '../constants'
 import { useEffect, useState } from 'react'
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+
 import { EndGameModal } from '../components/EndGameModal'
 import { InfoModal } from '../components/InfoModal'
 import { InputModal } from '../components/InputModal';

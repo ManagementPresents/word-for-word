@@ -10,15 +10,17 @@ import {
 import initializeFirebase from '../utils/firebase';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
-import Game from './Game';
+import Match from './Match';
 import Login from './Login';
 import Register from './Register';
 import Lobby from './Lobby';
 import Logout from './Logout';
-// Do you have stairs in your route? ;)
-import ProtectedRoute from '../components/ProtectedRoute';
+
 import useStore from '../utils/store';
-import AuthRedirectRoute from "../components/AuthRedirectRoute";
+
+import AuthRoute from '../components/AuthRoute';
+import AuthRedirectRoute from '../components/wrappers/AuthRedirectRoute';
+import AuthMatchRoute from '../components/wrappers/AuthMatchRoute';
 
 type Props = {};
 
@@ -55,13 +57,17 @@ const App = ({}: Props) => {
                 <Route path="/" element={
                     <AuthRedirectRoute authRedirectTarget={<Navigate to="/lobby" />} noAuthRedirectTarget={< Login />} />
                 } />
+
                 <Route path="/lobby" element={<Lobby />} />
-                <Route path="/game" element={
-                    <ProtectedRoute redirectTo='/'>
-                        <Game />
-                    </ProtectedRoute>
+
+                <Route path="/match/:matchId" element={
+                    <AuthMatchRoute redirectTo='/'>
+                        <Match />
+                    </AuthMatchRoute>
                 } />
+
                 <Route path="/register" element={<Register />} />
+
                 <Route path="/logout" element={<Logout />} />
             </Routes>
         </BrowserRouter>
