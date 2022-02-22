@@ -100,3 +100,14 @@ html {
   background-color: #D9D4D6;
   color: #3C2A34;
 }
+
+.button-depression {
+    cursor: pointer;
+}
+  
+.button-depression:active {
+    -webkit-box-shadow: inset 0px 0px 5px #c1c1c1;
+       -moz-box-shadow: inset 0px 0px 5px #c1c1c1;
+            box-shadow: inset 0px 0px 5px #c1c1c1;
+     outline: none;
+}

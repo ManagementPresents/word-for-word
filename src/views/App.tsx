@@ -56,20 +56,20 @@ const App = ({}: Props) => {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={
-                    <AuthRedirectRoute authRedirectTarget={<Navigate to="/lobby" />} noAuthRedirectTarget={< Login />} />
+                    <Navigate to="/makeupadude" />
                 } />
 
-                <Route path="/lobby" element={<Lobby />} />
+                {/* <Route path="/lobby" element={<Lobby />} /> */}
 
-                <Route path="/match/:matchId" element={
+                {/* <Route path="/match/:matchId" element={
                     <AuthMatchRoute redirectTo='/'>
                         <Match />
                     </AuthMatchRoute>
-                } />
+                } /> */}
 
-                <Route path="/register" element={<Register />} />
+                {/* <Route path="/register" element={<Register />} />
 
-                <Route path="/logout" element={<Logout />} />
+                <Route path="/logout" element={<Logout />} /> */}
                 <Route path="/makeupadude" element={<MakeUpADude />} />
             </Routes>
         </BrowserRouter>

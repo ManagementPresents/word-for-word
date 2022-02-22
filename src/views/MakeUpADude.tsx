@@ -38,12 +38,12 @@ const MakeUpADude = ({}: Props) => {
 	const navigate = useNavigate();
 
 	return (
-        <div className="h-full flex align-center justify-center p-[10rem]">
+        <div className="h-full flex flex-col items-center justify-center gap-y-6 md:p-[10rem]">
             {/* <button className="bg-[#DF2A2A] hover:bg-[#A41818] text-[#F1F1F9] font-bold py-2 px-4 rounded w-full" onClick={() => { alert(`YOUR MakeUpADudeION AFFIRMATION OF THE DAY IS`); alert(generateMatchUri(3, ' ')); }}>Disrupt!</button> */}
 
-            <button className="bg-[#FFCE47] hover:bg-[#CBA82A] text-black font-bold py-2 px-4 rounded w-full" onClick={() => { setMadeUpDude(makeUpADude()) }}>Make Up a Dude!</button>
+            <button className="bg-[#FFCE47] hover:bg-[#CBA82A] text-black font-bold py-2 px-4 rounded w-80" onClick={() => { setMadeUpDude(makeUpADude()) }}>Make Up a Dude!</button>
 			
-			<div className="text-8xl">{madeUpDude}</div>
+			<div className="text-4xl text-center md:text-8xl">{madeUpDude}</div>
         </div>
     );
 }
