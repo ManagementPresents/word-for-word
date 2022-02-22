@@ -1,6 +1,6 @@
 import { useState, useEffect, Fragment} from 'react'
 import { Default } from 'react-spinners-css';
-import { collection, addDoc } from "firebase/firestore"; 
+import { doc, addDoc, setDoc, } from "firebase/firestore"; 
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import ReactTooltip from 'react-tooltip';
 // import { Link } from "react-router-dom";
@@ -10,6 +10,7 @@ import { validateWordle } from '../utils/validation';
 import ReactModal from 'react-modal';
 import useStore from '../utils/store';
 import { renderErrors } from '../utils/misc';
+import { generateMatchUri } from '../utils/wordUtils';
 
 type Props = {}
 
@@ -84,7 +85,24 @@ const Lobby = ({}: Props) => {
         setIsGeneratingLink(true);
 
         // TODO: Schemas need to be permanently stored and reused
-        const docRef = await addDoc(collection(db, 'matches'), {
+        // const docRef = await addDoc(collection(db, 'matches'), {
+        //     players: {
+        //         guestId: '',
+        //         hostId: user.uid,
+        //         winner: '',
+        //         turns: [{
+        //             activePlayer: '',
+        //             currentTurn: true,
+        //             guesses: [],
+        //             turnState: 'playing',
+        //             wordle,
+        //         }],
+        //     }
+        // });
+
+        const generatedUri = generateMatchUri(3);
+
+        const docRef = await setDoc(doc(db, 'matches', generatedUri), {
             players: {
                 guestId: '',
                 hostId: user.uid,
@@ -99,11 +117,13 @@ const Lobby = ({}: Props) => {
             }
         });
 
+        console.log('created uri:', generatedUri);
+
         setIsGeneratingLink(false);
         // TODO: This setOpenMatchLink thing probably needs to be abstracted
         // @ts-ignore
-        setOpenMatchLink(`wordleswithfriendles.com/match/${docRef.id}`); // TODO: Figure out if there's any danger using this ID in the match url
-        console.log(`new match started with match id: ${docRef.id}`);
+        setOpenMatchLink(`wordleswithfriendles.com/match/${generatedUri}`); // TODO: Figure out if there's any danger using this ID in the match url
+        // console.log(`new match started with match id: ${docRef.id}`);
     }
 
     const handleShortTooltip = (e: any) => {
@@ -165,7 +185,7 @@ const Lobby = ({}: Props) => {
                 <Fragment>
                     <i className="fixed top-6 right-6 text-6xl not-italic cursor-pointer transition-all hover:text-zinc-500" onClick={() => setIsModalOpen(false)}>X</i>
 
-                    <div className="flex justify-center flex-col text-xs mx-auto gap-y-4 p-6 md:text-base md:gap-y-8 md:p-12 md:max-w-sm">
+                    <div className="flex justify-center flex-col text-xs mx-auto gap-y-4 p-[2.5rem] md:text-base md:gap-y-8 md:p-12 md:max-w-lg">
                         {(!isSpecificPlayer && !isOpenMatch) && 
                             <Fragment>
                                 <h2 className="text-xl text-center font-bold tracking-tight text-[#F1F1F9] md:text-2xl">Start a New Match</h2>    
