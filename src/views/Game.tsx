@@ -1,6 +1,8 @@
 //Adding Firebase imports
 import { collection, doc, setDoc, getDoc } from "firebase/firestore"; 
 
+
+
 import { letters, status } from '../constants'
 import { useEffect, useState } from 'react'
 import { useNavigate } from "react-router-dom";
@@ -16,6 +18,7 @@ import { ReactComponent as Info } from '../data/Info.svg'
 import { ReactComponent as Settings } from '../data/Settings.svg'
 import useStore from '../utils/store';
 import { TIMEOUT_DURATION } from '../utils/constants';
+import { ReactComponent as Lobby } from '../data/Lobby.svg'
 const words = require('../data/words').default as { [key: string]: boolean }
 
 const state = {
@@ -413,6 +416,13 @@ function Game() {
             >
               <Settings />
             </button>  */}
+            <button
+              type="button"
+              onClick={() => navigate("/lobby")}
+              className="p-1 rounded-full"
+            >
+              <Lobby />
+            </button> 
             <h1 className="flex-1 text-center text-xl xxs:text-2xl sm:text-4xl tracking-wide font-bold font-righteous">
               Wordles with Friendles
             </h1>
