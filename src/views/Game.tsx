@@ -177,7 +177,7 @@ function Game() {
       case status.gray:
         return 'guesses-style-grey'
       default:
-        return 'guesses-style-default'
+        return 'border guesses-style-default'
     }
   }
 

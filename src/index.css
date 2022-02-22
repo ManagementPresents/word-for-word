@@ -73,4 +73,18 @@ html {
 .modals-style{
   background-color: #3C2A34;
   color: #F1F1F9;
+  box-sizing: border-box;
+  border-width: 1;
+  border-style: solid;
+  border-color: #F1F1F9;
+}
+
+.gray-button-style {
+  background-color: #A0939A;
+  color: #F1F1F9;
+}
+
+.gray-button-hover {
+  background-color: #D9D4D6;
+  color: #3C2A34;
 }

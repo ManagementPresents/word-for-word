@@ -2,6 +2,9 @@ import { ReactComponent as Close } from '../data/Close.svg'
 import Modal from 'react-modal'
 import Fail from '../data/Cross.png'
 
+//adding Firebase imports
+import { collection, doc, setDoc, getDoc } from "firebase/firestore"; 
+
 if (process.env.NODE_ENV !== 'test') Modal.setAppElement('#root')
 
 type Props = {
@@ -69,7 +72,7 @@ export const EndGameModal = ({
         <button
           autoFocus
           type="button"
-          className="rounded-lg px-6 py-2 mt-8 text-lg nm-flat-background dark:nm-flat-background-dark hover:nm-inset-background dark:hover:nm-inset-background-dark text-primary dark:text-primary-dark"
+          className="rounded-lg px-6 py-2 mt-8 text-lg gray-button-style hover:gray-button-hover"
           onClick={playAgain}
         >
           Play Again
@@ -85,9 +88,9 @@ export const EndGameModal = ({
       contentLabel="Game End Modal"
     >
       <div className={darkMode ? 'dark' : ''}>
-        <div className="h-full flex flex-col items-center justify-center max-w-[300px] mx-auto text-primary dark:text-primary-dark">
+        <div className="h-full flex flex-col items-center justify-center max-w-[300px] mx-auto modals-style text-primary">
           <button
-            className="absolute top-4 right-4 rounded-full nm-flat-background dark:nm-flat-background-dark text-primary dark:text-primary-dark p-1 w-6 h-6 sm:p-2 sm:h-8 sm:w-8 hover:nm-inset-background dark:hover:nm-inset-background-dark"
+            className="absolute top-4 right-4 rounded-full gray-button-style text-primary p-1 w-6 h-6 sm:p-2 sm:h-8 sm:w-8 hover:gray-button-hover"
             onClick={handleClose}
           >
             <Close />
@@ -96,54 +99,17 @@ export const EndGameModal = ({
             <>
               <h1 className=" text-3xl">Congrats! 🎉</h1>
               <dl className="mt-5 grid grid-cols-1 gap-5">
-                <div className="rounded-lg p-4 flex-grow relative nm-flat-background dark:nm-flat-background-dark text-primary dark:text-primary-dark">
-                  <dt className="text-sm font-medium truncate">Current Streak</dt>
-                  <dd
-                    className={`mt-1 text-3xl font-semibold ${currentStreakClass(currentStreak)}`}
-                  >
-                    {currentStreak}
-                    {currentStreak >= streakOkayThreshold && '🔥'}
-                    {currentStreak >= streakGoodThreshold && '🔥'}
-                    {currentStreak >= streakGreatThreshold && '🔥'}
-                  </dd>
-                </div>
-
-                {avgGuessesPerGame > 0 && (
-                  <div className="rounded-lg p-4 flex-grow relative nm-flat-background dark:nm-flat-background-dark text-primary dark:text-primary-dark">
-                    <dt className="text-sm font-medium truncate">Avg. guesses in streak</dt>
-                    <dd
-                      className={`mt-1 text-3xl font-semibold ${avgGuessesClass(
-                        avgGuessesPerGame
-                      )}`}
-                    >
-                      {avgGuessesPerGame.toFixed(1)}
-                      {avgGuessesPerGame <= avgGuessesPerGameOkayThreshold && '🔥'}
-                      {avgGuessesPerGame <= avgGuessesPerGameGoodThreshold && '🔥'}
-                      {avgGuessesPerGame <= avgGuessesPerGameGreatThreshold && '🔥'}
-                    </dd>
-                  </div>
-                )}
-
-                <div className="rounded-lg p-4 flex-grow relative nm-flat-background dark:nm-flat-background-dark text-primary dark:text-primary-dark">
-                  <dt className="text-sm font-medium truncate">Longest streak</dt>
-                  <dd className="mt-1 text-3xl font-semibold">{longestStreak}</dd>
-                </div>
+               
               </dl>
             </>
           )}
           {gameState === state.lost && (
             <>
               <img src={Fail} alt="success" height="auto" width="80%" />
-              <div className="text-primary dark:text-primary-dark text-4xl text-center">
+              <div className="text-primary text-4xl text-center">
                 <p>Oops!</p>
                 <p className="mt-3 text-2xl">
                   The word was <strong>{answer}</strong>
-                </p>
-                <p className="mt-6 text-base">
-                  Current streak: <strong>{currentStreak}</strong> {currentStreak > 4 && '🔥'}
-                </p>
-                <p className="text-base">
-                  Longest streak: <strong>{longestStreak}</strong>
                 </p>
               </div>
             </>
