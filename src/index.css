@@ -37,18 +37,28 @@ html {
   background-color: #A0939A; 
 }
 
-.guesses-style-grey{
-  background-color: #3C2A34;
-  color: #F1F1F9;
-}
-
-.guesses-style-green{
+.green-style{
   background-color: #15B097;
   color: #F1F1F9;
 }
 
-.guesses-style-yellow{
+.green-hover {
+  background-color: #19647e;
+  color: #f1f1f9;
+}
+
+.yellow-style{
   background-color: #FFCE47;
+  color: #F1F1F9;
+}
+
+.yellow-hover{
+  background-color: #CBA82A;
+  color: #F1F1F9;
+}
+
+.grey-style{
+  background-color: #3C2A34;
   color: #F1F1F9;
 }
 
@@ -68,6 +78,7 @@ html {
   border-width: 1;
   border-style: solid;
   border-color: red;
+  border-radius: 1px;
 }
 
 .modals-style{
@@ -77,6 +88,7 @@ html {
   border-width: 1;
   border-style: solid;
   border-color: #F1F1F9;
+  @apply flex border-2 rounded-[5rem];
 }
 
 .gray-button-style {
