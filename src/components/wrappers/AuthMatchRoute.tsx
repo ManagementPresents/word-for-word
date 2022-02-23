@@ -1,4 +1,4 @@
-import { doc, collection, getDoc } from "firebase/firestore"; 
+import { doc, collection, getDoc, setDoc } from "firebase/firestore"; 
 
 import { useEffect, useState, } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -41,6 +41,25 @@ const AuthRoute = ({ children, redirectTo, predicate, }: any) => {
                 const match = await getDoc(docRef);
 
                 if (match.exists()) {
+                    const matchData = match.data();
+
+                    if (user.uid === matchData.players.hostId) {
+                        console.log('host tried to enter when it was not their time');
+                        navigate('/');
+                    }
+
+                    if (matchData.players.guestId && user.uid !== matchData.players.guestId) {
+                        console.log(`a potential guest player, but there's already a guest player in here`);
+                        navigate('/');
+                    } 
+
+                    if (!matchData.players.guestId) {
+                        console.log(`not the host, and there's no guest already in here. come on in!`)
+
+                        await setDoc(docRef, { players: { guestId: user.uid }}, { merge: true });
+                    }
+
+
                     console.log('match existed and has room for people');
                     console.log({ match: match.data() });
 

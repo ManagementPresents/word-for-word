@@ -15,11 +15,9 @@ import Login from './Login';
 import Register from './Register';
 import Lobby from './Lobby';
 import Logout from './Logout';
-import MakeUpADude from './MakeUpADude';
 
 import useStore from '../utils/store';
 
-import AuthRoute from '../components/AuthRoute';
 import AuthRedirectRoute from '../components/wrappers/AuthRedirectRoute';
 import AuthMatchRoute from '../components/wrappers/AuthMatchRoute';
 
@@ -50,9 +48,6 @@ const App = ({}: Props) => {
         });
     }, []);
 	
-    const isLoading = useStore((state) => state.isLoading);
-    const { user } = useStore();
-
 	return (
         <BrowserRouter>
             <Routes>
@@ -71,7 +66,6 @@ const App = ({}: Props) => {
                 <Route path="/register" element={<Register />} />
 
                 <Route path="/logout" element={<Logout />} />
-                <Route path="/makeupadude" element={<MakeUpADude />} />
             </Routes>
         </BrowserRouter>
 	)

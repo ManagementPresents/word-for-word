@@ -1,39 +1,44 @@
 import ReactModal from 'react-modal';
-import React, { useEffect, useState, } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Fragment, useEffect, useState, } from 'react';
 
 import useStore from '../utils/store';
 
-const Modal = ({}: any) => {
-    // const isLoading = useStore((state) => state.isLoading);
-    // const { setIsLoading } = useStore();
-    // const { user } = useStore();
-    // const navigate = useNavigate();
+const modalStyle = { 
+    overlay: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center', 
+        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    },
+    // content: {
+    //     width: '750px',
+    //     height: '750px',
+    //     position: 'relative',
+    //     backgroundColor: '#3C2A34',
+    //     border: '0',
+    //     borderRadius: '15%',
+    //     padding: '3rem',
+    //     inset: '0',
+    // },  
+};
 
-    // useEffect(() => {
-    //     setTimeout(() => {
-    //         setIsLoading(false);
+type Props = {
+    isOpen: boolean, 
+    onRequestClose: any,
+    children: any,
+}
 
-    //         if (!useStore.getState().user) {
-    //             // console.log('redirect is triggering');
-    //             navigate(redirectTo);
-    //         } else {
-    //             // console.log('there was a user, and a miracle!', useStore.getState().user);
-    //         }
-
-    //     }, TIMEOUT_DURATION);
-    // // eslint-disable-next-line
-    // }, []);
-
-    // useEffect(() => {
-    //     if (user) setIsLoading(false);
-    // }, [user, setIsLoading]);
-
-    // return isLoading && !user ? <Loading /> : children;
+const Modal = ({ isOpen, onRequestClose, children, }: Props) => {
     return (
-        <ReactModal isOpen={false}>
-            piss
-        </ReactModal>
+            <ReactModal isOpen={isOpen} onRequestClose={onRequestClose} style={modalStyle} className="modals-style">
+                <Fragment>
+                    <i className="fixed top-6 right-6 text-6xl not-italic cursor-pointer transition-all hover:text-zinc-500" onClick={onRequestClose}>X</i>
+
+                    <div className="flex justify-center flex-col text-xs mx-auto gap-y-4 p-[2.5rem] md:text-base md:gap-y-8 md:p-12 md:max-w-lg">
+                        {children}
+                    </div>
+                </Fragment>
+            </ReactModal>
     );
 };
 

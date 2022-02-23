@@ -10,9 +10,10 @@ const renderErrors = (errors: any, className: string) => {
             // @ts-ignore
             return <div className={className}>{error.message}</div>
         });
-    } else {
+    } /* else {
+        // TODO: Revisit how the "no errors" case, here, is handled
         validationMessages.push(<div className={'text-[#15B097] text-sm'}>Looking good!</div>);
-    }
+    }*/
 
     return validationMessages;
 }

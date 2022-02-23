@@ -35,6 +35,9 @@ const MatchCard = ({ match }: Props) => {
                 {renderWordle(match.turns)}
             </div>
 
+            {/* 
+                TODO: Consider making it so that when a host clicks on a match card for a match that hasn't been accepted yet, it shows the match's shareable url 
+            */}
             <button className="gray-button-style font-bold py-2 px-4 rounded w-full">Waiting for opponent</button>
         </div>
     );
