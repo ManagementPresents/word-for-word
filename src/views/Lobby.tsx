@@ -1,16 +1,23 @@
 import { useState, useEffect, Fragment} from 'react'
 import { Default } from 'react-spinners-css';
-import { doc, addDoc, setDoc, } from "firebase/firestore"; 
+import { doc, addDoc, setDoc, updateDoc, arrayUnion, getDoc, } from "firebase/firestore"; 
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import ReactTooltip from 'react-tooltip';
 // import { Link } from "react-router-dom";
 // import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
+import MatchCard from '../components/MatchCard';
 import { validateWordle } from '../utils/validation';
 import ReactModal from 'react-modal';
 import useStore from '../utils/store';
 import { renderErrors } from '../utils/misc';
 import { generateMatchUri } from '../utils/wordUtils';
+import { TIMEOUT_DURATION } from '../utils/constants';
+import Loading from '../components/Loading';
+
+
+import Match  from '../types/Match';
+import { renderMatches } from 'react-router-dom';
 
 type Props = {}
 
@@ -34,7 +41,7 @@ const modalStyle = {
 };
 
 const Lobby = ({}: Props) => {
-    const { user, db } = useStore();
+    const { user, db, matches, setMatches, addMatch, } = useStore();
 
     const [isOpenMatch, setIsOpenMatch] = useState(false);
     const [isSpecificPlayer, setSpecificPlayer] = useState(false);
@@ -45,11 +52,41 @@ const Lobby = ({}: Props) => {
     const [isGenerateLinkReady, setIsGenerateLinkReady] = useState(false);
     const [isGeneratingLink, setIsGeneratingLink] = useState(false);
     const [wordleValidationErrors, setWordleValidationErrors] = useState([]);
+    const [isLoadingMatches, setIsLoadingMatches] = useState(true);
 
     useEffect(() => {
         // @ts-ignore
         handleValidateWordle();
-    }, []);
+
+        if (user && !matches.length) {
+            setIsLoadingMatches(true);
+            
+            const loadingMatchesTimeout = setTimeout(() => {
+                console.log('timeout transpired');
+                setIsLoadingMatches(false);
+            }, TIMEOUT_DURATION);
+
+            (async () => {
+                const playerRef = doc(db, 'players', user.uid);
+                const playerSnap = await getDoc(playerRef);
+        
+                if (playerSnap.exists()) {
+                    const matchIds = playerSnap.data().matches;
+    
+                    const matches: Match[] = await Promise.all(matchIds.map(async (matchId: string): Promise<Match> => {
+                        const matchRef = doc(db, 'matches', matchId);
+                        const matchSnap = await getDoc(matchRef);
+    
+                        return matchSnap.data() as Match;
+                    }));
+    
+                    setMatches(matches);
+                    clearInterval(loadingMatchesTimeout);
+                    setIsLoadingMatches(false);
+                }
+            })();
+        }
+    }, [user]);
 
     const handleModalButtonClick = (selection: string) => {
         if (selection === 'open') {
@@ -62,6 +99,13 @@ const Lobby = ({}: Props) => {
     }
 
     const handleStartNewMatch = () => {
+        // TODO: The idea here is totally reset the game creation modal whenever it is closed. There may be a more elegant way to handle this.
+        setIsOpenMatch(false);
+        setOpenMatchLink('');
+        setIsGenerateLinkReady(false);
+        setIsGeneratingLink(false);
+        setWordle('');
+        setWordleValidationErrors([]);
         setIsModalOpen(true);
     }
 
@@ -79,6 +123,11 @@ const Lobby = ({}: Props) => {
         } else {
             setIsGenerateLinkReady(false);
         }
+    }
+
+    const handleModalClose = () => {
+
+        setIsModalOpen(false);
     }
 
     const handleGenerateLink = async () => {
@@ -101,48 +150,76 @@ const Lobby = ({}: Props) => {
         // });
 
         const generatedUri = generateMatchUri(3);
-
-        const docRef = await setDoc(doc(db, 'matches', generatedUri), {
+        const newMatch: Match = {
             players: {
                 guestId: '',
-                hostId: user.uid,
-                winner: '',
-                turns: [{
-                    activePlayer: '',
-                    currentTurn: true,
-                    guesses: [],
-                    turnState: 'playing',
-                    wordle,
-                }],
-            }
-        });
+                hostId: user.uid
+            },
+            winner: '',
+            turns: [{
+                activePlayer: '',
+                currentTurn: true,
+                guesses: [],
+                turnState: 'playing',
+                wordle,
+            }]
+        }
 
-        console.log('created uri:', generatedUri);
+        await setDoc(doc(db, 'matches', generatedUri), newMatch);
+
+        const playerDocRef = doc(db, 'players', user.uid);
+
+        await updateDoc(playerDocRef, {
+            matches: arrayUnion(generatedUri)
+        })
+        
+        addMatch(newMatch);
 
         setIsGeneratingLink(false);
         // TODO: This setOpenMatchLink thing probably needs to be abstracted
         // @ts-ignore
         setOpenMatchLink(`wordleswithfriendles.com/match/${generatedUri}`); // TODO: Figure out if there's any danger using this ID in the match url
-        // console.log(`new match started with match id: ${docRef.id}`);
     }
 
-    const handleShortTooltip = (e: any) => {
-        const { tip }  = e.target.dataset;
-
-        // TODO: Kludge way to ensure only the 'copied' tooltips go away automatically
-        if (tip.toLowerCase().includes('copied')) {
-            setTimeout(ReactTooltip.hide, 2000);
-        }
+    const renderMatches = (matches: Match[]) => {
+        return matches.map((match) => <MatchCard match={match}/>);
     }
+
+    const handleMatchBox = () => {
+        console.log('handleMatchBox', { isLoadingMatches })
+        if (isLoadingMatches) return <Loading enableCentering={false} />;
+
+        return matches.length ? 
+        <Fragment>
+            {renderMatches(matches)}
+        </Fragment> :
+        <div className="mx-auto max-w-lg">
+            <h2 className="mb-2 text-2xl font-bold tracking-tight text-[#F1F1F9] dark:text-white">You have no currently active matches.</h2>
+
+            <button className="bg-[#15B097] hover:bg-green-700 text-[#F1F1F9] font-bold py-2 px-4 rounded w-full" onClick={handleStartNewMatch}>
+                Start a New Match
+            </button>
+        </div>
+    }
+
+    // TODO: Bring back once you figure out why tooltips prevent the click-copy library from working
+    // const handleShortTooltip = (e: any) => {
+    //     const { tip }  = e.target.dataset;
+
+    //     // TODO: Kludge way to ensure only the 'copied' tooltips go away automatically
+    //     if (tip.toLowerCase().includes('copied')) {
+    //         setTimeout(ReactTooltip.hide, 2000);
+    //     }
+    // }
 
 	return (
         <Fragment>
-            <div className="max-w-6xl flex flex-col gap-y-3 h-full md:gap-x-6 md:flex-row mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                <div className="flex gap-y-2 flex-col p-4 rounded-lg border border-gray-200 shadow-md bg-[#3C2A34] h-max md:basis-4/12">
+            <div className="max-w-7xl flex flex-col gap-y-3 h-full md:gap-x-6 md:flex-row mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <div className="flex flex-col gap-y-2 h-max p-4 rounded-lg border border-gray-200 shadow-md bg-[#3C2A34] md:basis-2/12">
                     <div>
-                        <h3 className="text-2xl font-bold tracking-tight text-[#F1F1F9]">Welcome back,</h3>
+                        <h3 className="text-1xl font-bold tracking-tight text-[#F1F1F9]">Welcome back,</h3>
                         {/* TODO: If email is super long, it'll stretch the page */}
-                        <h2 className="text-3xl font-bold tracking-tight text-[#15B097]">{user?.email}</h2>
+                        <h2 className="text-2xl font-bold tracking-tight text-[#15B097]">{user?.email}</h2>
                     </div>
 
                     <div className="flex flex-col justify-conter font-normal text-gray-700 dark:text-gray-400">
@@ -170,18 +247,13 @@ const Lobby = ({}: Props) => {
                 </div>
 
                 {/* TODO: This basis-[46rem] business is a kludge fix to ensure the layout looks right on moble */}
-                <div className="flex flex-col items-center justify-center overflow-scroll p-6 basis-[46rem] md:basis-8/12 bg-[#3C2A34] rounded-lg border border-gray-200 shadow-md">
-                    <div className="mx-auto max-w-lg">
-                        <h2 className="mb-2 text-2xl font-bold tracking-tight text-[#F1F1F9] dark:text-white">You have no currently active matches.</h2>
-                        <button className="bg-[#15B097] hover:bg-green-700 text-[#F1F1F9] font-bold py-2 px-4 rounded w-full" onClick={handleStartNewMatch}>
-                            Start a New Match
-                        </button>
-                    </div>
+                <div className={`grid grid-cols-1 overflow-y-scroll auto-rows-max p-6 basis-[46rem] bg-[#3C2A34] rounded-lg border border-gray-200 shadow-md gap-y-4 ${matches.length ? '' : 'grid grid-cols-1'} md:basis-10/12 md:grid-cols-1 md:gap-x-4 md:grid-flow-row lg:grid-cols-2`}>
+                    {handleMatchBox()}
                 </div>
             </div>
 
             {/* @ts-ignore */}
-            <ReactModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} style={modalStyle} className="modals-style">
+            <ReactModal isOpen={isModalOpen} onRequestClose={handleModalClose} style={modalStyle} className="modals-style">
                 <Fragment>
                     <i className="fixed top-6 right-6 text-6xl not-italic cursor-pointer transition-all hover:text-zinc-500" onClick={() => setIsModalOpen(false)}>X</i>
 

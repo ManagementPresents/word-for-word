@@ -34,7 +34,7 @@ const AuthRoute = ({ children, redirectTo, predicate, }: any) => {
     }, [user, setIsLoading]);
 
     // console.log({ userId: user });
-    return isLoading && !user ? <Loading /> : children;
+    return isLoading && !user ? <Loading enableCentering={true} /> : children;
 };
 
 export default AuthRoute;

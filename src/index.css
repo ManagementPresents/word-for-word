@@ -11,6 +11,8 @@
 
 /* correct wordle letter: #15B097 */
 
+/* 'waiting for opponent' card color: #caa82a */
+
 #root,
 body,
 html {
@@ -21,23 +23,23 @@ html {
   color: #F1F1F9;
 }
 
-.text-primary{
+.text-primary {
   color: #F1F1F9;
 }
 
-.text-primary-dark{
+.text-primary-dark {
   color: #f1f1f9;
 }
 
-.bg-background{
+.bg-background {
   background-color: #24191F;
 }
 
-.keyboard-style{
+.keyboard-style {
   background-color: #A0939A; 
 }
 
-.green-style{
+.green-style {
   background-color: #15B097;
   color: #F1F1F9;
 }
@@ -47,22 +49,22 @@ html {
   color: #f1f1f9;
 }
 
-.yellow-style{
+.yellow-style {
   background-color: #FFCE47;
   color: #F1F1F9;
 }
 
-.yellow-hover{
+.yellow-hover {
   background-color: #CBA82A;
   color: #F1F1F9;
 }
 
-.grey-style{
+.grey-style {
   background-color: #3C2A34;
   color: #F1F1F9;
 }
 
-.guesses-style-default{
+.guesses-style-default {
   background-color: transparent;
   color: #F1F1F9;
   box-sizing: border-box;
@@ -71,7 +73,7 @@ html {
   border-color: #3C2A34;
 }
 
-.guesses-border-wrong{
+.guesses-border-wrong {
   background-color: transparent;
   color: red;
   box-sizing: border-box;
@@ -81,7 +83,7 @@ html {
   border-radius: 1px;
 }
 
-.modals-style{
+.modals-style {
   background-color: #3C2A34;
   color: #F1F1F9;
   box-sizing: border-box;
@@ -96,7 +98,7 @@ html {
   color: #F1F1F9;
 }
 
-.gray-button-hover {
+.gray-button-style:hover {
   background-color: #D9D4D6;
   color: #3C2A34;
 }

@@ -1,5 +1,4 @@
 import { useEffect, useState, } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { TIMEOUT_DURATION } from '../utils/constants';
 import useStore from '../utils/store';
@@ -28,7 +27,7 @@ const AuthRedirectRoute = ({ authRedirectTarget, noAuthRedirectTarget }: any) =>
         if (user) setIsLoading(false);
     }, [user, setIsLoading]);
 
-    if (isLoading) return <Loading />;
+    if (isLoading) return <Loading enableCentering={true} />;
 
     if (user) return authRedirectTarget;
 
