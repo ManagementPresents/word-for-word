@@ -1,9 +1,9 @@
 // import { Navigate } from 'react-router-dom';
 import { Ripple } from 'react-spinners-css';
 
-const Loading = ({}: any) => {
+const Loading = ({ enableCentering }: any) => {
     return (
-        <div className="grid place-items-center h-screen">
+        <div className={`grid h-screen ${enableCentering ? 'place-items-center' : ''}`}>
             <Ripple size={200} />
         </div>
     );

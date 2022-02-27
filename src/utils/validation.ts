@@ -13,7 +13,7 @@ const validateWordle = (wordle: string) => {
         errors.push('Must be exactly 5 letters.');
     }
 
-    if (!words[wordle]) {
+    if (!words[wordle.toLowerCase()]) {
         errors.push('Not in current word list.');
     }
     

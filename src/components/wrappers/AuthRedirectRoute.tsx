@@ -36,7 +36,7 @@ const AuthRedirectRoute = ({ authRedirectTarget, noAuthRedirectTarget }: any) =>
         isTimedOut
     })
 
-    if (isLoading) return <Loading />;
+    if (isLoading) return <Loading enableCentering={true} />;
 
     if (user) return authRedirectTarget;
 

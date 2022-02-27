@@ -42,6 +42,7 @@ const App = ({}: Props) => {
                 
                 useStore.setState({ user });
             } else {
+                console.log('no user, for some reason');
                 // User is signed out
                 // ...
                 // console.log('no user. signed out. something like that');
