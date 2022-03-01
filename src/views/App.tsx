@@ -55,7 +55,9 @@ const App = ({}: Props) => {
                     <AuthRedirectRoute authRedirectTarget={<Navigate to="/lobby" />} noAuthRedirectTarget={< Login />} />
                 } />
 
-                <Route path="/lobby" element={<Lobby />} />
+                <Route path="/lobby" element={
+                    <AuthRedirectRoute authRedirectTarget={<Navigate to="/lobby" />} noAuthRedirectTarget={< Login />} />
+                } />
 
                 <Route path="/match/:matchId" element={
                     <AuthMatchRoute redirectTo='/'>
