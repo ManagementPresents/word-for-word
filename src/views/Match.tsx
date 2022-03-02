@@ -167,11 +167,11 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
 
     switch (cellStatuses[rowNumber][colNumber]) {
       case status.green:
-        return 'green-style'
+        return 'green'
       case status.yellow:
-        return 'yellow-style'
+        return 'yellow'
       case status.gray:
-        return 'grey-style'
+        return 'gray'
       default:
         return 'border guesses-style-default'
     }
@@ -198,15 +198,20 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
     if (difficultyLevel === difficulty.easy) return [true]
     if (!words[word.toLowerCase()]) return [false, `${word} is not a valid word. Please try again.`]
     if (difficultyLevel === difficulty.normal) return [true]
+
     const guessedLetters = Object.entries(letterStatuses).filter(([letter, letterStatus]) =>
       [status.yellow, status.green].includes(letterStatus)
     )
-    const yellowsUsed = guessedLetters.every(([letter, _]) => word.includes(letter))
+
+
+    const yellowsUsed = guessedLetters.every(([letter, _]) => { return word.includes(letter) })
     const greensUsed = Object.entries(exactGuesses).every(
       ([position, letter]) => word[parseInt(position)] === letter
     )
+
     if (!yellowsUsed || !greensUsed)
       return [false, `In hard mode, you must use all the hints you've been given.`]
+
     return [true]
   }
 
@@ -250,7 +255,7 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
 
   const updateCellStatuses = (word: string, rowNumber: number) => {
       // TODO: Kludge, need to ensure capitalization (or lack thereof) for answers and guesses is standardized
-      word = word.toLowerCase();
+      word = word.toUpperCase();
 
       console.log({ word, answer});
 
@@ -330,10 +335,15 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
   ])
 
   const updateLetterStatuses = (word: string) => {
+    word = word.toUpperCase();
+
     setLetterStatuses((prev: { [key: string]: string }) => {
       const newLetterStatuses = { ...prev }
       const wordLength = word.length
+      
+      console.log({ newLetterStatuses });
       for (let i = 0; i < wordLength; i++) {
+        console.log(newLetterStatuses[word[i]]);
         if (newLetterStatuses[word[i]] === status.green) continue
 
         if (word[i] === answer[i]) {
@@ -454,7 +464,8 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
                     const currentTurn = matchData.turns.find((turn: Turn) => turn.currentTurn);
 
                     if (currentTurn) {
-                        setAnswer(currentTurn.wordle);
+                        // TODO: The capitalization for the wordle needs to be standardized universally, at some point
+                        setAnswer(currentTurn.wordle.toUpperCase());
                     }
 
                     const opponentPlayerDocRef = doc(db, 'players', matchData.players.hostId);

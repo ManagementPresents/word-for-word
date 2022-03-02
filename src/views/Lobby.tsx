@@ -255,7 +255,7 @@ const Lobby = ({}: Props) => {
                             :
                             <div className="flex justify-center flex-col gap-y-2">
                                 <button className="green-style hover:green-hover font-bold py-2 px-4 rounded w-full">Generate Link</button>
-                                <button className="yellow-style hover:yellow-hover text-black font-bold py-2 px-4 rounded w-full" onClick={() => {
+                                <button className="yellow hover:yellow-hover text-black font-bold py-2 px-4 rounded w-full" onClick={() => {
                                     setIsOpenMatch(false);
                                     setSpecificPlayer(false);
                                 }}>Go Back</button>

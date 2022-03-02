@@ -16,7 +16,7 @@ const renderWordle = (turns: Turn[]) => {
     const currentTurn: any = turns.find((turn) => turn.currentTurn);
 
     return currentTurn?.wordle.split('').map((letter: string) => {
-        return <span className="yellow-style h-[40px] w-[40px] text-center leading-[40px]">{letter.toUpperCase()}</span>;
+        return <span className="bg-[#FFCE47] h-[40px] w-[40px] text-center leading-[40px]">{letter.toUpperCase()}</span>;
     });
 }
 

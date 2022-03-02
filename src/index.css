@@ -42,7 +42,7 @@ html {
   background-color: #A0939A; 
 }
 
-.grey-style {
+.grey {
   background-color: #3C2A34;
   color: #F1F1F9;
 }
@@ -76,6 +76,22 @@ html {
   border-color: #F1F1F9;
 }
 
+/* Base color styles */ 
+.green {
+  background-color: #15B097;
+  color: #F1F1F9;
+}
+
+.yellow {
+  background-color: #FFCE47;
+  color: black;
+}
+
+.gray {
+  background-color: #A0939A;
+  color: #F1F1F9;
+}
+
 /* Buttons */
 .gray-button-style {
   background-color: #A0939A;
@@ -99,7 +115,7 @@ html {
 
 .yellow-button-style {
   background-color: #FFCE47;
-  color: black;
+  color: #f1f1f9;
 }
 
 .yellow-button-style:hover {
