@@ -1,6 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* TODO: Probably need a more reliable way to host this font */
+@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
 
 /* TODO: Refactor scss, use variables */
 /* main BG color: #24191F */
@@ -21,6 +23,7 @@ html {
   height: 100vh;
   background-color: #24191F;
   color: #F1F1F9;
+  font-family: 'Anton', sans-serif;
 }
 
 .text-primary {
