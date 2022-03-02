@@ -1,5 +1,5 @@
 import ReactModal from 'react-modal';
-import { Fragment, useEffect, useState, } from 'react';
+import { FC, Fragment, useEffect, useState, } from 'react';
 
 import useStore from '../utils/store';
 
@@ -22,13 +22,13 @@ const modalStyle = {
     // },  
 };
 
-type Props = {
+interface Props {
     isOpen: boolean, 
     onRequestClose: any,
     children: any,
 }
 
-const Modal = ({ isOpen, onRequestClose, children, }: Props) => {
+const Modal: FC<Props> = ({ isOpen, onRequestClose, children, }: Props) => {
     return (
             <ReactModal isOpen={isOpen} onRequestClose={onRequestClose} style={modalStyle} className="modals-style">
                 <Fragment>

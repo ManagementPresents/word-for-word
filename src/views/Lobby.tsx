@@ -111,21 +111,6 @@ const Lobby = ({}: Props) => {
         setIsGeneratingLink(true);
 
         // TODO: Schemas need to be permanently stored and reused
-        // const docRef = await addDoc(collection(db, 'matches'), {
-        //     players: {
-        //         guestId: '',
-        //         hostId: user.uid,
-        //         winner: '',
-        //         turns: [{
-        //             activePlayer: '',
-        //             currentTurn: true,
-        //             guesses: [],
-        //             turnState: 'playing',
-        //             wordle,
-        //         }],
-        //     }
-        // });
-
         const generatedUri = generateMatchUri(3);
         const newMatch: Match = {
             players: {
@@ -155,7 +140,7 @@ const Lobby = ({}: Props) => {
         setIsGeneratingLink(false);
         // TODO: This setOpenMatchLink thing probably needs to be abstracted
         // @ts-ignore
-        setOpenMatchLink(`wordleswithfriendles.com/match/${generatedUri}`); // TODO: Figure out if there's any danger using this ID in the match url
+        setOpenMatchLink(`${process.env.REACT_APP_URL}/match/${generatedUri}`); // TODO: Figure out if there's any danger using this ID in the match url
     }
 
     // TODO: When a new match is made, it should probably load in the first card slot (i.e. it should appear in the top left of the match box on large devices, and at the very top on mobile devices)
