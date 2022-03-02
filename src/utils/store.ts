@@ -16,6 +16,7 @@ interface State {
     currentMatch: Match,
     setOpponentPlayer: any,
     opponentPlayer: Player,
+    setCurrentMatch: any,
 }
 
 const useStore = create<State>((set, get) => ({
@@ -31,6 +32,7 @@ const useStore = create<State>((set, get) => ({
     setMatches: (matches: Match[]) => set({ matches }),
     setIsLoading: (isLoading: boolean) => set({ isLoading }),
     setUser: (user: any) => set({ user }),
+    setCurrentMatch: (match: Match) => set({ currentMatch: match}),
 }));
 
 export default useStore;

@@ -3,14 +3,17 @@ import { doc, collection, getDoc, setDoc } from "firebase/firestore";
 import { useEffect, useState, } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
+import Loading from '../Loading';
+
 import { TIMEOUT_DURATION } from '../../utils/constants';
 import useStore from '../../utils/store';
-import Loading from '../Loading';
+import Match from '../../types/Match';
+
 
 const AuthRoute = ({ children, redirectTo, predicate, }: any) => {
     const isLoading = useStore((state) => state.isLoading);
     const { setIsLoading } = useStore();
-    const { user, db } = useStore();
+    const { user, db, setCurrentMatch, } = useStore();
 
     const navigate = useNavigate();
     const params = useParams();
@@ -41,7 +44,7 @@ const AuthRoute = ({ children, redirectTo, predicate, }: any) => {
                 const match = await getDoc(docRef);
 
                 if (match.exists()) {
-                    const matchData = match.data();
+                    const matchData: Match = match.data() as Match;
 
                     if (user.uid === matchData.players.hostId) {
                         console.log('host tried to enter when it was not their time');
@@ -55,13 +58,8 @@ const AuthRoute = ({ children, redirectTo, predicate, }: any) => {
 
                     if (!matchData.players.guestId) {
                         console.log(`not the host, and there's no guest already in here. come on in!`)
-
-                        await setDoc(docRef, { players: { guestId: user.uid }}, { merge: true });
+                        setCurrentMatch(matchData);
                     }
-
-
-                    console.log('match existed and has room for people');
-                    console.log({ match: match.data() });
 
                     setIsLoading(false);
                     // @ts-ignore
@@ -69,8 +67,6 @@ const AuthRoute = ({ children, redirectTo, predicate, }: any) => {
                 } else {
                     console.log('no such route');
                     navigate(redirectTo);
-                // doc.data() will be undefined in this case
-                    console.log("No such document!");
                 }
 
                 // console.log({ docSnap });

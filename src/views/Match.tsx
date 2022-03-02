@@ -25,7 +25,6 @@ import Player from '../types/Player';
 
 const words = require('../data/words').default as { [key: string]: boolean }
 
-
 const state = {
   playing: 'playing',
   won: 'won',
@@ -404,7 +403,7 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
     /* --- */
     const params = useParams();
 
-    const { db, setOpponentPlayer, opponentPlayer } = useStore();
+    const { db, setOpponentPlayer, opponentPlayer, currentMatch, setCurrentMatch } = useStore();
 
     const [isLandingModalOpen, setIsLandingModalOpen] = useState(true);
     const [isHowToPlayModalOpen, setIsHowToPlayModalOpen] = useState(false);
@@ -419,6 +418,24 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
     const handleGoBackFromHowToPlay = () => {
         setIsHowToPlayModalOpen(false);
         setIsLandingModalOpen(true);
+    }
+
+    const handleAcceptMatch = async () => {
+        const docRef = doc(db, 'matches', currentMatch.id as string);
+
+        /*
+            TODO: This feels stupid. We shouldn't have to follow this with a 'get' just to update the localStore. consider bringin in a firebase listener that, well, listens to changes to the 'matches' collection and automatically updates the store accordingly
+        */
+        await setDoc(docRef, { players: { guestId: user.uid }}, { merge: true });
+        const updatedCurrentMatchSnap = await getDoc(docRef);
+
+        if (updatedCurrentMatchSnap.exists()) {
+            const updatedCurrentMatchData: Match = updatedCurrentMatchSnap.data() as Match;
+
+            setCurrentMatch(updatedCurrentMatchData);
+            setIsHowToPlayModalOpen(false);
+            setIsLandingModalOpen(false);
+        }
     }
 
     useEffect(() => {
@@ -553,7 +570,7 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
                         W
                         </span>
                         
-                        <span>Letter is in word, but in the wrong spot</span>
+                        <span>Letter is in word but in the wrong spot</span>
                     </div>
 
                     <div className="mb-3 flex flex-row items-center gap-x-2">
@@ -576,7 +593,7 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
                 </h1>
 
                 <div className="flex flex-col gap-y-3">
-                    <Button onClick={() => { setIsLandingModalOpen(false) }} copy="Accept" color="green" />
+                    <Button onClick={ handleAcceptMatch } copy="Accept" color="green" />
                     <Button onClick={() => { setIsLandingModalOpen(false) }} copy="Rudely Decline" color="gray" />
                     <Button onClick={() => { setIsLandingModalOpen(false) }} copy="Politely Decline" color="yellowHollow" />
                 </div>
@@ -615,7 +632,7 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
               addLetter={addLetter}
               onEnterPress={onEnterPress}
               onDeletePress={onDeletePress}
-              gameDisabled={gameState !== state.playing || isLandingModalOpen}
+              gameDisabled={gameState !== state.playing || isLandingModalOpen || isHowToPlayModalOpen}
             />
           </div>
         </div>

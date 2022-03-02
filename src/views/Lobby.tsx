@@ -113,6 +113,7 @@ const Lobby = ({}: Props) => {
         // TODO: Schemas need to be permanently stored and reused
         const generatedUri = generateMatchUri(3);
         const newMatch: Match = {
+            id: generatedUri,
             players: {
                 guestId: '',
                 hostId: user.uid
@@ -125,7 +126,7 @@ const Lobby = ({}: Props) => {
                 turnState: 'playing',
                 wordle,
             }]
-        }
+        };
 
         await setDoc(doc(db, 'matches', generatedUri), newMatch);
 
