@@ -1,11 +1,12 @@
 import { Fragment, useEffect, useCallback, useState } from 'react'
 import { getAuth, createUserWithEmailAndPassword, } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore"; 
-import { Default } from 'react-spinners-css';
 // TODO: Should probably replace this with the other 'validator.js' library
 import passwordValidator from 'password-validator';
 import * as EmailValidator from 'email-validator';
 import { useNavigate } from "react-router-dom";
+
+import LoadingButton from '../components/buttons/LoadingButton';
 
 import { renderErrors } from '../utils/misc';
 import useStore from '../utils/store';
@@ -91,39 +92,6 @@ const Register = ({}: Props) => {
 			// @ts-ignore
 			setServerErrors(serverErrors);
 		}
-
-
-		
-		/* 
-		createUserWithEmailAndPassword(auth, email, password)
-		.then((userCredential) => {
-			const { user } = userCredential;
-
-			console.log('newly registered user', { uid: user.uid })
-
-			await setDoc(doc(db, 'players', user.uid), {
-				matches: [],
-			});
-
-			// useStore.setState({ user });
-			setUser(user);
-			navigate('/');
-		})
-		.catch((error) => {
-			const { code } = error;
-
-			let serverErrors = [];
-
-			if (code.includes('auth/email-already-in-use')) {
-				serverErrors.push({ message: 'Email is already in use.' });
-			}
-
-			if (serverErrors.length) setIsRegistering(false);
-
-			// @ts-ignore
-			setServerErrors(serverErrors);
-		});
-		*/
 	}
 
 	const isValidEmail = () => {
@@ -201,10 +169,7 @@ const Register = ({}: Props) => {
 					{renderErrors(validationErrors, 'text-red-600 text-sm')}
 				</div>
 
-				{/* TODO: Abstract this into a SubmitButton component */}
-				<button disabled={!isRegistrationReady} onClick={handleRegistration} className={`bg-blue-500 text-white font-bold py-2 px-4 rounded flex items-center justify-center gap-x-1.5 ${isRegistrationReady ? 'hover:bg-blue-700' : 'opacity-50 cursor-not-allowed'} ${isRegistering ? 'opacity-50 cursor-not-allowed' : ''}`}>
-					{isRegistering ? <Fragment><span>Registering...</span> <Default color="#fff" size={20}/></Fragment> : <span>Sign Up with Email</span>}
-				</button>
+				<LoadingButton onClick={handleRegistration} copy={'Sign Up'} isLoadingCopy={"Registering..."} disabled={!isRegistrationReady} isLoading={isRegistering} color={"green"} />
 
 				<div className="flex flex-col">
 					{renderErrors(serverErrors, 'text-blue-600 text-sm')}
