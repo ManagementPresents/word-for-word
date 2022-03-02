@@ -39,26 +39,6 @@ html {
   background-color: #A0939A; 
 }
 
-.green-style {
-  background-color: #15B097;
-  color: #F1F1F9;
-}
-
-.green-hover {
-  background-color: #19647e;
-  color: #f1f1f9;
-}
-
-.yellow-style {
-  background-color: #FFCE47;
-  color: #F1F1F9;
-}
-
-.yellow-hover {
-  background-color: #CBA82A;
-  color: #F1F1F9;
-}
-
 .grey-style {
   background-color: #3C2A34;
   color: #F1F1F9;
@@ -84,15 +64,16 @@ html {
 }
 
 .modals-style {
+  @apply flex border-2 rounded-[3rem];
   background-color: #3C2A34;
   color: #F1F1F9;
   box-sizing: border-box;
   border-width: 1;
   border-style: solid;
   border-color: #F1F1F9;
-  @apply flex border-2 rounded-[5rem];
 }
 
+/* Buttons */
 .gray-button-style {
   background-color: #A0939A;
   color: #F1F1F9;
@@ -101,4 +82,45 @@ html {
 .gray-button-style:hover {
   background-color: #D9D4D6;
   color: #3C2A34;
+}
+
+.green-button-style {
+  background-color: #15B097;
+  color: #F1F1F9;
+}
+
+.green-button-style:hover {
+  background-color: #19647e;
+  color: #f1f1f9;
+}
+
+.yellow-button-style {
+  background-color: #FFCE47;
+  color: #F1F1F9;
+}
+
+.yellow-button-style:hover {
+  background-color: #CBA82A;
+  color: black;
+}
+
+.yellow-button-style--hollow {
+  background-color: transparent;
+  border: solid 2px #FFCE47;
+  color: #FFCE47;
+}
+
+.yellow-button-style--hollow:hover {
+  background-color: #FFCE47;
+  color: black;
+}
+
+/* Text styles */
+.yellow-link {
+  color: #FFCE47;
+  cursor: pointer;
+}
+
+.yellow-link:hover {
+  color: #CBA82A;
 }

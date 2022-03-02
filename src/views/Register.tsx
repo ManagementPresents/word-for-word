@@ -67,10 +67,8 @@ const Register = ({}: Props) => {
 
 			const newPlayer: Player = {
 				matches: [],
-				email: ''
+				email: user.email as string,
 			};
-
-			console.log('new user', { user });
 
 			await setDoc(doc(db, 'players', user.uid), newPlayer);
 

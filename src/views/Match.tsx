@@ -10,16 +10,21 @@ import { Keyboard } from '../components/Keyboard'
 import { SettingsModal } from '../components/SettingsModal'
 import Modal from '../components/Modal';
 import Loading from '../components/Loading';
+import Button from '../components/buttons/Button';
 
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import { ReactComponent as Info } from '../data/Info.svg'
 import { ReactComponent as Settings } from '../data/Settings.svg'
 import useStore from '../utils/store';
 import { ReactComponent as Lobby } from '../data/Lobby.svg'
-import { classicNameResolver } from "typescript";
 import Turn from "../types/Turn";
 
+/* --- */
+import Match from '../types/Match';
+import Player from '../types/Player';
+
 const words = require('../data/words').default as { [key: string]: boolean }
+
 
 const state = {
   playing: 'playing',
@@ -399,9 +404,10 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
     /* --- */
     const params = useParams();
 
-    const { db } = useStore();
+    const { db, setOpponentPlayer, opponentPlayer } = useStore();
 
     const [isLandingModalOpen, setIsLandingModalOpen] = useState(true);
+    const [isHowToPlayModalOpen, setIsHowToPlayModalOpen] = useState(false);
     const [answer, setAnswer] = useState('');
     const [board, setBoard] = useState(initialStates.board);
 
@@ -411,13 +417,26 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
                 const matchDocRef = doc(db, 'matches', params.matchId || '');
                 const matchDocSnap = await getDoc(matchDocRef);
 
+                /*
+                    TODO: There's probably a neater way to handle multiple, sequential,
+                    doc retrievals. Something like 'async.parallel', but for awaits
+                */
                 if (matchDocSnap.exists()) {
-                    const matchData = matchDocSnap.data();
+                    const matchData: Match = matchDocSnap.data() as Match;
 
                     const currentTurn = matchData.turns.find((turn: Turn) => turn.currentTurn);
 
                     if (currentTurn) {
                         setAnswer(currentTurn.wordle);
+                    }
+
+                    const opponentPlayerDocRef = doc(db, 'players', matchData.players.hostId);
+                    const opponentPlayerSnap = await getDoc(opponentPlayerDocRef);
+
+                    if (opponentPlayerSnap.exists()) {
+                        const opponentPlayerData: Player = opponentPlayerSnap.data() as Player;
+
+                        setOpponentPlayer(opponentPlayerData);
                     }
                 }
             }
@@ -493,7 +512,7 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
             </div>
           </div>
 
-            <Modal isOpen={isLandingModalOpen} onRequestClose={() => { setIsLandingModalOpen(false) }}>
+            <Modal isOpen={isHowToPlayModalOpen} onRequestClose={() => { setIsHowToPlayModalOpen(false) }}>
                 <div className="flex flex-col gap-y-3">
                     <h1 className="text-center sm:text-3xl text-2xl">How to Play</h1>
 
@@ -534,6 +553,23 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
                     </div>
 
                     <button className="green-style hover:green-hover font-bold py-2 px-4 rounded w-full" onClick={() => setIsLandingModalOpen(false)}>Got It!</button>
+                </div>
+            </Modal>
+
+            <Modal isOpen={isLandingModalOpen} onRequestClose={() => { setIsLandingModalOpen(false) }}>
+                {/* TODO: Think about using a random "fighting words" generator here */}
+                <h1 className="text-2xl text-center">
+                    <span className="text-[#15B097] block">{opponentPlayer.email}</span> is spoiling for a donnybrook!
+                </h1>
+
+                <div className="flex flex-col gap-y-3">
+                    <Button onClick={() => { setIsLandingModalOpen(false) }} copy="Accept" color="green" />
+                    <Button onClick={() => { setIsLandingModalOpen(false) }} copy="Rudely Decline" color="gray" />
+                    <Button onClick={() => { setIsLandingModalOpen(false) }} copy="Politely Decline" color="yellowHollow" />
+                </div>
+
+                <div className="flex flex-row gap-x-1 justify-center">
+                    Not sure what this is? <span className="yellow-link">Check out how to play.</span>
                 </div>
             </Modal>
 
