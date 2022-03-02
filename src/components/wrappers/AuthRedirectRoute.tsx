@@ -19,7 +19,6 @@ const AuthRedirectRoute = ({ authRedirectTarget, noAuthRedirectTarget }: any) =>
             if (!useStore.getState().user) {
                 console.log('timed out auth redirect');
                 setIsTimedOut(true);
-                console.log('hm')
             }
 
         }, TIMEOUT_DURATION);
@@ -30,11 +29,6 @@ const AuthRedirectRoute = ({ authRedirectTarget, noAuthRedirectTarget }: any) =>
         if (user) setIsLoading(false);
     }, [user, setIsLoading]);
 
-    console.log({
-        isLoading,
-        user,
-        isTimedOut
-    })
 
     if (isLoading) return <Loading enableCentering={true} />;
 

@@ -1,16 +1,26 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
+const {
+    REACT_APP_API_KEY,
+    REACT_APP_AUTH_DOMAIN,
+    REACT_APP_PROJECT_ID,
+    REACT_APP_STORAGE_BUCKET,
+    REACT_APP_MESSAGING_SENDER_ID,
+    REACT_APP_APP_ID,
+    REACT_APP_MEASUREMENT_ID,
+} = process.env;
+
 const initializeFirebase = () => {
     const firebaseConfig = {
-        apiKey: "AIzaSyA3waUAJOpVscK8WnLcXwZbdtVPa3In4ug",
-        authDomain: "wordle-with-friends-6cb40.firebaseapp.com",
-        projectId: "wordle-with-friends-6cb40",
-        storageBucket: "wordle-with-friends-6cb40.appspot.com",
-        messagingSenderId: "233401216366",
-        appId: "1:233401216366:web:656d3e228ba2944b10257f",
-        measurementId: "G-Z4JH3TXSQF"
-      };
+        apiKey: REACT_APP_API_KEY,
+        authDomain: REACT_APP_AUTH_DOMAIN,
+        projectId: REACT_APP_PROJECT_ID,
+        storageBucket: REACT_APP_STORAGE_BUCKET,
+        messagingSenderId: REACT_APP_MESSAGING_SENDER_ID,
+        appId: REACT_APP_APP_ID,
+        measurementId: REACT_APP_MEASUREMENT_ID,
+      };    
       
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);

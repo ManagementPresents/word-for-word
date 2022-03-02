@@ -1,25 +1,24 @@
 //Adding Firebase imports
 import { collection, doc, setDoc, getDoc } from "firebase/firestore"; 
 
-
-
 import { letters, status } from '../constants'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from "react-router-dom";
 
 import { EndGameModal } from '../components/EndGameModal'
-import { InfoModal } from '../components/InfoModal'
-import { InputModal } from '../components/InputModal';
 import { Keyboard } from '../components/Keyboard'
 import { SettingsModal } from '../components/SettingsModal'
+import Modal from '../components/Modal';
 import Loading from '../components/Loading';
-import answers from '../data/answers'
+
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import { ReactComponent as Info } from '../data/Info.svg'
 import { ReactComponent as Settings } from '../data/Settings.svg'
 import useStore from '../utils/store';
-import { TIMEOUT_DURATION } from '../utils/constants';
 import { ReactComponent as Lobby } from '../data/Lobby.svg'
+import { classicNameResolver } from "typescript";
+import Turn from "../types/Turn";
+
 const words = require('../data/words').default as { [key: string]: boolean }
 
 const state = {
@@ -75,16 +74,16 @@ function Game() {
     submittedInvalidWord: false,
   }
 
-  // const [answer, setAnswer] = useLocalStorage('stateAnswer', initialStates.answer())
-  const [answer, setAnswer] = useState('');
   // const [gameState, setGameState] = useLocalStorage('stateGameState', initialStates.gameState)
   const [gameState, setGameState] = useState('playing');
   //TO-DO: replace Local Storage with the string that exists in Firebase
-  const [board, setBoard] = useLocalStorage('stateBoard', initialStates.board)
-  const [cellStatuses, setCellStatuses] = useLocalStorage(
-    'stateCellStatuses',
-    initialStates.cellStatuses
-  )
+//   const [board, setBoard] = useLocalStorage('stateBoard', initialStates.board)
+//   const [cellStatuses, setCellStatuses] = useLocalStorage(
+//     'stateCellStatuses',
+//     initialStates.cellStatuses
+//   )
+const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
+
   //TO-DO: Replace Local Storage
   const [currentRow, setCurrentRow] = useLocalStorage('stateCurrentRow', initialStates.currentRow)
   const [currentCol, setCurrentCol] = useLocalStorage('stateCurrentCol', initialStates.currentCol)
@@ -107,7 +106,7 @@ function Game() {
     'guesses-in-streak',
     firstTime ? 0 : -1
   )
-  const [infoModalIsOpen, setInfoModalIsOpen] = useState(firstTime)
+//   const [infoModalIsOpen, setInfoModalIsOpen] = useState(firstTime)
   const [inputModalIsOpen, setInputModalIsOpen] = useState(true);
   const [settingsModalIsOpen, setSettingsModalIsOpen] = useState(false)
   //To-Do: Remove "Difficulty"
@@ -151,17 +150,6 @@ function Game() {
       }, 500)
     }
   }, [gameState])
-
-
-  //To-Do: Might need to change based on how our "join a game" flow ends up being
- const handleInfoClose = () => {
-  setFirstTime(false)
-    setInfoModalIsOpen(false)
-   }
-
-  const handleInputClose = () => {
-    setInputModalIsOpen(false);
-  }
 
   const getCellStyles = (rowNumber: number, colNumber: number, letter: string) => {
     if (rowNumber === currentRow) {
@@ -257,6 +245,11 @@ function Game() {
   }
 
   const updateCellStatuses = (word: string, rowNumber: number) => {
+      // TODO: Kludge, need to ensure capitalization (or lack thereof) for answers and guesses is standardized
+      word = word.toLowerCase();
+
+      console.log({ word, answer});
+
     const fixedLetters: { [key: number]: string } = {}
     setCellStatuses((prev: any) => {
       const newCellStatuses = [...prev]
@@ -403,6 +396,34 @@ function Game() {
     },
   }
 
+    /* --- */
+    const params = useParams();
+
+    const { db } = useStore();
+
+    const [isLandingModalOpen, setIsLandingModalOpen] = useState(true);
+    const [answer, setAnswer] = useState('');
+    const [board, setBoard] = useState(initialStates.board);
+
+    useEffect(() => {
+        (async () => {
+            if (user) {
+                const matchDocRef = doc(db, 'matches', params.matchId || '');
+                const matchDocSnap = await getDoc(matchDocRef);
+
+                if (matchDocSnap.exists()) {
+                    const matchData = matchDocSnap.data();
+
+                    const currentTurn = matchData.turns.find((turn: Turn) => turn.currentTurn);
+
+                    if (currentTurn) {
+                        setAnswer(currentTurn.wordle);
+                    }
+                }
+            }
+        })();
+    }, [user]);
+
   if (isLoading) {
     return <Loading />
   } else {
@@ -427,13 +448,13 @@ function Game() {
             <h1 className="flex-1 text-center text-xl xxs:text-2xl sm:text-4xl tracking-wide font-bold font-righteous">
               Wordles with Friendles
             </h1>
-            <button
+            {/* <button
               type="button"
               onClick={() => setInfoModalIsOpen(true)}
               className="p-1 rounded-full"
             >
               <Info />
-            </button> 
+            </button>  */}
           </header>
           <div className="flex items-center flex-col py-3 flex-1 justify-center relative">
             <div className="relative">
@@ -471,21 +492,51 @@ function Game() {
               </div>
             </div>
           </div>
-          <InfoModal
-            isOpen={infoModalIsOpen}
-            handleClose={handleInfoClose}
-            darkMode={darkMode}
-            styles={modalStyles}
-          /> 
-          <InputModal
-            isOpen={inputModalIsOpen}
-            handleClose={handleInputClose}
-            darkMode={darkMode}
-            setAnswer={setAnswer}
-            styles={modalStyles}
-            answers={answers}
-            setInputModalIsOpen={setInputModalIsOpen}
-          />
+
+            <Modal isOpen={isLandingModalOpen} onRequestClose={() => { setIsLandingModalOpen(false) }}>
+                <div className="flex flex-col gap-y-3">
+                    <h1 className="text-center sm:text-3xl text-2xl">How to Play</h1>
+
+                    <ul className="list-disc pl-5 block sm:text-base text-sm">
+                        <li className="mt-6 mb-2">You have 6 guesses to guess the correct word.</li>
+                        <li className="mb-2">You can guess any valid word.</li>
+                        <li className="mb-2">Alternately, you can just have fun generating 3-word urls and making up stories about them. We definitely spent a late night in development doing that. Highly reccomend.</li>
+                        <li className="mb-2">
+                        After each guess, each letter will turn green, yellow, or gray.
+                        </li>
+                    </ul>
+
+                    <div className="mb-3 mt-5 flex items-center">
+                        <span className="nm-inset-n-green text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10 rounded-full">
+                        W
+                        </span>
+
+                        <span className="mx-2">=</span>
+                        <span>Correct letter, correct spot</span>
+                    </div>
+
+                    <div className="mb-3">
+                        <span className="nm-inset-yellow-500 text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10 rounded-full">
+                        W
+                        </span>
+                        
+                        <span className="mx-2">=</span>
+                        <span>Correct letter, wrong spot</span>
+                    </div>
+
+                    <div className="mb-3">
+                        <span className="nm-inset-n-gray text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10 rounded-full">
+                            W
+                        </span>
+
+                        <span className="mx-2">=</span>
+                        <span>Wrong letter</span>
+                    </div>
+
+                    <button className="green-style hover:green-hover font-bold py-2 px-4 rounded w-full" onClick={() => setIsLandingModalOpen(false)}>Got It!</button>
+                </div>
+            </Modal>
+
           <EndGameModal
             isOpen={modalIsOpen}
             handleClose={closeModal}
@@ -515,7 +566,7 @@ function Game() {
               addLetter={addLetter}
               onEnterPress={onEnterPress}
               onDeletePress={onDeletePress}
-              gameDisabled={gameState !== state.playing || inputModalIsOpen}
+              gameDisabled={gameState !== state.playing || isLandingModalOpen}
             />
           </div>
         </div>

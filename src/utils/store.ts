@@ -1,4 +1,3 @@
-import { matchRoutes } from 'react-router-dom';
 import create from 'zustand';
 
 import Match from '../types/Match';
@@ -12,6 +11,8 @@ type State = {
     app: any,
     matches: Match[],
     addMatch: any,
+    setUser: any,
+    currentMatch: Match,
 }
 
 const useStore = create<State>((set, get) => ({
@@ -19,6 +20,7 @@ const useStore = create<State>((set, get) => ({
     isLoading: true,
     db: null,
     app: null,
+    currentMatch: {} as Match,
     matches: [] as Match[],
     addMatch: (match: Match) => set({ matches: get().matches.concat(match) }),
     setMatches: (matches: Match[]) => set({ matches }),

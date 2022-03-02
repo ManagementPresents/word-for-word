@@ -1,44 +1,22 @@
 import { useState, useEffect, Fragment} from 'react'
 import { Default } from 'react-spinners-css';
-import { doc, addDoc, setDoc, updateDoc, arrayUnion, getDoc, } from "firebase/firestore"; 
+import { doc, setDoc, updateDoc, arrayUnion, getDoc, } from "firebase/firestore"; 
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import ReactTooltip from 'react-tooltip';
-// import { Link } from "react-router-dom";
-// import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 import MatchCard from '../components/MatchCard';
+import Loading from '../components/Loading';
+import Modal from '../components/Modal';
+
 import { validateWordle } from '../utils/validation';
-import ReactModal from 'react-modal';
 import useStore from '../utils/store';
 import { renderErrors } from '../utils/misc';
 import { generateMatchUri } from '../utils/wordUtils';
 import { TIMEOUT_DURATION } from '../utils/constants';
-import Loading from '../components/Loading';
-
-
 import Match  from '../types/Match';
-import { renderMatches } from 'react-router-dom';
+
 
 type Props = {}
-
-const modalStyle = { 
-    overlay: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center', 
-        backgroundColor: 'rgba(0, 0, 0, 0.75)',
-    },
-    // content: {
-    //     width: '750px',
-    //     height: '750px',
-    //     position: 'relative',
-    //     backgroundColor: '#3C2A34',
-    //     border: '0',
-    //     borderRadius: '15%',
-    //     padding: '3rem',
-    //     inset: '0',
-    // },  
-};
 
 const Lobby = ({}: Props) => {
     const { user, db, matches, setMatches, addMatch, } = useStore();
@@ -126,7 +104,6 @@ const Lobby = ({}: Props) => {
     }
 
     const handleModalClose = () => {
-
         setIsModalOpen(false);
     }
 
@@ -181,6 +158,7 @@ const Lobby = ({}: Props) => {
         setOpenMatchLink(`wordleswithfriendles.com/match/${generatedUri}`); // TODO: Figure out if there's any danger using this ID in the match url
     }
 
+    // TODO: When a new match is made, it should probably load in the first card slot (i.e. it should appear in the top left of the match box on large devices, and at the very top on mobile devices)
     const renderMatches = (matches: Match[]) => {
         return matches.map((match) => <MatchCard match={match}/>);
     }
@@ -253,103 +231,97 @@ const Lobby = ({}: Props) => {
             </div>
 
             {/* @ts-ignore */}
-            <ReactModal isOpen={isModalOpen} onRequestClose={handleModalClose} style={modalStyle} className="modals-style">
-                <Fragment>
-                    <i className="fixed top-6 right-6 text-6xl not-italic cursor-pointer transition-all hover:text-zinc-500" onClick={() => setIsModalOpen(false)}>X</i>
+            <Modal isOpen={isModalOpen} onRequestClose={handleModalClose}>
+                {(!isSpecificPlayer && !isOpenMatch) && 
+                    <Fragment>
+                        <h2 className="text-xl text-center font-bold tracking-tight text-[#F1F1F9] md:text-2xl">Start a New Match</h2>    
 
-                    <div className="flex justify-center flex-col text-xs mx-auto gap-y-4 p-[2.5rem] md:text-base md:gap-y-8 md:p-12 md:max-w-lg">
-                        {(!isSpecificPlayer && !isOpenMatch) && 
-                            <Fragment>
-                                <h2 className="text-xl text-center font-bold tracking-tight text-[#F1F1F9] md:text-2xl">Start a New Match</h2>    
+                        <p>blah blah blah basic rules/instructions.</p>
 
-                                <p>blah blah blah basic rules/instructions.</p>
+                        <button data-tip="This mode is not yet available. Check back soon!" className={'yellow-style font-bold py-2 px-4 rounded w-full opacity-50 cursor-not-allowed'} onClick={(e) => {
+                            e.preventDefault();
+                            return;
+                            //  handleModalButtonClick('specific') 
+                            }}>Invite Specific Player</button>
 
-                                <button data-tip="This mode is not yet available. Check back soon!" className={'yellow-style font-bold py-2 px-4 rounded w-full opacity-50 cursor-not-allowed'} onClick={(e) => {
-                                    e.preventDefault();
-                                    return;
-                                    //  handleModalButtonClick('specific') 
-                                    }}>Invite Specific Player</button>
+                        <button className={'green-style hover:green-hover font-bold py-2 px-4 rounded w-full'} onClick={() => { handleModalButtonClick('open') }}>Create Open Match</button>
 
-                                <button className={'green-style hover:green-hover font-bold py-2 px-4 rounded w-full'} onClick={() => { handleModalButtonClick('open') }}>Create Open Match</button>
+                        <ReactTooltip effect='solid' type='dark' />
+                    </Fragment>
+                }
+                {isSpecificPlayer && 
+                    <Fragment>
+                        <h2 className="text-xl text-center font-bold tracking-tight text-[#F1F1F9] md:text-2xl">Invite Specific Player</h2>   
 
-                                <ReactTooltip effect='solid' type='dark' />
-                            </Fragment>
+                        <p>Get a match link only you and a specific player can use.</p>
+
+                        <div className="flex justify-center flex-col">
+                            <span>Your Word</span>
+                            <input type="text" className="text-black"></input>
+                        </div>
+
+                        <div className="flex justify-center flex-col">
+                            <span>Enter user email</span>
+                            <input type="text" className="text-black pd-2" placeholder="User's email"></input>
+                        </div> 
+
+                        {specificMatchLink ?
+                            <input type="text" />
+                            :
+                            <div className="flex justify-center flex-col gap-y-2">
+                                <button className="green-style hover:green-hover font-bold py-2 px-4 rounded w-full">Generate Link</button>
+                                <button className="yellow-style hover:yellow-hover text-black font-bold py-2 px-4 rounded w-full" onClick={() => {
+                                    setIsOpenMatch(false);
+                                    setSpecificPlayer(false);
+                                }}>Go Back</button>
+                            </div>
                         }
-                        {isSpecificPlayer && 
-                            <Fragment>
-                                <h2 className="text-xl text-center font-bold tracking-tight text-[#F1F1F9] md:text-2xl">Invite Specific Player</h2>   
+                    </Fragment>
+                }
 
-                                <p>Get a match link only you and a specific player can use.</p>
+                {isOpenMatch && 
+                    <Fragment>  
+                        <h2 className="text-xl text-center font-bold tracking-tight text-[#F1F1F9] md:text-2xl">Create Open Match</h2>   
 
-                                <div className="flex justify-center flex-col">
-                                    <span>Your Word</span>
-                                    <input type="text" className="text-black"></input>
-                                </div>
+                        <p>Play with the first person who opens the link!</p>
 
-                                <div className="flex justify-center flex-col">
-                                    <span>Enter user email</span>
-                                    <input type="text" className="text-black pd-2" placeholder="User's email"></input>
-                                </div> 
+                        <div className="flex justify-center flex-col gap-y-2">
+                            <span>Your Word</span>
+                            
+                            <input type="text" className={`text-black ${wordleValidationErrors.length ? 'border-red-500 focus:border-red-500 focus:ring-red-500': 'border-[#15B097] focus:border-[#15B097] focus:ring-[#15B097]'}`} placeholder="Enter a word" onChange={handleValidateWordle}></input>
+                            {renderErrors(wordleValidationErrors, 'text-red-500 text-sm')}
+                        </div>
 
-                                {specificMatchLink ?
-                                    <input type="text" />
-                                    :
-                                    <div className="flex justify-center flex-col gap-y-2">
-                                        <button className="green-style hover:green-hover font-bold py-2 px-4 rounded w-full">Generate Link</button>
-                                        <button className="yellow-style hover:yellow-hover text-black font-bold py-2 px-4 rounded w-full" onClick={() => {
-                                            setIsOpenMatch(false);
-                                            setSpecificPlayer(false);
-                                        }}>Go Back</button>
-                                    </div>
-                                }
-                            </Fragment>
-                        }
+                        <div className={`flex justify-center flex-col ${openMatchLink ? 'gap-y-6' : 'gap-y-3'}`}>
+                            {/* TODO: Might want to abstract into 'submit button' component */}
+                            {openMatchLink ? 
+                                <div className="flex flex-col gap-y-2">
+                                    <CopyToClipboard text={openMatchLink}>
+                                        <input type="text" readOnly value={openMatchLink} className="text-black cursor-pointer" data-tip="Copied!" data-place="right" /> 
+                                    </CopyToClipboard>
 
-                        {isOpenMatch && 
-                            <Fragment>  
-                                <h2 className="text-xl text-center font-bold tracking-tight text-[#F1F1F9] md:text-2xl">Create Open Match</h2>   
-
-                                <p>Play with the first person who opens the link!</p>
-
-                                <div className="flex justify-center flex-col gap-y-2">
-                                    <span>Your Word</span>
-                                    
-                                    <input type="text" className={`text-black ${wordleValidationErrors.length ? 'border-red-500 focus:border-red-500 focus:ring-red-500': 'border-[#15B097] focus:border-[#15B097] focus:ring-[#15B097]'}`} placeholder="Enter a word" onChange={handleValidateWordle}></input>
-                                    {renderErrors(wordleValidationErrors, 'text-red-500 text-sm')}
-                                </div>
-
-                                <div className={`flex justify-center flex-col ${openMatchLink ? 'gap-y-6' : 'gap-y-3'}`}>
-                                    {/* TODO: Might want to abstract into 'submit button' component */}
-                                    {openMatchLink ? 
-                                        <div className="flex flex-col gap-y-2">
-                                            <CopyToClipboard text={openMatchLink}>
-                                                <input type="text" readOnly value={openMatchLink} className="text-black cursor-pointer" data-tip="Copied!" data-place="right" /> 
-                                            </CopyToClipboard>
-
-                                            <CopyToClipboard text={openMatchLink}>
-                                                <button className={`bg-[#15B097] text-[#F1F1F9] font-bold py-2 px-4 rounded w-full hover:bg-green-700`} data-tip="Copied!" data-place="right">
-                                                    Copy Link
-                                                </button>
-                                            </CopyToClipboard>
-
-                                            {/* TODO: Bad interaction with copy to clipboard ): */}
-                                            {/* <ReactTooltip event='click' effect='solid' type='dark' afterShow={handleShortTooltip} /> */}
-                                        </div>
-                                        :                                     
-                                        <button disabled={!isGenerateLinkReady} onClick={handleGenerateLink} className={`bg-[#15B097] text-[#F1F1F9] font-bold py-2 px-4 rounded w-full ${isGenerateLinkReady && !isGeneratingLink ? 'hover:bg-green-700' : 'opacity-50 cursor-not-allowed'} ${!isGenerateLinkReady ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                            {isGeneratingLink ? <Fragment><span>Generating...</span> <Default color="#fff" size={20}/></Fragment> : <span>Generate Link</span>}
+                                    <CopyToClipboard text={openMatchLink}>
+                                        <button className={`bg-[#15B097] text-[#F1F1F9] font-bold py-2 px-4 rounded w-full hover:bg-green-700`} data-tip="Copied!" data-place="right">
+                                            Copy Link
                                         </button>
-                                    }
-                                    <button className="bg-[#FFCE47] hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded w-full" onClick={() => {
-                                        setIsOpenMatch(false);
-                                        setSpecificPlayer(false);
-                                    }}>Go Back</button>
+                                    </CopyToClipboard>
+
+                                    {/* TODO: Bad interaction with copy to clipboard ): */}
+                                    {/* <ReactTooltip event='click' effect='solid' type='dark' afterShow={handleShortTooltip} /> */}
                                 </div>
-                            </Fragment>
-                        }
-                    </div>
-                </Fragment>
-            </ReactModal>
+                                :                                     
+                                <button disabled={!isGenerateLinkReady} onClick={handleGenerateLink} className={`bg-[#15B097] text-[#F1F1F9] font-bold py-2 px-4 rounded w-full ${isGenerateLinkReady && !isGeneratingLink ? 'hover:bg-green-700' : 'opacity-50 cursor-not-allowed'} ${!isGenerateLinkReady ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                    {isGeneratingLink ? <Fragment><span>Generating...</span> <Default color="#fff" size={20}/></Fragment> : <span>Generate Link</span>}
+                                </button>
+                            }
+                            <button className="bg-[#FFCE47] hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded w-full" onClick={() => {
+                                setIsOpenMatch(false);
+                                setSpecificPlayer(false);
+                            }}>Go Back</button>
+                        </div>
+                    </Fragment>
+                }
+            </Modal>
         </Fragment>
 	)
 }

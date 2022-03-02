@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useCallback, useState } from 'react'
 import { getAuth, createUserWithEmailAndPassword, } from "firebase/auth";
+import { collection, doc, setDoc } from "firebase/firestore"; 
 import { Default } from 'react-spinners-css';
 // TODO: Should probably replace this with the other 'validator.js' library
 import passwordValidator from 'password-validator';
@@ -8,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 import { renderErrors } from '../utils/misc';
 import useStore from '../utils/store';
+import { FirebaseError } from 'firebase/app';
 
 const passwordRequirements = new passwordValidator();
 
@@ -39,9 +41,11 @@ const Register = ({}: Props) => {
 	const [validationErrors, setValidationErrors] = useState([]);
 	const [serverErrors, setServerErrors] = useState([]);
 
+	const { db, setUser } = useStore();
+
 	const navigate = useNavigate();
 
-	const handleRegistration = () => {
+	const handleRegistration = async () => {
 		// TODO: Should probably be some kind of server validation for this, at some point, and not just front end
 		if (!isRegistrationReady) return;
 	
@@ -50,11 +54,54 @@ const Register = ({}: Props) => {
 		setIsRegistering(true);
 
 		// @ts-ignore
-		createUserWithEmailAndPassword(auth, email, password)
-		.then((userCredental) => {
-			const { user } = userCredental;
+		try {
+			const registeredUser = await createUserWithEmailAndPassword(auth, email, password);
 
-			useStore.setState({ user });
+			const { user } = registeredUser;
+
+			/* 
+				TODO: How do we handle this setDoc not working? The registered user won't work properly
+				unless their UID is present in the 'players' collection
+			*/
+			await setDoc(doc(db, 'players', user.uid), {
+				matches: [],
+			});
+
+			/* 
+				TODO: This setUser here may not be necessary, as registering a user will trigger the onAuthStateChanged function in App.tsx
+			*/
+			setUser(user);
+			navigate('/');
+		} catch (err) {
+			const { code } = err as FirebaseError;
+
+			let serverErrors = [];
+
+			if (code.includes('auth/email-already-in-use')) {
+				serverErrors.push({ message: 'Email is already in use.' });
+			}
+
+			if (serverErrors.length) setIsRegistering(false);
+
+			// @ts-ignore
+			setServerErrors(serverErrors);
+		}
+
+
+		
+		/* 
+		createUserWithEmailAndPassword(auth, email, password)
+		.then((userCredential) => {
+			const { user } = userCredential;
+
+			console.log('newly registered user', { uid: user.uid })
+
+			await setDoc(doc(db, 'players', user.uid), {
+				matches: [],
+			});
+
+			// useStore.setState({ user });
+			setUser(user);
 			navigate('/');
 		})
 		.catch((error) => {
@@ -71,6 +118,7 @@ const Register = ({}: Props) => {
 			// @ts-ignore
 			setServerErrors(serverErrors);
 		});
+		*/
 	}
 
 	const isValidEmail = () => {
@@ -83,7 +131,6 @@ const Register = ({}: Props) => {
 		return !validationErrors.some((validationError: object) => validationError.validation);
 	}
 
-	// TODO: Need to bring in proper validation, with something like validate.js
 	const isValidRegistration = useCallback(() => {
 		const passwordErrors = passwordRequirements.validate(password.trim(), { details: true }) as any[];
 		const validatedPasswordErrors = passwordRequirements.validate(verifyPassword.trim(), { details: true }) as any[];

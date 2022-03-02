@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "wordle-with-friends-6cb40"
-  }
+    "default": "wordle-with-friends-6cb40",
+    "staging": "wordleswithfriendles-staging"
+  },
+  "targets": {}
 }
