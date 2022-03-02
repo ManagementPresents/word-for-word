@@ -8,6 +8,7 @@ import MatchCard from '../components/MatchCard';
 import Loading from '../components/Loading';
 import Modal from '../components/Modal';
 import Button from '../components/buttons/Button';
+import LoadingButton from '../components/buttons/LoadingButton';
 
 import { validateWordle } from '../utils/validation';
 import useStore from '../utils/store';
@@ -83,21 +84,21 @@ const Lobby = ({}: Props) => {
         setOpenMatchLink('');
         setIsGenerateLinkReady(false);
         setIsGeneratingLink(false);
-        setWordle('');
         setWordleValidationErrors([]);
+        setWordle('');
         setIsModalOpen(true);
+        handleValidateWordle();
     }
 
-    const handleValidateWordle = (e: React.ChangeEvent<HTMLInputElement>): void => {
-        const value = e?.target.value || '';
+    const handleValidateWordle = (wordle: string  = ''): void => {
         // TODO: this 'message' property can be refactored away when we stop using 'password-validator.js'
-        const validationErrors = validateWordle(value).map(error => ({ message: error }));
+        const validationErrors = validateWordle(wordle).map(error => ({ message: error }));
 
         // @ts-ignore
         setWordleValidationErrors(validationErrors); 
 
         if (!validationErrors.length) {
-            setWordle(value);
+            setWordle(wordle);
             setIsGenerateLinkReady(true);
         } else {
             setIsGenerateLinkReady(false);
@@ -204,9 +205,7 @@ const Lobby = ({}: Props) => {
                         </div>
                     </div>
 
-                    <button className="bg-[#15B097] hover:bg-green-700 text-[#F1F1F9] font-bold py-2 px-4 rounded w-full" onClick={handleStartNewMatch}>
-                        Start a New Match
-                    </button>
+                    <Button color="green" copy="Start a New Match" onClick={handleStartNewMatch} />
                 </div>
 
                 {/* TODO: This basis-[46rem] business is a kludge fix to ensure the layout looks right on moble */}
@@ -274,12 +273,11 @@ const Lobby = ({}: Props) => {
                         <div className="flex justify-center flex-col gap-y-2">
                             <span>Your Word</span>
                             
-                            <input type="text" className={`text-black ${wordleValidationErrors.length ? 'border-red-500 focus:border-red-500 focus:ring-red-500': 'border-[#15B097] focus:border-[#15B097] focus:ring-[#15B097]'}`} placeholder="Enter a word" onChange={handleValidateWordle}></input>
+                            <input type="text" className={`text-black ${wordleValidationErrors.length ? 'border-red-500 focus:border-red-500 focus:ring-red-500': 'border-[#15B097] focus:border-[#15B097] focus:ring-[#15B097]'}`} placeholder="Enter a word" onChange={(e) => { handleValidateWordle(e.target.value) }}></input>
                             {renderErrors(wordleValidationErrors, 'text-red-500 text-sm')}
                         </div>
 
                         <div className={`flex justify-center flex-col ${openMatchLink ? 'gap-y-6' : 'gap-y-3'}`}>
-                            {/* TODO: Might want to abstract into 'submit button' component */}
                             {openMatchLink ? 
                                 <div className="flex flex-col gap-y-2">
                                     <CopyToClipboard text={openMatchLink}>
@@ -287,23 +285,17 @@ const Lobby = ({}: Props) => {
                                     </CopyToClipboard>
 
                                     <CopyToClipboard text={openMatchLink}>
-                                        <button className={`bg-[#15B097] text-[#F1F1F9] font-bold py-2 px-4 rounded w-full hover:bg-green-700`} data-tip="Copied!" data-place="right">
-                                            Copy Link
-                                        </button>
+                                        {/* TODO: Figure out how to get data-tip working both in a component, AND with CopyToClipboard (they seem to clash with each other) */}
+                                        <Button color="green" copy="Copy Link" data-tip="Copied!"/>
                                     </CopyToClipboard>
 
                                     {/* TODO: Bad interaction with copy to clipboard ): */}
                                     {/* <ReactTooltip event='click' effect='solid' type='dark' afterShow={handleShortTooltip} /> */}
                                 </div>
                                 :                                     
-                                <button disabled={!isGenerateLinkReady} onClick={handleGenerateLink} className={`bg-[#15B097] text-[#F1F1F9] font-bold py-2 px-4 rounded w-full ${isGenerateLinkReady && !isGeneratingLink ? 'hover:bg-green-700' : 'opacity-50 cursor-not-allowed'} ${!isGenerateLinkReady ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                    {isGeneratingLink ? <Fragment><span>Generating...</span> <Default color="#fff" size={20}/></Fragment> : <span>Generate Link</span>}
-                                </button>
+                                <LoadingButton disabled={!isGenerateLinkReady} onClick={handleGenerateLink} color="green" isLoading={isGeneratingLink} isLoadingCopy={'Generating...'} copy="Generate Link" />
                             }
-                            <button className="bg-[#FFCE47] hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded w-full" onClick={() => {
-                                setIsOpenMatch(false);
-                                setSpecificPlayer(false);
-                            }}>Go Back</button>
+                            <Button color="yellow" copy="Go Back" onClick={handleStartNewMatch} />
                         </div>
                     </Fragment>
                 }

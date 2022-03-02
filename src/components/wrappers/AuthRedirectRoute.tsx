@@ -1,5 +1,4 @@
 import { useEffect, useState, } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { TIMEOUT_DURATION } from '../../utils/constants';
 import useStore from '../../utils/store';

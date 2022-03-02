@@ -1,10 +1,10 @@
 import { FC } from "react";
 
 interface Props {
-  onClick: any,
   color: string,
   copy: string,
   disabled?: boolean,
+  onClick?: any,
 }
 
 const Button: FC<Props> = ({ onClick, color, copy, disabled }: Props) => {
