@@ -7,6 +7,7 @@ import ReactTooltip from 'react-tooltip';
 import MatchCard from '../components/MatchCard';
 import Loading from '../components/Loading';
 import Modal from '../components/Modal';
+import Button from '../components/buttons/Button';
 
 import { validateWordle } from '../utils/validation';
 import useStore from '../utils/store';
@@ -160,9 +161,7 @@ const Lobby = ({}: Props) => {
         <div className="mx-auto max-w-lg">
             <h2 className="mb-2 text-2xl font-bold tracking-tight text-[#F1F1F9] dark:text-white">You have no currently active matches.</h2>
 
-            <button className="bg-[#15B097] hover:bg-green-700 text-[#F1F1F9] font-bold py-2 px-4 rounded w-full" onClick={handleStartNewMatch}>
-                Start a New Match
-            </button>
+            <Button color="green" copy="Start a New Match" onClick={handleStartNewMatch}></Button>
         </div>
     }
 
@@ -223,14 +222,15 @@ const Lobby = ({}: Props) => {
                         <h2 className="text-xl text-center font-bold tracking-tight text-[#F1F1F9] md:text-2xl">Start a New Match</h2>    
 
                         <p>blah blah blah basic rules/instructions.</p>
-
-                        <button data-tip="This mode is not yet available. Check back soon!" className={'yellow-style font-bold py-2 px-4 rounded w-full opacity-50 cursor-not-allowed'} onClick={(e) => {
+                        
+                        {/* TODO: Ensure data-tip works with this new component */}
+                        <Button data-tip="This mode is not yet available. Check back soon!" color="yellow" disabled={true} copy="Invite Specific Player" onClick={(e: any) => {
                             e.preventDefault();
                             return;
                             //  handleModalButtonClick('specific') 
-                            }}>Invite Specific Player</button>
+                            }}></Button>
 
-                        <button className={'green-style hover:green-hover font-bold py-2 px-4 rounded w-full'} onClick={() => { handleModalButtonClick('open') }}>Create Open Match</button>
+                        <Button color="green" copy="Create Open Match" onClick={() => { handleModalButtonClick('open') }}></Button>
 
                         <ReactTooltip effect='solid' type='dark' />
                     </Fragment>
