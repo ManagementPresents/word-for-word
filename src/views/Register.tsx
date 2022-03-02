@@ -7,6 +7,7 @@ import * as EmailValidator from 'email-validator';
 import { useNavigate } from "react-router-dom";
 
 import LoadingButton from '../components/buttons/LoadingButton';
+import Button from '../components/buttons/Button';
 
 import { renderErrors } from '../utils/misc';
 import useStore from '../utils/store';
@@ -170,6 +171,7 @@ const Register = ({}: Props) => {
 				</div>
 
 				<LoadingButton onClick={handleRegistration} copy={'Sign Up'} isLoadingCopy={"Registering..."} disabled={!isRegistrationReady} isLoading={isRegistering} color={"green"} />
+				<Button onClick={() => { navigate('/') }} copy={'Return'} color={"yellow"} />
 
 				<div className="flex flex-col">
 					{renderErrors(serverErrors, 'text-blue-600 text-sm')}

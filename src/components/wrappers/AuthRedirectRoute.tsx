@@ -8,7 +8,7 @@ import Loading from '../Loading';
 const AuthRedirectRoute = ({ authRedirectTarget, noAuthRedirectTarget }: any) => {
     const isLoading = useStore((state) => state.isLoading);
     const { setIsLoading } = useStore();
-    const { user } = useStore();
+    const { user, setHasCheckedUser } = useStore();
 
     const [isTimedOut, setIsTimedOut] = useState(false);
  
@@ -19,6 +19,11 @@ const AuthRedirectRoute = ({ authRedirectTarget, noAuthRedirectTarget }: any) =>
             if (!useStore.getState().user) {
                 console.log('timed out auth redirect');
                 setIsTimedOut(true);
+                /*
+                    TODO: This is an attempt to reduce the amount of times we see the loading throbber.
+                    There's probably a less fragile way to handle
+                */
+                setHasCheckedUser(true);
             }
 
         }, TIMEOUT_DURATION);
@@ -34,7 +39,7 @@ const AuthRedirectRoute = ({ authRedirectTarget, noAuthRedirectTarget }: any) =>
 
     if (user) return authRedirectTarget;
 
-    if (!user && isTimedOut) return noAuthRedirectTarget;
+    if ((!user && setHasCheckedUser) || (!user && isTimedOut)) return noAuthRedirectTarget;
 
     // TODO: A little silly, but it prevents the "no elements returned" error
     return <div></div>

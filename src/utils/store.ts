@@ -17,6 +17,8 @@ interface State {
     setOpponentPlayer: any,
     opponentPlayer: Player,
     setCurrentMatch: any,
+    hasCheckedUser: boolean,
+    setHasCheckedUser: any,
 }
 
 const useStore = create<State>((set, get) => ({
@@ -27,6 +29,8 @@ const useStore = create<State>((set, get) => ({
     currentMatch: {} as Match,
     matches: [] as Match[],
     opponentPlayer: {} as Player,
+    hasCheckedUser: false,
+    setHasCheckedUser: (hasCheckedUser: boolean) => set({ hasCheckedUser }),
     setOpponentPlayer: (opponentPlayer: Player) => set({ opponentPlayer }),
     addMatch: (match: Match) => set({ matches: get().matches.concat(match) }),
     setMatches: (matches: Match[]) => set({ matches }),
