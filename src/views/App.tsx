@@ -23,6 +23,8 @@ import AuthMatchRoute from '../components/wrappers/AuthMatchRoute';
 
 type Props = {};
 
+console.log('updated with deploy dev script');
+
 const App = ({}: Props) => {
     useEffect(() => {        
         const { app, db } = initializeFirebase();
