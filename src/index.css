@@ -96,12 +96,11 @@ html {
 
 .yellow-button-style {
   background-color: #FFCE47;
-  color: #F1F1F9;
+  color: black;
 }
 
 .yellow-button-style:hover {
   background-color: #CBA82A;
-  color: black;
 }
 
 .yellow-button-style--hollow {

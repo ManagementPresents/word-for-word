@@ -12,6 +12,8 @@ const Button: FC<Props> = ({ onClick, color, copy }: Props) => {
 
     if (color === 'gray') return 'gray-button-style';
 
+    if (color === 'yellow') return 'yellow-button-style';
+    
     if (color === 'yellowHollow') return 'yellow-button-style--hollow';
   }
 

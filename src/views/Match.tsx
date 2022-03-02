@@ -411,6 +411,16 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
     const [answer, setAnswer] = useState('');
     const [board, setBoard] = useState(initialStates.board);
 
+    const handleOpenHowToPlay = () => {
+        setIsLandingModalOpen(false);
+        setIsHowToPlayModalOpen(true);
+    }
+
+    const handleGoBackFromHowToPlay = () => {
+        setIsHowToPlayModalOpen(false);
+        setIsLandingModalOpen(true);
+    }
+
     useEffect(() => {
         (async () => {
             if (user) {
@@ -516,43 +526,46 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
                 <div className="flex flex-col gap-y-3">
                     <h1 className="text-center sm:text-3xl text-2xl">How to Play</h1>
 
-                    <ul className="list-disc pl-5 block sm:text-base text-sm">
-                        <li className="mt-6 mb-2">You have 6 guesses to guess the correct word.</li>
+                    <ul className="block sm:text-base text-sm">
+                        <li className="mb-2">You have 6 guesses to guess the correct word.</li>
+
                         <li className="mb-2">You can guess any valid word.</li>
-                        <li className="mb-2">Alternately, you can just have fun generating 3-word urls and making up stories about them. We definitely spent a late night in development doing that. Highly reccomend.</li>
+
                         <li className="mb-2">
-                        After each guess, each letter will turn green, yellow, or gray.
+                            After each guess, each letter will turn green, yellow, or gray.
+                        </li>
+
+                        <li className="mb-2">
+                            Alternately, you can just have fun generating 3-word urls and making up stories about them. We definitely spent a late night in development doing that. Highly reccomend.
                         </li>
                     </ul>
 
-                    <div className="mb-3 mt-5 flex items-center">
-                        <span className="nm-inset-n-green text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10 rounded-full">
+                    <div className="mb-3 flex flex-row items-center gap-x-2">
+                        <span className="bg-[#15B097] text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10">
                         W
                         </span>
 
-                        <span className="mx-2">=</span>
-                        <span>Correct letter, correct spot</span>
+                        <span>Letter is in word and in the correct spot</span>
                     </div>
 
-                    <div className="mb-3">
-                        <span className="nm-inset-yellow-500 text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10 rounded-full">
+                    <div className="mb-3 flex flex-row items-center gap-x-2">
+                        <span className="bg-[#FFCE47] text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10">
                         W
                         </span>
                         
-                        <span className="mx-2">=</span>
-                        <span>Correct letter, wrong spot</span>
+                        <span>Letter is in word, but in the wrong spot</span>
                     </div>
 
-                    <div className="mb-3">
-                        <span className="nm-inset-n-gray text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10 rounded-full">
+                    <div className="mb-3 flex flex-row items-center gap-x-2">
+                        <span className="bg-[#A0939A] text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10">
                             W
                         </span>
 
-                        <span className="mx-2">=</span>
-                        <span>Wrong letter</span>
+                        <span>Letter is not in word</span>
                     </div>
 
-                    <button className="green-style hover:green-hover font-bold py-2 px-4 rounded w-full" onClick={() => setIsLandingModalOpen(false)}>Got It!</button>
+                    <Button color="green" copy="Let's Play!" onClick={() => setIsHowToPlayModalOpen(false)} />
+                    <Button color="yellow" copy="Go Back" onClick={handleGoBackFromHowToPlay} />
                 </div>
             </Modal>
 
@@ -569,7 +582,7 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
                 </div>
 
                 <div className="flex flex-row gap-x-1 justify-center">
-                    Not sure what this is? <span className="yellow-link">Check out how to play.</span>
+                    Not sure what this is? <span className="yellow-link" onClick={handleOpenHowToPlay}>Check out how to play.</span>
                 </div>
             </Modal>
 
