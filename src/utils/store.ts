@@ -1,8 +1,9 @@
 import create from 'zustand';
 
 import Match from '../types/Match';
+import Player from '../types/Player';
 
-type State = {
+interface State {
     user: any,
     isLoading: boolean,
     setIsLoading: any,
@@ -22,6 +23,7 @@ const useStore = create<State>((set, get) => ({
     app: null,
     currentMatch: {} as Match,
     matches: [] as Match[],
+    opponentPlayer: {} as Player,
     addMatch: (match: Match) => set({ matches: get().matches.concat(match) }),
     setMatches: (matches: Match[]) => set({ matches }),
     setIsLoading: (isLoading: boolean) => set({ isLoading }),

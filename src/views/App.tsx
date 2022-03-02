@@ -55,6 +55,7 @@ const App = ({}: Props) => {
                     <AuthRedirectRoute authRedirectTarget={<Navigate to="/lobby" />} noAuthRedirectTarget={< Login />} />
                 } />
 
+                {/* TODO: For some reason, when this redirects back to Login, the url remains as '/lobby' */}
                 <Route path="/lobby" element={
                     <AuthRedirectRoute authRedirectTarget={<Lobby />} noAuthRedirectTarget={< Login />} />
                 } />

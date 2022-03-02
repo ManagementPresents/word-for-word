@@ -1,5 +1,6 @@
 import { useEffect, } from 'react'
 import { getAuth, signOut } from "firebase/auth";
+import { useNavigate } from 'react-router-dom';
 
 import useStore from '../utils/store';
 
@@ -12,17 +13,21 @@ type Props = {
 }
 
 const Logout = ({}: Props) => {
-    const { user } = useStore();
-    
+    const { user, setUser } = useStore();
+    const navigate = useNavigate();
+
     useEffect(() => {
         if (user) {
             const auth = getAuth();
 
             signOut(auth).then(() => {
                 alert('signed out');
+                setUser(null);
+                navigate('/');
             }).catch((error) => {
                 alert('error signing out');
                 console.log({ error })
+                navigate('/');
             });
         }
     }, [user]);

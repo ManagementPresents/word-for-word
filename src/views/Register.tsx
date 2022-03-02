@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useCallback, useState } from 'react'
 import { getAuth, createUserWithEmailAndPassword, } from "firebase/auth";
-import { collection, doc, setDoc } from "firebase/firestore"; 
+import { doc, setDoc } from "firebase/firestore"; 
 import { Default } from 'react-spinners-css';
 // TODO: Should probably replace this with the other 'validator.js' library
 import passwordValidator from 'password-validator';
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 import { renderErrors } from '../utils/misc';
 import useStore from '../utils/store';
+import Player from '../types/Player';
 import { FirebaseError } from 'firebase/app';
 
 const passwordRequirements = new passwordValidator();
@@ -63,9 +64,15 @@ const Register = ({}: Props) => {
 				TODO: How do we handle this setDoc not working? The registered user won't work properly
 				unless their UID is present in the 'players' collection
 			*/
-			await setDoc(doc(db, 'players', user.uid), {
+
+			const newPlayer: Player = {
 				matches: [],
-			});
+				email: ''
+			};
+
+			console.log('new user', { user });
+
+			await setDoc(doc(db, 'players', user.uid), newPlayer);
 
 			/* 
 				TODO: This setUser here may not be necessary, as registering a user will trigger the onAuthStateChanged function in App.tsx
