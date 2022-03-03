@@ -72,6 +72,18 @@ html {
 }
 
 /* Base color styles */ 
+.yellow-font {
+  color: #FFCE47;
+}
+
+.green-font {
+  color: #15B097;
+}
+
+.gray-font {
+  color: #A0939A;
+}
+
 .green {
   background-color: #15B097;
   color: #F1F1F9;
@@ -79,7 +91,7 @@ html {
 
 .yellow {
   background-color: #FFCE47;
-  color: black;
+  color: #f1f1f9;
 }
 
 .gray {

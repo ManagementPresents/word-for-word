@@ -1,22 +1,21 @@
 //Adding Firebase imports
 import { collection, doc, setDoc, getDoc } from "firebase/firestore"; 
-
-import { letters, status } from '../constants'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from "react-router-dom";
 
-import { EndGameModal } from '../components/EndGameModal'
 import { Keyboard } from '../components/Keyboard'
-import { SettingsModal } from '../components/SettingsModal'
 import Modal from '../components/Modal';
 import Loading from '../components/Loading';
 import Button from '../components/buttons/Button';
 
-import { ReactComponent as Info } from '../data/Info.svg'
-import { ReactComponent as Settings } from '../data/Settings.svg'
-import useStore from '../utils/store';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { ReactComponent as Lobby } from '../data/Lobby.svg'
+
+import useStore from '../utils/store';
 import Turn from "../types/Turn";
+import { letters, status } from '../constants'
+import { renderWordleSquares } from "../utils/wordUtils";
 
 /* --- */
 import Match from '../types/Match';
@@ -113,7 +112,6 @@ function MatchView() {
     useEffect(() => {
         if (gameState !== state.playing) {
             setTimeout(() => {
-                console.log('weird timeout thing');
                 setIsEndTurnModalOpen(true);
             }, 500)
         }
@@ -354,7 +352,6 @@ const fixedLetters: { [key: number]: string } = {}
     const [isEndTurnModalOpen, setIsEndTurnModalOpen] = useState(false);
 
     const handleCloseEndTurnModal = () => {
-        console.log('close the end game modal');
         setIsEndTurnModalOpen(false);
     }
 
@@ -556,19 +553,40 @@ const fixedLetters: { [key: number]: string } = {}
 
             <Modal isOpen={isEndTurnModalOpen} onRequestClose={handleCloseEndTurnModal}>
                 {/* TODO: Think about using a random "fighting words" generator here */}
-                <h1 className="text-2xl text-center">
-                    <span className="text-[#15B097] block">{opponentPlayer.email}</span> is spoiling for a donnybrook!
+                <h1 className="text-4xl text-center">
+                    Turn 1
                 </h1>
 
-                <div className="flex flex-col gap-y-3">
-                    {/* TODO: Should be a LoadingButton */}
-                    <Button onClick={ handleAcceptMatch } copy="Accept" color="green" />
-                    <Button onClick={() => { setIsLandingModalOpen(false) }} copy="Rudely Decline" color="gray" />
-                    <Button onClick={() => { setIsLandingModalOpen(false) }} copy="Politely Decline" color="yellowHollow" />
+                <div className="flex flex-row items-center justify-center gap-x-3">
+                    <div className="flex flex-col gap-y-2">
+                        <FontAwesomeIcon icon={faCircleUser} size='4x' />
+                        <span>{opponentPlayer.email}</span>
+                    </div>
+
+                    <span>vs</span>
+
+                    <div className="flex flex-col gap-y-2">
+                        <FontAwesomeIcon icon={faCircleUser} size='4x' />
+                        <span>{user.email}</span>
+                    </div>
                 </div>
 
-                <div className="flex flex-row gap-x-1 justify-center">
-                    Not sure what this is? <span className="yellow-link" onClick={handleOpenHowToPlay}>Check out how to play.</span>
+                <span className="yellow-font uppercase text-center text-[42px]">You guessed their word!</span>
+
+                <div className="flex flex-row gap-x-2 justify-center">
+                    {renderWordleSquares(answer)}
+                </div>
+
+                <div className="flex flex-col gap-y-2 text-center ">
+                    <span className="text-[28px] mt-8">Now it's your turn!</span>
+
+                    <span>Send them a word right back!</span>
+                </div>
+
+                <div className="flex flex-row gap-x-1 justify-center items-center">
+                    <span className="basis-full">Tired of this chicanery? </span>
+                    
+                    <Button copy="Forfeit Game" color="gray" onClick={() => { console.log('forfeit game')}} />
                 </div>
             </Modal>
 

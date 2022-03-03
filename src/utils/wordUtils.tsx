@@ -5,7 +5,7 @@ const getRandomWord = () => {
     const randomIndex = Math.floor(Math.random() * answers.length)
 
     return words[randomIndex].toLowerCase();
-}
+};
 
 const generateMatchUri = (numWords: number, char = '-') => {
     let matchUri = [];
@@ -15,7 +15,7 @@ const generateMatchUri = (numWords: number, char = '-') => {
     }
 
     return matchUri.join(char);
-}
+};
 
 const makeUpADude = () => {
     let dude = '';
@@ -35,10 +35,21 @@ const makeUpADude = () => {
     }
 
     return dude;
-}
+};
+
+// TODO: Need to change this to be able to render green, yellow, and gray squares
+const renderWordleSquares = (wordle: string) => {
+    if (!wordle) return;
+
+    return wordle.split('').map((letter: string) => {
+        return <span className="bg-[#FFCE47] h-[40px] w-[40px] text-center leading-[40px]">{letter.toUpperCase()}</span>;
+    });
+};
+
 
 export {
     getRandomWord,
     generateMatchUri,
     makeUpADude,
+    renderWordleSquares,
 }

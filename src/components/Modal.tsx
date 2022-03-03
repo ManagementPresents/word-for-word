@@ -3,6 +3,8 @@ import { FC, Fragment, useEffect, useState, } from 'react';
 
 import useStore from '../utils/store';
 
+ReactModal.setAppElement('#root');
+
 const modalStyle = { 
     overlay: {
         display: 'flex',
