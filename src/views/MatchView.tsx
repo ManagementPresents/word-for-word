@@ -128,6 +128,7 @@ function MatchView() {
 
         const currentCell: Cell = board[rowNumber][colNumber] as Cell;
 
+        // TODO: Make an enum or something for these statuses
         switch (currentCell.status) {
             case 'correct':
                 return 'green'
@@ -239,7 +240,6 @@ const updateCells = (word: string, rowNumber: number) => {
         const wordLength = word.length;
         const answerLetters: string[] = answer.split('');
 
-        console.log('answer', answer);
         // Set all to gray
         for (let i = 0; i < wordLength; i++) {
             newBoard[rowNumber][i].status = 'incorrect';
@@ -248,7 +248,6 @@ const updateCells = (word: string, rowNumber: number) => {
         // Check greens
         for (let i = wordLength - 1; i >= 0; i--) {
             if (word[i] === answer[i]) {
-                console.log('current letter', word[i]);
                 newBoard[rowNumber][i].status = 'correct';
                 answerLetters.splice(i, 1)
                 fixedLetters[i] = answer[i]
@@ -271,46 +270,9 @@ const updateCells = (word: string, rowNumber: number) => {
     setExactGuesses((prev: { [key: number]: string }) => ({ ...prev, ...fixedLetters }))
 }
 
-    const isRowAllGreen = (row: string[]) => {
-        return row.every((cell: string) => cell === status.green)
+    const isRowAllGreen = (row: Cell[]) => {
+        return row.every((cell: Cell) => cell.status ===  'correct')
     }
-
-    //To-do: remove streaks
-    const avgGuessesPerGame = (): number => {
-        if (currentStreak > 0) {
-            return guessesInStreak / currentStreak
-        } else {
-            return 0
-        }
-    }
-
-    // every time cellStatuses updates, check if the game is won or lost
-    useEffect(() => {
-        const cellStatusesCopy = [...cellStatuses]
-        const reversedStatuses = cellStatusesCopy.reverse()
-        const lastFilledRow = reversedStatuses.find((r) => {
-            return r[0] !== status.unguessed
-        })
-
-        if (gameState === state.playing && lastFilledRow && isRowAllGreen(lastFilledRow)) {
-            setGameState(state.won)
-
-            var streak = currentStreak + 1
-            setCurrentStreak(streak)
-            setLongestStreak((prev: number) => (streak > prev ? streak : prev))
-        } else if (gameState === state.playing && currentRow === 6) {
-            setGameState(state.lost)
-            setCurrentStreak(0)
-        }
-    }, [
-        cellStatuses,
-        currentRow,
-        gameState,
-        setGameState,
-        currentStreak,
-        setCurrentStreak,
-        setLongestStreak,
-    ]);
 
     const updateLetterStatuses = (word: string) => {
         word = word.toUpperCase();
@@ -413,6 +375,32 @@ const updateCells = (word: string, rowNumber: number) => {
             setIsNextWordleReady(false);
         }
     }
+
+    useEffect(() => {
+        const reversedBoard = board.slice().reverse();
+        const lastFilledRow = reversedBoard.find((row) => {
+            return row.every((cell) => cell.status !== 'unguessed');
+        });
+
+        if (gameState === state.playing && lastFilledRow && isRowAllGreen(lastFilledRow)) {
+            setGameState(state.won)
+
+            var streak = currentStreak + 1
+            setCurrentStreak(streak)
+            setLongestStreak((prev: number) => (streak > prev ? streak : prev))
+        } else if (gameState === state.playing && currentRow === 6) {
+            setGameState(state.lost)
+            setCurrentStreak(0)
+        }
+    }, [
+        board,
+        currentRow,
+        gameState,
+        setGameState,
+        currentStreak,
+        setCurrentStreak,
+        setLongestStreak,
+    ]);
 
     useEffect(() => {
         console.log({ board });
