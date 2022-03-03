@@ -9,14 +9,14 @@ import Loading from '../components/Loading';
 import Modal from '../components/Modal';
 import Button from '../components/buttons/Button';
 import LoadingButton from '../components/buttons/LoadingButton';
+import WordleInput from '../components/WordleInput';
 
 import { validateWordle } from '../utils/validation';
 import useStore from '../utils/store';
-import { renderErrors } from '../utils/misc';
 import { generateMatchUri } from '../utils/wordUtils';
 import { TIMEOUT_DURATION } from '../utils/constants';
 import Match  from '../types/Match';
-
+import ValidationError from '../types/ValidationError';
 
 type Props = {}
 
@@ -92,7 +92,7 @@ const Lobby = ({}: Props) => {
 
     const handleValidateWordle = (wordle: string  = ''): void => {
         // TODO: this 'message' property can be refactored away when we stop using 'password-validator.js'
-        const validationErrors = validateWordle(wordle).map(error => ({ message: error }));
+        const validationErrors: ValidationError[] = validateWordle(wordle).map(error => ({ message: error } as ValidationError));
 
         // @ts-ignore
         setWordleValidationErrors(validationErrors); 
@@ -273,8 +273,7 @@ const Lobby = ({}: Props) => {
                         <div className="flex justify-center flex-col gap-y-2">
                             <span>Your Word</span>
                             
-                            <input type="text" className={`text-black ${wordleValidationErrors.length ? 'border-red-500 focus:border-red-500 focus:ring-red-500': 'border-[#15B097] focus:border-[#15B097] focus:ring-[#15B097]'}`} placeholder="Enter a word" onChange={(e) => { handleValidateWordle(e.target.value) }}></input>
-                            {renderErrors(wordleValidationErrors, 'text-red-500 text-sm')}
+                            <WordleInput validationErrors={wordleValidationErrors} handleValidationErrors={(e: any) => { handleValidateWordle(e.target.value)}} />
                         </div>
 
                         <div className={`flex justify-center flex-col ${openMatchLink ? 'gap-y-6' : 'gap-y-3'}`}>

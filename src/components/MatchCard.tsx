@@ -4,7 +4,6 @@ import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
 
 import Match from '../types/Match';
-import Turn from '../types/Turn';
 
 import { renderWordleSquares } from '../utils/wordUtils';
 

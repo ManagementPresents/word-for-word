@@ -553,21 +553,23 @@ const fixedLetters: { [key: number]: string } = {}
 
             <Modal isOpen={isEndTurnModalOpen} onRequestClose={handleCloseEndTurnModal}>
                 {/* TODO: Think about using a random "fighting words" generator here */}
-                <h1 className="text-4xl text-center">
-                    Turn 1
-                </h1>
+                <div className="flex flex-col gap-y-2">
+                    <h1 className="text-4xl text-center">
+                        Turn 1
+                    </h1>
 
-                <div className="flex flex-row items-center justify-center gap-x-3">
-                    <div className="flex flex-col gap-y-2">
-                        <FontAwesomeIcon icon={faCircleUser} size='4x' />
-                        <span>{opponentPlayer.email}</span>
-                    </div>
+                    <div className="flex flex-row items-center justify-center gap-x-3">
+                        <div className="flex flex-col gap-y-2">
+                            <FontAwesomeIcon icon={faCircleUser} size='4x' />
+                            <span>{opponentPlayer.email}</span>
+                        </div>
 
-                    <span>vs</span>
+                        <span>vs</span>
 
-                    <div className="flex flex-col gap-y-2">
-                        <FontAwesomeIcon icon={faCircleUser} size='4x' />
-                        <span>{user.email}</span>
+                        <div className="flex flex-col gap-y-2">
+                            <FontAwesomeIcon icon={faCircleUser} size='4x' />
+                            <span>{user.email}</span>
+                        </div>
                     </div>
                 </div>
 

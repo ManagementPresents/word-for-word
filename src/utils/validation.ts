@@ -2,7 +2,7 @@ import isAlpha from 'validator/lib/isAlpha';
 import isLength from 'validator/lib/isLength';
 import words from '../data/words';
 
-const validateWordle = (wordle: string) => {
+const validateWordle = (wordle: string): string[] => {
     let errors = [];
 
     if (!isAlpha(wordle)) {
