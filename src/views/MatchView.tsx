@@ -587,16 +587,16 @@ const fixedLetters: { [key: number]: string } = {}
                     </div>
                 </div>
 
-                <span className="yellow-font uppercase text-center text-[42px]">You guessed their word!</span>
+                <span className="yellow-font uppercase text-center text-[24px] md:text-[42px]">You guessed their word!</span>
 
                 <div className="flex flex-row gap-x-2 justify-center">
                     {renderWordleSquares(answer)}
                 </div>
 
-                <div className="flex flex-col gap-y-2 text-center mx-auto min-w-[250px]">
-                    <span className="text-[28px] mt-8">Now it's your turn!</span>
+                <div className="flex flex-col gap-y-2 text-center mx-auto md:min-w-[250px]">
+                    <span className="text-[20px] md:text-[28px] mt-8">Now it's your turn!</span>
 
-                    <span>Send them a word right back!</span>
+                    <span className="text-[12px] md:text-[16px]">Send them a word right back!</span>
                     <WordleInput validationErrors={wordleValidationErrors} handleValidationErrors={(e: React.ChangeEvent<HTMLInputElement>) => { handleValidateWordle(e.target.value) }} />
                 </div>
 
