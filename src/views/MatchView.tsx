@@ -1,5 +1,5 @@
 //Adding Firebase imports
-import { doc, setDoc, getDoc } from "firebase/firestore"; 
+import { doc, setDoc, getDoc, arrayUnion } from "firebase/firestore"; 
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -11,6 +11,7 @@ import WordleInput from "../components/WordleInput";
 import LoadingButton from "../components/buttons/LoadingButton";
 
 import useStore from '../utils/store';
+import { arrayToNumericalObj, numericalObjToArray, } from "../utils/misc";
 import { validateWordle } from "../utils/validation";
 import { letters, status } from '../constants'
 import { renderWordleSquares } from "../utils/wordUtils";
@@ -38,7 +39,7 @@ export const difficulty = {
   hard: 'hard',
 }
 
-type State = {
+interface State {
   answer: '',
   gameState: string
   board: Cell[][]
@@ -186,24 +187,45 @@ function MatchView() {
     //   return [false, `In hard mode, you must use all the hints you've been given.`]
   }
 
-    const onEnterPress = () => {
-        const word = board[currentRow].map((cell: Cell) => cell.letter).join('')
+    const onEnterPress = async () => {
+        const currentGuess: Cell[] = board[currentRow];
+        const word = currentGuess.map((cell: Cell) => cell.letter).join('')
         const [valid, _err] = isValidWord(word)
 
         if (!valid) {
-            setSubmittedInvalidWord(true)
-            console.log({ _err })
-            return
+            setSubmittedInvalidWord(true);
+            console.log({ _err });
+            return;
         }
 
         if (currentRow === 6) return
+
+        /* 
+            TODO: Right now, in order to update the 'guesses' property of the current turn,
+            we make our adjustments to 'guesses' locally then rewrite the entire 'turns' object of the current match in firestore. There may be a way to more intelligently 'push' a new turn in, rather than a total overwrite
+        */
+        const updatedTurns: Turn[] = currentMatch.turns.map((turn: Turn): Turn => {
+            if (!turn.currentTurn) return turn;
+
+            const guessArray: Cell[][] = numericalObjToArray(turn.guesses);
+            const updatedGuessArray = guessArray.concat([currentGuess]);
+
+            turn.guesses = arrayToNumericalObj(updatedGuessArray);
+
+            return turn;
+            
+        }) as Turn[];
+        const currentMatchRef = doc(db, 'matches', currentMatch.id);
+
+
+        await setDoc(currentMatchRef, {
+            turns: updatedTurns,
+        }, { merge: true });
 
         updateCells(word, currentRow)
         updateLetterStatuses(word)
         setCurrentRow((prev: number) => prev + 1)
         setCurrentCol(0)
-
-        console.log('current row', board[currentRow]);
 
         //to-do: remove streaks
         // Only calculate guesses in streak if they've

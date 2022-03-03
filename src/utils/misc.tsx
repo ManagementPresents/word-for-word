@@ -18,6 +18,19 @@ const renderErrors = (errors: any, className: string) => {
     return validationMessages;
 }
 
+/*
+    TODO: This, and arrToNumericalObj, are necessary to help get around Firestore's current inability to support arrays of arrays. Instead, we serialize nested arrays into objects where array index maps to a property in the object, and the value at that index becomes the corresponding value in the object.
+*/
+const numericalObjToArray = (numericalObj: {}): any[] => {
+    return Object.values(numericalObj);
+}
+
+const arrayToNumericalObj = (array: any[]): {} => {
+    return Object.assign({}, array);
+}
+
 export {
     renderErrors,
+    numericalObjToArray,
+    arrayToNumericalObj,
 }
