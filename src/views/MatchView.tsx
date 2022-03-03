@@ -79,14 +79,7 @@ function MatchView() {
         submittedInvalidWord: false,
     }
 
-    // const [gameState, setGameState] = useLocalStorage('stateGameState', initialStates.gameState)
     const [gameState, setGameState] = useState('playing');
-    //TO-DO: replace Local Storage with the string that exists in Firebase
-    //   const [board, setBoard] = useLocalStorage('stateBoard', initialStates.board)
-    //   const [cellStatuses, setCellStatuses] = useLocalStorage(
-    //     'stateCellStatuses',
-    //     initialStates.cellStatuses
-    //   )
     const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
 
   //TO-DO: Replace Local Storage
@@ -99,7 +92,6 @@ function MatchView() {
     //To-Do: Remove Streaks
     const [currentStreak, setCurrentStreak] = useState(0)
     const [longestStreak, setLongestStreak] = useState(0);
-    const [modalIsOpen, setIsOpen] = useState(false)
 
     //To-Do: Change Local Storage to Firebase Storage for "first time" guest identification purposes
     const [firstTime, setFirstTime] = useState(true);
@@ -107,24 +99,8 @@ function MatchView() {
     //To-Do: Kill streaks
     const [guessesInStreak, setGuessesInStreak] = useState(firstTime ? 0 : -1);
 
-    const [settingsModalIsOpen, setSettingsModalIsOpen] = useState(false);
-
-    //To-Do: Remove "Difficulty"
-    const [difficultyLevel, setDifficultyLevel] = useState(difficulty.normal);
-    const getDifficultyLevelInstructions = () => {
-        if (difficultyLevel === difficulty.easy) {
-            return 'Guess any 5 letters'
-        } else if (difficultyLevel === difficulty.hard) {
-            return "Guess any valid word using all the hints you've been given"
-        } else {
-            return 'Guess any valid word'
-        }
-    }
     const eg: { [key: number]: string } = {}
-  //To-Do: Remove Localstorage
     const [exactGuesses, setExactGuesses] = useState(eg);
-    const openModal = () => setIsOpen(true)
-    const closeModal = () => setIsOpen(false)
 
     const navigate = useNavigate();
 
@@ -133,20 +109,12 @@ function MatchView() {
     const { setIsLoading } = useStore();
     const { user } = useStore();
 
-    //To-Do: Strip out Dark Mode
-    // const [darkMode, setDarkMode] = useLocalStorage('dark-mode', false)
-    // const toggleDarkMode = () => setDarkMode((prev: boolean) => !prev)
-
-    // useEffect(
-    //     () => document.documentElement.classList[darkMode ? 'add' : 'remove']('dark'),
-    //     [darkMode]
-    // );
-
     //To-Do: Check this later if it pops up whatever modal, if that's a problem for our changes
     useEffect(() => {
         if (gameState !== state.playing) {
             setTimeout(() => {
-            openModal()
+                console.log('weird timeout thing');
+                setIsEndTurnModalOpen(true);
             }, 500)
         }
     }, [gameState])
@@ -194,24 +162,23 @@ function MatchView() {
   // returns an array with a boolean of if the word is valid and an error message if it is not
   const isValidWord = (word: string): [boolean] | [boolean, string] => {
     if (word.length < 5) return [false, `please enter a 5 letter word`]
-    if (difficultyLevel === difficulty.easy) return [true]
+
     if (!words[word.toLowerCase()]) return [false, `${word} is not a valid word. Please try again.`]
-    if (difficultyLevel === difficulty.normal) return [true]
-
-    const guessedLetters = Object.entries(letterStatuses).filter(([letter, letterStatus]) =>
-      [status.yellow, status.green].includes(letterStatus)
-    )
-
-
-    const yellowsUsed = guessedLetters.every(([letter, _]) => { return word.includes(letter) })
-    const greensUsed = Object.entries(exactGuesses).every(
-      ([position, letter]) => word[parseInt(position)] === letter
-    )
-
-    if (!yellowsUsed || !greensUsed)
-      return [false, `In hard mode, you must use all the hints you've been given.`]
-
+    
     return [true]
+
+    // const guessedLetters = Object.entries(letterStatuses).filter(([letter, letterStatus]) =>
+    //   [status.yellow, status.green].includes(letterStatus)
+    // )
+
+
+    // const yellowsUsed = guessedLetters.every(([letter, _]) => { return word.includes(letter) })
+    // const greensUsed = Object.entries(exactGuesses).every(
+    //   ([position, letter]) => word[parseInt(position)] === letter
+    // )
+
+    // if (!yellowsUsed || !greensUsed)
+    //   return [false, `In hard mode, you must use all the hints you've been given.`]
   }
 
   const onEnterPress = () => {
@@ -291,118 +258,89 @@ const fixedLetters: { [key: number]: string } = {}
     setExactGuesses((prev: { [key: number]: string }) => ({ ...prev, ...fixedLetters }))
 }
 
-  const isRowAllGreen = (row: string[]) => {
-    return row.every((cell: string) => cell === status.green)
-  }
-
-  //To-do: remove streaks
-  const avgGuessesPerGame = (): number => {
-    if (currentStreak > 0) {
-      return guessesInStreak / currentStreak
-    } else {
-      return 0
+    const isRowAllGreen = (row: string[]) => {
+        return row.every((cell: string) => cell === status.green)
     }
-  }
 
-  // every time cellStatuses updates, check if the game is won or lost
-  useEffect(() => {
-    const cellStatusesCopy = [...cellStatuses]
-    const reversedStatuses = cellStatusesCopy.reverse()
-    const lastFilledRow = reversedStatuses.find((r) => {
-      return r[0] !== status.unguessed
-    })
-
-    if (gameState === state.playing && lastFilledRow && isRowAllGreen(lastFilledRow)) {
-      setGameState(state.won)
-
-      var streak = currentStreak + 1
-      setCurrentStreak(streak)
-      setLongestStreak((prev: number) => (streak > prev ? streak : prev))
-    } else if (gameState === state.playing && currentRow === 6) {
-      setGameState(state.lost)
-      setCurrentStreak(0)
-    }
-  }, [
-    cellStatuses,
-    currentRow,
-    gameState,
-    setGameState,
-    currentStreak,
-    setCurrentStreak,
-    setLongestStreak,
-  ])
-
-  const updateLetterStatuses = (word: string) => {
-    word = word.toUpperCase();
-
-    setLetterStatuses((prev: { [key: string]: string }) => {
-      const newLetterStatuses = { ...prev }
-      const wordLength = word.length
-      
-      console.log({ newLetterStatuses });
-      for (let i = 0; i < wordLength; i++) {
-        console.log(newLetterStatuses[word[i]]);
-        if (newLetterStatuses[word[i]] === status.green) continue
-
-        if (word[i] === answer[i]) {
-          newLetterStatuses[word[i]] = status.green
-        } else if (answer.includes(word[i])) {
-          newLetterStatuses[word[i]] = status.yellow
+    //To-do: remove streaks
+    const avgGuessesPerGame = (): number => {
+        if (currentStreak > 0) {
+            return guessesInStreak / currentStreak
         } else {
-          newLetterStatuses[word[i]] = status.gray
+            return 0
         }
-      }
-      return newLetterStatuses
-    })
-  }
-
-  const playAgain = () => {
-    if (gameState === state.lost) {
-      setGuessesInStreak(0)
     }
 
-    // setAnswer(initialStates.answer())
-    //to-do: change "set answer" to grab the wordle from firebase
-    setAnswer('');
-    setGameState(initialStates.gameState)
-    setBoard(initialStates.board)
-    setCellStatuses(initialStates.cellStatuses)
-    setCurrentRow(initialStates.currentRow)
-    setCurrentCol(initialStates.currentCol)
-    setLetterStatuses(initialStates.letterStatuses())
-    setSubmittedInvalidWord(initialStates.submittedInvalidWord)
-    setExactGuesses({})
+    // every time cellStatuses updates, check if the game is won or lost
+    useEffect(() => {
+        const cellStatusesCopy = [...cellStatuses]
+        const reversedStatuses = cellStatusesCopy.reverse()
+        const lastFilledRow = reversedStatuses.find((r) => {
+            return r[0] !== status.unguessed
+        })
 
-    closeModal()
-  }
+        if (gameState === state.playing && lastFilledRow && isRowAllGreen(lastFilledRow)) {
+            setGameState(state.won)
 
-  const modalStyles = {
-    overlay: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: '#24191f',
-      zIndex: 99,
-    },
-    content: {
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      transform: 'translate(-50%, -50%)',
-      height: 'calc(100% - 2rem)',
-      width: 'calc(100% - 2rem)',
-      backgroundColor: '#3c2a34',
-      boxShadow: '0.2em 0.2em calc(0.2em * 2) #3c2a34, calc(0.2em * -1) calc(0.2em * -1) calc(0.2em * 2) #3c2a34',
-      border: 'none',
-      borderRadius: '1rem',
-      maxWidth: '475px',
-      maxHeight: '650px',
-      position: 'relative',
-    },
-  }
+            var streak = currentStreak + 1
+            setCurrentStreak(streak)
+            setLongestStreak((prev: number) => (streak > prev ? streak : prev))
+        } else if (gameState === state.playing && currentRow === 6) {
+            setGameState(state.lost)
+            setCurrentStreak(0)
+        }
+    }, [
+        cellStatuses,
+        currentRow,
+        gameState,
+        setGameState,
+        currentStreak,
+        setCurrentStreak,
+        setLongestStreak,
+    ]);
+
+    const updateLetterStatuses = (word: string) => {
+        word = word.toUpperCase();
+
+        setLetterStatuses((prev: { [key: string]: string }) => {
+            const newLetterStatuses = { ...prev }
+            const wordLength = word.length
+
+            for (let i = 0; i < wordLength; i++) {
+                if (newLetterStatuses[word[i]] === status.green) continue
+
+                if (word[i] === answer[i]) {
+                    newLetterStatuses[word[i]] = status.green
+                } else if (answer.includes(word[i])) {
+                    newLetterStatuses[word[i]] = status.yellow
+                } else {
+                    newLetterStatuses[word[i]] = status.gray
+                }
+            }
+
+            return newLetterStatuses
+        })
+    }
+
+    const playAgain = () => {
+        if (gameState === state.lost) {
+            setGuessesInStreak(0)
+        }
+
+        // setAnswer(initialStates.answer())
+        //to-do: change "set answer" to grab the wordle from firebase
+        setAnswer('');
+        setGameState(initialStates.gameState)
+        setBoard(initialStates.board)
+        setCellStatuses(initialStates.cellStatuses)
+        setCurrentRow(initialStates.currentRow)
+        setCurrentCol(initialStates.currentCol)
+        setLetterStatuses(initialStates.letterStatuses())
+        setSubmittedInvalidWord(initialStates.submittedInvalidWord)
+        setExactGuesses({})
+
+        // closeModal()
+    }
 
     /* --- */
     const params = useParams();
@@ -413,6 +351,12 @@ const fixedLetters: { [key: number]: string } = {}
     const [isHowToPlayModalOpen, setIsHowToPlayModalOpen] = useState(false);
     const [answer, setAnswer] = useState('');
     const [board, setBoard] = useState(initialStates.board);
+    const [isEndTurnModalOpen, setIsEndTurnModalOpen] = useState(false);
+
+    const handleCloseEndTurnModal = () => {
+        console.log('close the end game modal');
+        setIsEndTurnModalOpen(false);
+    }
 
     const handleOpenHowToPlay = () => {
         setIsLandingModalOpen(false);
@@ -610,37 +554,35 @@ const fixedLetters: { [key: number]: string } = {}
                 </div>
             </Modal>
 
-          <EndGameModal
-            isOpen={modalIsOpen}
-            handleClose={closeModal}
-            styles={modalStyles}
-            gameState={gameState}
-            state={state}
-            currentStreak={currentStreak}
-            longestStreak={longestStreak}
-            answer={answer}
-            playAgain={playAgain}
-            avgGuessesPerGame={avgGuessesPerGame()}
-          />
-          {/* <SettingsModal
-            isOpen={settingsModalIsOpen}
-            handleClose={() => setSettingsModalIsOpen(false)}
-            styles={modalStyles}
-            difficultyLevel={difficultyLevel}
-            setDifficultyLevel={setDifficultyLevel}
-            levelInstructions={getDifficultyLevelInstructions()}
-          /> */}
-          <div className={`h-auto relative ${gameState === state.playing ? '' : 'invisible'}`}>
-            <Keyboard
-              letterStatuses={letterStatuses}
-              addLetter={addLetter}
-              onEnterPress={onEnterPress}
-              onDeletePress={onDeletePress}
-              gameDisabled={gameState !== state.playing || isLandingModalOpen || isHowToPlayModalOpen}
-            />
-          </div>
+            <Modal isOpen={isEndTurnModalOpen} onRequestClose={handleCloseEndTurnModal}>
+                {/* TODO: Think about using a random "fighting words" generator here */}
+                <h1 className="text-2xl text-center">
+                    <span className="text-[#15B097] block">{opponentPlayer.email}</span> is spoiling for a donnybrook!
+                </h1>
+
+                <div className="flex flex-col gap-y-3">
+                    {/* TODO: Should be a LoadingButton */}
+                    <Button onClick={ handleAcceptMatch } copy="Accept" color="green" />
+                    <Button onClick={() => { setIsLandingModalOpen(false) }} copy="Rudely Decline" color="gray" />
+                    <Button onClick={() => { setIsLandingModalOpen(false) }} copy="Politely Decline" color="yellowHollow" />
+                </div>
+
+                <div className="flex flex-row gap-x-1 justify-center">
+                    Not sure what this is? <span className="yellow-link" onClick={handleOpenHowToPlay}>Check out how to play.</span>
+                </div>
+            </Modal>
+
+            <div className={`h-auto relative ${gameState === state.playing ? '' : 'invisible'}`}>
+                <Keyboard
+                    letterStatuses={letterStatuses}
+                    addLetter={addLetter}
+                    onEnterPress={onEnterPress}
+                    onDeletePress={onDeletePress}
+                    gameDisabled={gameState !== state.playing || isLandingModalOpen || isHowToPlayModalOpen}
+                />
+            </div>
         </div>
-      </div>
+    </div>
     ) 
   }
 }
