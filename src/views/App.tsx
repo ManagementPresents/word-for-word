@@ -10,7 +10,7 @@ import {
 import initializeFirebase from '../utils/firebase';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
-import Match from './Match';
+import MatchView from './MatchView';
 import Login from './Login';
 import Register from './Register';
 import Lobby from './Lobby';
@@ -55,13 +55,14 @@ const App = ({}: Props) => {
                     <AuthRedirectRoute authRedirectTarget={<Navigate to="/lobby" />} noAuthRedirectTarget={< Login />} />
                 } />
 
+                {/* TODO: For some reason, when this redirects back to Login, the url remains as '/lobby' */}
                 <Route path="/lobby" element={
-                    <AuthRedirectRoute authRedirectTarget={<Navigate to="/lobby" />} noAuthRedirectTarget={< Login />} />
+                    <AuthRedirectRoute authRedirectTarget={<Lobby />} noAuthRedirectTarget={< Login />} />
                 } />
 
                 <Route path="/match/:matchId" element={
                     <AuthMatchRoute redirectTo='/'>
-                        <Match />
+                        <MatchView />
                     </AuthMatchRoute>
                 } />
 

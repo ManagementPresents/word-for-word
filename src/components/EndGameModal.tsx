@@ -11,7 +11,7 @@ type Props = {
   isOpen: boolean
   handleClose: () => void
   styles: any
-  darkMode: boolean
+  darkMode?: boolean
   gameState: string
   state: any
   currentStreak: number

@@ -1,7 +1,7 @@
-import { RadioGroup, Switch } from '@headlessui/react'
+import { RadioGroup,} from '@headlessui/react'
 
 import Modal from 'react-modal'
-import { difficulty } from '../views/Match'
+import { difficulty } from '../views/MatchView'
 import { ReactComponent as Close } from '../data/Close.svg'
 
 if (process.env.NODE_ENV !== 'test') Modal.setAppElement('#root')
@@ -10,8 +10,8 @@ type Props = {
   isOpen: boolean
   handleClose: () => void
   styles: any
-  darkMode: boolean
-  toggleDarkMode: () => void
+  darkMode?: boolean
+  toggleDarkMode?: () => void
   difficultyLevel: string
   setDifficultyLevel: any
   levelInstructions: string
@@ -46,28 +46,6 @@ export const SettingsModal = ({
             >
               <Close />
             </button>
-
-            <Switch.Group as="div" className="flex items-center">
-              <Switch
-                checked={darkMode}
-                onChange={toggleDarkMode}
-                className={`${
-                  darkMode
-                    ? 'nm-inset-yellow-500 border-background-dark'
-                    : 'nm-inset-background border-transparent'
-                } relative inline-flex flex-shrink-0 h-8 w-14 p-1 border-2 rounded-full cursor-pointer transition ease-in-out duration-200`}
-              >
-                <span
-                  aria-hidden="true"
-                  className={`${
-                    darkMode ? 'translate-x-[1.55rem]' : 'translate-x-0'
-                  } absolute pointer-events-none inline-block top-1/2 -translate-y-1/2 h-5 w-5 shadow rounded-full bg-white transform ring-0 transition ease-in-out duration-200`}
-                />
-              </Switch>
-              <Switch.Label as="span" className="ml-3 cursor-pointer">
-                Dark Mode
-              </Switch.Label>
-            </Switch.Group>
 
             <RadioGroup value={difficultyLevel} onChange={setDifficultyLevel} className="mt-6">
               <RadioGroup.Label className="w-full text-center">Difficulty Level</RadioGroup.Label>

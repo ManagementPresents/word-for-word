@@ -4,7 +4,7 @@ import { Ripple } from 'react-spinners-css';
 const Loading = ({ enableCentering }: any) => {
     return (
         <div className={`grid h-screen ${enableCentering ? 'place-items-center' : ''}`}>
-            <Ripple size={200} />
+            <Ripple color={"#FFCE47"} size={200} />
         </div>
     );
 };
