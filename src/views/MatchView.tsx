@@ -1,5 +1,5 @@
 //Adding Firebase imports
-import { collection, doc, setDoc, getDoc } from "firebase/firestore"; 
+import { doc, setDoc, getDoc } from "firebase/firestore"; 
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -18,6 +18,7 @@ import { renderWordleSquares } from "../utils/wordUtils";
 import Match from '../types/Match';
 import Player from '../types/Player';
 import ValidationError from "../types/ValidationError";
+import Cell from '../types/match/Cell';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
@@ -40,7 +41,7 @@ export const difficulty = {
 type State = {
   answer: '',
   gameState: string
-  board: string[][]
+  board: Cell[][]
   cellStatuses: string[][]
   currentRow: number
   currentCol: number
@@ -52,13 +53,15 @@ function MatchView() {
     const initialStates: State = {
         answer: '',
         gameState: state.playing,
+        /* 
+            TODO: Probably a better way to do this. May not even be necessary once the board logic is properly figured out
+        */
         board: [
-            ['', '', '', '', ''],
-            ['', '', '', '', ''],
-            ['', '', '', '', ''],
-            ['', '', '', '', ''],
-            ['', '', '', '', ''],
-            ['', '', '', '', ''],
+            Array(5).fill(0).map((emptyCell) => { return { letter: '', status: 'unguessed' }}),
+            Array(5).fill(0).map((emptyCell) => ({ letter: '', status: 'unguessed' } as Cell)),
+            Array(5).fill(0).map((emptyCell) => ({ letter: '', status: 'unguessed' } as Cell)),
+            Array(5).fill(0).map((emptyCell) => ({ letter: '', status: 'unguessed' } as Cell)),
+            Array(5).fill(0).map((emptyCell) => ({ letter: '', status: 'unguessed' } as Cell)),
         ],
         cellStatuses: Array(6).fill(Array(5).fill(status.unguessed)),
         currentRow: 0,
@@ -67,7 +70,7 @@ function MatchView() {
             const letterStatuses: { [key: string]: string } = {};
 
             letters.forEach((letter) => {
-            letterStatuses[letter] = status.unguessed
+                letterStatuses[letter] = status.unguessed
             });
 
             return letterStatuses;
@@ -112,22 +115,25 @@ function MatchView() {
         }
     }, [gameState])
 
-    const getCellStyles = (rowNumber: number, colNumber: number, letter: string) => {
+    const getCellStyles = (rowNumber: number, colNumber: number, status: string) => {
         if (rowNumber === currentRow) {
-            if (letter) {
-            return `guesses-style-default border ${
-                submittedInvalidWord ? 'border guesses-border-wrong' : ''
-            }`
+            if (status) {
+                return `guesses-style-default border ${
+                    submittedInvalidWord ? 'border guesses-border-wrong' : ''
+                }`
             }
+
             return 'guesses-style-default border'
         }
 
-        switch (cellStatuses[rowNumber][colNumber]) {
-            case status.green:
+        const currentCell: Cell = board[rowNumber][colNumber] as Cell;
+
+        switch (currentCell.status) {
+            case 'correct':
                 return 'green'
-            case status.yellow:
+            case 'misplaced':
                 return 'yellow'
-            case status.gray:
+            case 'incorrect':
                 return 'gray'
             default:
                 return 'border guesses-style-default'
@@ -137,13 +143,18 @@ function MatchView() {
     const addLetter = (letter: string) => {
         setSubmittedInvalidWord(false);
 
-        setBoard((prev: string[][]) => {
+        setBoard((prev: Cell[][]) => {
             if (currentCol > 4) {
                 return prev
             }
 
             const newBoard = [...prev]
-            newBoard[currentRow][currentCol] = letter
+            const newCell: Cell = {
+                letter,
+                status: 'unguessed'
+            }
+
+            newBoard[currentRow][currentCol] = newCell
             return newBoard
         })
         
@@ -174,29 +185,33 @@ function MatchView() {
     //   return [false, `In hard mode, you must use all the hints you've been given.`]
   }
 
-  const onEnterPress = () => {
-    const word = board[currentRow].join('')
-    const [valid, _err] = isValidWord(word)
-    if (!valid) {
-      setSubmittedInvalidWord(true)
-      // alert(_err)
-      return
+    const onEnterPress = () => {
+        const word = board[currentRow].map((cell: Cell) => cell.letter).join('')
+        const [valid, _err] = isValidWord(word)
+
+        if (!valid) {
+            setSubmittedInvalidWord(true)
+            console.log({ _err })
+            return
+        }
+
+        if (currentRow === 6) return
+
+
+        updateCells(word, currentRow)
+        updateLetterStatuses(word)
+        setCurrentRow((prev: number) => prev + 1)
+        setCurrentCol(0)
+
+        console.log('current row', board[currentRow]);
+
+        //to-do: remove streaks
+        // Only calculate guesses in streak if they've
+        // started a new streak since this feature was added.
+        if (guessesInStreak >= 0) {
+            setGuessesInStreak((prev: number) => prev + 1)
+        }
     }
-
-    if (currentRow === 6) return
-
-    updateCellStatuses(word, currentRow)
-    updateLetterStatuses(word)
-    setCurrentRow((prev: number) => prev + 1)
-    setCurrentCol(0)
-
-    //to-do: remove streaks
-    // Only calculate guesses in streak if they've
-    // started a new streak since this feature was added.
-    if (guessesInStreak >= 0) {
-      setGuessesInStreak((prev: number) => prev + 1)
-    }
-  }
 
   const onDeletePress = () => {
     setSubmittedInvalidWord(false)
@@ -211,27 +226,30 @@ function MatchView() {
     setCurrentCol((prev: number) => prev - 1)
   }
 
-const updateCellStatuses = (word: string, rowNumber: number) => {
+const updateCells = (word: string, rowNumber: number) => {
     // TODO: Kludge, need to ensure capitalization (or lack thereof) for answers and guesses is standardized
     word = word.toUpperCase();
 
-const fixedLetters: { [key: number]: string } = {}
-    setCellStatuses((prev: any) => {
-        const newCellStatuses = [...prev];
-        newCellStatuses[rowNumber] = [...prev[rowNumber]];
+    const fixedLetters: { [key: number]: string } = {}
+
+    const generateNewBoard = (prev: any): Cell[][] => {
+        const newBoard = [...prev];
+        newBoard[rowNumber] = [...prev[rowNumber]];
 
         const wordLength = word.length;
         const answerLetters: string[] = answer.split('');
 
+        console.log('answer', answer);
         // Set all to gray
         for (let i = 0; i < wordLength; i++) {
-            newCellStatuses[rowNumber][i] = status.gray
+            newBoard[rowNumber][i].status = 'incorrect';
         }
 
         // Check greens
         for (let i = wordLength - 1; i >= 0; i--) {
             if (word[i] === answer[i]) {
-                newCellStatuses[rowNumber][i] = status.green
+                console.log('current letter', word[i]);
+                newBoard[rowNumber][i].status = 'correct';
                 answerLetters.splice(i, 1)
                 fixedLetters[i] = answer[i]
             }
@@ -239,14 +257,16 @@ const fixedLetters: { [key: number]: string } = {}
 
         // check yellows
         for (let i = 0; i < wordLength; i++) {
-            if (answerLetters.includes(word[i]) && newCellStatuses[rowNumber][i] !== status.green) {
-                newCellStatuses[rowNumber][i] = status.yellow
+            if (answerLetters.includes(word[i]) && newBoard[rowNumber][i] !== status.green) {
+                newBoard[rowNumber][i].status = 'misplaced';
                 answerLetters.splice(answerLetters.indexOf(word[i]), 1)
             }
         }
 
-        return newCellStatuses
-    })
+        return newBoard;
+    };
+
+    setBoard(generateNewBoard);
 
     setExactGuesses((prev: { [key: number]: string }) => ({ ...prev, ...fixedLetters }))
 }
@@ -339,7 +359,7 @@ const fixedLetters: { [key: number]: string } = {}
     const params = useParams();
 
     const { db, setOpponentPlayer, opponentPlayer, currentMatch, setCurrentMatch } = useStore();
-
+    
     const [isLandingModalOpen, setIsLandingModalOpen] = useState(true);
     const [isHowToPlayModalOpen, setIsHowToPlayModalOpen] = useState(false);
     const [answer, setAnswer] = useState('');
@@ -394,6 +414,9 @@ const fixedLetters: { [key: number]: string } = {}
         }
     }
 
+    useEffect(() => {
+        console.log({ board });
+    }, [board]);
     useEffect(() => {
         // TODO: Clunky way to ensure we see the validatione errors the first time the wordle input renders
         handleValidateWordle();
@@ -462,24 +485,26 @@ const fixedLetters: { [key: number]: string } = {}
               <Info />
             </button>  */}
           </header>
-          <div className="flex items-center flex-col py-3 flex-1 justify-center relative">
-            <div className="relative">
-              <div className="grid grid-cols-5 grid-flow-row gap-4">
-                {board.map((row: string[], rowNumber: number) =>
-                  row.map((letter: string, colNumber: number) => (
-                    <span
-                      key={colNumber}
-                      className={`${getCellStyles(
-                        rowNumber,
-                        colNumber,
-                        letter
-                      )} inline-flex items-center font-medium justify-center text-lg w-[13vw] h-[13vw] xs:w-14 xs:h-14 sm:w-20 sm:h-20`}
-                    >
-                      {letter}
-                    </span>
-                  ))
-                )}
-              </div>
+            <div className="flex items-center flex-col py-3 flex-1 justify-center relative">
+                <div className="relative">
+                    <div className="grid grid-cols-5 grid-flow-row gap-4">
+                        {
+                            board.map((row: Cell[], rowNumber: number) => {
+                                return row.map((cell: Cell, colNumber: number) => {
+                                    return <span
+                                        key={colNumber}
+                                        className={`${getCellStyles(
+                                            rowNumber,
+                                            colNumber,
+                                            cell.status
+                                        )} inline-flex items-center font-medium justify-center text-lg w-[13vw] h-[13vw] xs:w-14 xs:h-14 sm:w-20 sm:h-20`}
+                                        >
+                                        {cell.letter}
+                                    </span>
+                                });
+                            })
+                        }
+                    </div>
               <div
                 className={`absolute -bottom-24 left-1/2 transform -translate-x-1/2 ${
                   gameState === state.playing ? 'hidden' : ''
