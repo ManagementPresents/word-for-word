@@ -7,19 +7,21 @@ import { Keyboard } from '../components/Keyboard'
 import Modal from '../components/Modal';
 import Loading from '../components/Loading';
 import Button from '../components/buttons/Button';
+import WordleInput from "../components/WordleInput";
+import LoadingButton from "../components/buttons/LoadingButton";
+
+import useStore from '../utils/store';
+import { validateWordle } from "../utils/validation";
+import Turn from "../types/Turn";
+import { letters, status } from '../constants'
+import { renderWordleSquares } from "../utils/wordUtils";
+import Match from '../types/Match';
+import Player from '../types/Player';
+import ValidationError from "../types/ValidationError";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { ReactComponent as Lobby } from '../data/Lobby.svg'
-
-import useStore from '../utils/store';
-import Turn from "../types/Turn";
-import { letters, status } from '../constants'
-import { renderWordleSquares } from "../utils/wordUtils";
-
-/* --- */
-import Match from '../types/Match';
-import Player from '../types/Player';
 
 const words = require('../data/words').default as { [key: string]: boolean }
 
@@ -34,11 +36,6 @@ export const difficulty = {
   normal: 'normal',
   hard: 'hard',
 }
-
-// const getRandomAnswer = () => {
-//   const randomIndex = Math.floor(Math.random() * answers.length)
-//   return answers[randomIndex].toUpperCase()
-// }
 
 type State = {
   answer: '',
@@ -80,22 +77,21 @@ function MatchView() {
 
     const [gameState, setGameState] = useState('playing');
     const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
-
-  //TO-DO: Replace Local Storage
     const [currentRow, setCurrentRow] = useState(initialStates.currentRow);
     const [currentCol, setCurrentCol] = useState(initialStates.currentCol);
     const [letterStatuses, setLetterStatuses] = useState(initialStates.letterStatuses());
-  
     const [submittedInvalidWord, setSubmittedInvalidWord] = useState(initialStates.submittedInvalidWord);
+    const [nextWordle, setNextWordle] = useState('');
+    const [isNextWordleReady, setIsNextWordleReady] = useState(false);
 
-    //To-Do: Remove Streaks
+    // TODO: Remove Streaks
     const [currentStreak, setCurrentStreak] = useState(0)
     const [longestStreak, setLongestStreak] = useState(0);
 
-    //To-Do: Change Local Storage to Firebase Storage for "first time" guest identification purposes
+    // TODO: Change Local Storage to Firebase Storage for "first time" guest identification purposes
     const [firstTime, setFirstTime] = useState(true);
 
-    //To-Do: Kill streaks
+    // TODO: Kill streaks
     const [guessesInStreak, setGuessesInStreak] = useState(firstTime ? 0 : -1);
 
     const eg: { [key: number]: string } = {}
@@ -104,7 +100,6 @@ function MatchView() {
     const navigate = useNavigate();
 
     const isLoading = useStore((state) => state.isLoading);
-    //To-Do: Probably code we should repurpose for userID
     const { setIsLoading } = useStore();
     const { user } = useStore();
 
@@ -350,6 +345,7 @@ const fixedLetters: { [key: number]: string } = {}
     const [answer, setAnswer] = useState('');
     const [board, setBoard] = useState(initialStates.board);
     const [isEndTurnModalOpen, setIsEndTurnModalOpen] = useState(false);
+    const [wordleValidationErrors, setWordleValidationErrors] = useState([]);
 
     const handleCloseEndTurnModal = () => {
         setIsEndTurnModalOpen(false);
@@ -383,7 +379,25 @@ const fixedLetters: { [key: number]: string } = {}
         }
     }
 
+    const handleValidateWordle = (wordle: string  = ''): void => {
+        // TODO: this 'message' property can be refactored away when we stop using 'password-validator.js'
+        const validationErrors: ValidationError[] = validateWordle(wordle).map(error => ({ message: error } as ValidationError));
+
+        // @ts-ignore
+        setWordleValidationErrors(validationErrors); 
+
+        if (!validationErrors.length) {
+            setNextWordle(wordle);
+            setIsNextWordleReady(true);
+        } else {
+            setIsNextWordleReady(false);
+        }
+    }
+
     useEffect(() => {
+        // TODO: Clunky way to ensure we see the validatione errors the first time the wordle input renders
+        handleValidateWordle();
+
         (async () => {
             if (user) {
                 const matchDocRef = doc(db, 'matches', params.matchId || '');
@@ -579,11 +593,15 @@ const fixedLetters: { [key: number]: string } = {}
                     {renderWordleSquares(answer)}
                 </div>
 
-                <div className="flex flex-col gap-y-2 text-center ">
+                <div className="flex flex-col gap-y-2 text-center mx-auto min-w-[250px]">
                     <span className="text-[28px] mt-8">Now it's your turn!</span>
 
                     <span>Send them a word right back!</span>
+                    <WordleInput validationErrors={wordleValidationErrors} handleValidationErrors={(e: React.ChangeEvent<HTMLInputElement>) => { handleValidateWordle(e.target.value) }} />
                 </div>
+
+                {/* TODO: Hook up isLoading and onClick props */}
+                <LoadingButton copy={'Send Word'} isLoadingCopy={'Sending Word...'} color='green' isLoading={false} disabled={!!wordleValidationErrors.length} onClick={() => console.log('submit wordle')} />
 
                 <div className="flex flex-row gap-x-1 justify-center items-center">
                     <span className="basis-full">Tired of this chicanery? </span>

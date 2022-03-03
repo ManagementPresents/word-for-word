@@ -1,4 +1,5 @@
-// import { Navigate } from 'react-router-dom';
+
+import { FC } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
@@ -11,7 +12,7 @@ type Props = {
     match: Match,
 }
 
-const MatchCard = ({ match }: Props) => {
+const MatchCard: FC<Props> = ({ match }: Props) => {
     return (
         <div className="relative flex flex-col bg-[#caa82a] rounded-3xl p-6 justify-center items-center gap-y-3">
             <FontAwesomeIcon icon={faClockRotateLeft} className="absolute top-[-10px] right-0 text-[#FFCE47]" size='3x' />
