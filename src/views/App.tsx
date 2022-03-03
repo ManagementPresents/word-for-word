@@ -10,7 +10,7 @@ import {
 import initializeFirebase from '../utils/firebase';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
-import Match from './Match';
+import MatchView from './MatchView';
 import Login from './Login';
 import Register from './Register';
 import Lobby from './Lobby';
@@ -22,8 +22,6 @@ import AuthRedirectRoute from '../components/wrappers/AuthRedirectRoute';
 import AuthMatchRoute from '../components/wrappers/AuthMatchRoute';
 
 type Props = {};
-
-console.log('updated with deploy dev script');
 
 const App = ({}: Props) => {
     useEffect(() => {        
@@ -64,7 +62,7 @@ const App = ({}: Props) => {
 
                 <Route path="/match/:matchId" element={
                     <AuthMatchRoute redirectTo='/'>
-                        <Match />
+                        <MatchView />
                     </AuthMatchRoute>
                 } />
 

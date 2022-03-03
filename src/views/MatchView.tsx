@@ -12,7 +12,6 @@ import Modal from '../components/Modal';
 import Loading from '../components/Loading';
 import Button from '../components/buttons/Button';
 
-import { useLocalStorage } from '../hooks/useLocalStorage'
 import { ReactComponent as Info } from '../data/Info.svg'
 import { ReactComponent as Settings } from '../data/Settings.svg'
 import useStore from '../utils/store';
@@ -53,40 +52,42 @@ type State = {
   submittedInvalidWord: boolean
 }
 
-function Game() {
-  const initialStates: State = {
-    answer: '',
-    gameState: state.playing,
-    board: [
-      ['', '', '', '', ''],
-      ['', '', '', '', ''],
-      ['', '', '', '', ''],
-      ['', '', '', '', ''],
-      ['', '', '', '', ''],
-      ['', '', '', '', ''],
-    ],
-    cellStatuses: Array(6).fill(Array(5).fill(status.unguessed)),
-    currentRow: 0,
-    currentCol: 0,
-    letterStatuses: () => {
-      const letterStatuses: { [key: string]: string } = {}
-      letters.forEach((letter) => {
-        letterStatuses[letter] = status.unguessed
-      })
-      return letterStatuses
-    },
-    submittedInvalidWord: false,
-  }
+function MatchView() {
+    const initialStates: State = {
+        answer: '',
+        gameState: state.playing,
+        board: [
+            ['', '', '', '', ''],
+            ['', '', '', '', ''],
+            ['', '', '', '', ''],
+            ['', '', '', '', ''],
+            ['', '', '', '', ''],
+            ['', '', '', '', ''],
+        ],
+        cellStatuses: Array(6).fill(Array(5).fill(status.unguessed)),
+        currentRow: 0,
+        currentCol: 0,
+        letterStatuses: () => {
+            const letterStatuses: { [key: string]: string } = {};
 
-  // const [gameState, setGameState] = useLocalStorage('stateGameState', initialStates.gameState)
-  const [gameState, setGameState] = useState('playing');
-  //TO-DO: replace Local Storage with the string that exists in Firebase
-//   const [board, setBoard] = useLocalStorage('stateBoard', initialStates.board)
-//   const [cellStatuses, setCellStatuses] = useLocalStorage(
-//     'stateCellStatuses',
-//     initialStates.cellStatuses
-//   )
-const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
+            letters.forEach((letter) => {
+            letterStatuses[letter] = status.unguessed
+            });
+
+            return letterStatuses;
+        },
+        submittedInvalidWord: false,
+    }
+
+    // const [gameState, setGameState] = useLocalStorage('stateGameState', initialStates.gameState)
+    const [gameState, setGameState] = useState('playing');
+    //TO-DO: replace Local Storage with the string that exists in Firebase
+    //   const [board, setBoard] = useLocalStorage('stateBoard', initialStates.board)
+    //   const [cellStatuses, setCellStatuses] = useLocalStorage(
+    //     'stateCellStatuses',
+    //     initialStates.cellStatuses
+    //   )
+    const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
 
   //TO-DO: Replace Local Storage
     const [currentRow, setCurrentRow] = useState(initialStates.currentRow);
@@ -133,13 +134,13 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
     const { user } = useStore();
 
     //To-Do: Strip out Dark Mode
-    const [darkMode, setDarkMode] = useLocalStorage('dark-mode', false)
-    const toggleDarkMode = () => setDarkMode((prev: boolean) => !prev)
+    // const [darkMode, setDarkMode] = useLocalStorage('dark-mode', false)
+    // const toggleDarkMode = () => setDarkMode((prev: boolean) => !prev)
 
-    useEffect(
-        () => document.documentElement.classList[darkMode ? 'add' : 'remove']('dark'),
-        [darkMode]
-    );
+    // useEffect(
+    //     () => document.documentElement.classList[darkMode ? 'add' : 'remove']('dark'),
+    //     [darkMode]
+    // );
 
     //To-Do: Check this later if it pops up whatever modal, if that's a problem for our changes
     useEffect(() => {
@@ -394,11 +395,7 @@ const fixedLetters: { [key: number]: string } = {}
       height: 'calc(100% - 2rem)',
       width: 'calc(100% - 2rem)',
       backgroundColor: '#3c2a34',
-      boxShadow: `${
-        darkMode
-          ? '0.2em 0.2em calc(0.2em * 2) #3c2a34, calc(0.2em * -1) calc(0.2em * -1) calc(0.2em * 2) #3c2a34'
-          : '0.2em 0.2em calc(0.2em * 2) #3c2a34, calc(0.2em * -1) calc(0.2em * -1) calc(0.2em * 2) #3c2a34'
-      }`,
+      boxShadow: '0.2em 0.2em calc(0.2em * 2) #3c2a34, calc(0.2em * -1) calc(0.2em * -1) calc(0.2em * 2) #3c2a34',
       border: 'none',
       borderRadius: '1rem',
       maxWidth: '475px',
@@ -533,7 +530,7 @@ const fixedLetters: { [key: number]: string } = {}
                   gameState === state.playing ? 'hidden' : ''
                 }`}
               >
-                <div className={darkMode ? 'dark' : ''}>
+                <div>
                   <button
                     autoFocus
                     type="button"
@@ -617,7 +614,6 @@ const fixedLetters: { [key: number]: string } = {}
             isOpen={modalIsOpen}
             handleClose={closeModal}
             styles={modalStyles}
-            darkMode={darkMode}
             gameState={gameState}
             state={state}
             currentStreak={currentStreak}
@@ -626,16 +622,14 @@ const fixedLetters: { [key: number]: string } = {}
             playAgain={playAgain}
             avgGuessesPerGame={avgGuessesPerGame()}
           />
-          <SettingsModal
+          {/* <SettingsModal
             isOpen={settingsModalIsOpen}
             handleClose={() => setSettingsModalIsOpen(false)}
             styles={modalStyles}
-            darkMode={darkMode}
-            toggleDarkMode={toggleDarkMode}
             difficultyLevel={difficultyLevel}
             setDifficultyLevel={setDifficultyLevel}
             levelInstructions={getDifficultyLevelInstructions()}
-          />
+          /> */}
           <div className={`h-auto relative ${gameState === state.playing ? '' : 'invisible'}`}>
             <Keyboard
               letterStatuses={letterStatuses}
@@ -651,4 +645,4 @@ const fixedLetters: { [key: number]: string } = {}
   }
 }
 
-export default Game;
+export default MatchView;

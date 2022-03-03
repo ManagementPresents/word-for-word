@@ -11,8 +11,6 @@ const {
     REACT_APP_MEASUREMENT_ID,
 } = process.env;
 
-console.log(process.env);
-
 const initializeFirebase = () => {
     const firebaseConfig = {
         apiKey: REACT_APP_API_KEY,
@@ -22,7 +20,7 @@ const initializeFirebase = () => {
         messagingSenderId: REACT_APP_MESSAGING_SENDER_ID,
         appId: REACT_APP_APP_ID,
         measurementId: REACT_APP_MEASUREMENT_ID,
-      };    
+    };    
       
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
