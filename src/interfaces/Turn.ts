@@ -1,4 +1,4 @@
-type Turn = {
+interface Turn {
     activePlayer: string,
     currentTurn: boolean,
     guesses: [],

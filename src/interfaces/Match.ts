@@ -1,6 +1,6 @@
 import Turn from './Turn';
 
-type Match = {
+interface Match {
     id: string,
     players: {
         guestId: string,

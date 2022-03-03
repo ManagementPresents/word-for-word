@@ -1,4 +1,4 @@
-type Cell = {
+interface Cell {
     letter: string,
     status: string,
 }

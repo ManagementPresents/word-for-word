@@ -1,4 +1,4 @@
-type ValidationError = {
+interface ValidationError {
     message: string,
 }
 

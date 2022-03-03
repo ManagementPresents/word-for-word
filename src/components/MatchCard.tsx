@@ -4,11 +4,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
 
-import Match from '../types/Match';
+import Match from '../interfaces/Match';
 
 import { renderWordleSquares } from '../utils/wordUtils';
 
-type Props = {
+interface Props {
     match: Match,
 }
 

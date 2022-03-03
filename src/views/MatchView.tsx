@@ -12,13 +12,13 @@ import LoadingButton from "../components/buttons/LoadingButton";
 
 import useStore from '../utils/store';
 import { validateWordle } from "../utils/validation";
-import Turn from "../types/Turn";
 import { letters, status } from '../constants'
 import { renderWordleSquares } from "../utils/wordUtils";
-import Match from '../types/Match';
-import Player from '../types/Player';
-import ValidationError from "../types/ValidationError";
-import Cell from '../types/match/Cell';
+import Turn from "../interfaces/Turn";
+import Match from '../interfaces/Match';
+import Player from '../interfaces/Player';
+import ValidationError from "../interfaces/ValidationError";
+import Cell from '../interfaces/match/Cell';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
@@ -198,7 +198,6 @@ function MatchView() {
 
         if (currentRow === 6) return
 
-
         updateCells(word, currentRow)
         updateLetterStatuses(word)
         setCurrentRow((prev: number) => prev + 1)
@@ -320,7 +319,15 @@ const updateCells = (word: string, rowNumber: number) => {
     /* --- */
     const params = useParams();
 
-    const { db, setOpponentPlayer, opponentPlayer, currentMatch, setCurrentMatch } = useStore();
+    const { 
+        db, 
+        setOpponentPlayer, 
+        opponentPlayer, 
+        currentMatch, 
+        currentTurn,
+        setCurrentMatch, 
+        setCurrentTurn, 
+    } = useStore();
     
     const [isLandingModalOpen, setIsLandingModalOpen] = useState(true);
     const [isHowToPlayModalOpen, setIsHowToPlayModalOpen] = useState(false);
@@ -347,15 +354,18 @@ const updateCells = (word: string, rowNumber: number) => {
         const docRef = doc(db, 'matches', currentMatch.id as string);
 
         /*
-            TODO: This feels stupid. We shouldn't have to follow this with a 'get' just to update the localStore. consider bringin in a firebase listener that, well, listens to changes to the 'matches' collection and automatically updates the store accordingly
+            TODO: This feels stupid. We shouldn't have to follow this with a 'get' just to update the localStore. consider bringing in a firebase listener that, well, listens to changes to the 'matches' collection and automatically updates the store accordingly
         */
         await setDoc(docRef, { players: { guestId: user.uid }}, { merge: true });
         const updatedCurrentMatchSnap = await getDoc(docRef);
 
         if (updatedCurrentMatchSnap.exists()) {
             const updatedCurrentMatchData: Match = updatedCurrentMatchSnap.data() as Match;
+            const currentTurn: Turn = updatedCurrentMatchData.turns.find((turn: Turn): boolean => turn.currentTurn) as Turn;
 
             setCurrentMatch(updatedCurrentMatchData);
+            setCurrentTurn(currentTurn);
+
             setIsHowToPlayModalOpen(false);
             setIsLandingModalOpen(false);
         }
@@ -463,7 +473,7 @@ const updateCells = (word: string, rowNumber: number) => {
               <Lobby />
             </button> 
             <h1 className="flex-1 text-center text-xl xxs:text-2xl sm:text-4xl tracking-wide font-bold font-righteous">
-              Wordles with Friendles
+              War of the Wordles
             </h1>
             {/* <button
               type="button"

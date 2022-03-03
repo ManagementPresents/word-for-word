@@ -1,6 +1,6 @@
 import Match from './Match';
 
-type Player = {
+interface Player {
     matches: Match[],
     email: string,
 }

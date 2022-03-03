@@ -1,6 +1,6 @@
 import GuessLetter from './GuessLetter';
 
-type Guess = {
+interface Guess {
     guess: GuessLetter[],
 }
 

@@ -1,7 +1,7 @@
 import { FC } from "react";
 
 import { renderErrors } from '../utils/misc';
-import ValidationError from '../types/ValidationError';
+import ValidationError from '../interfaces/ValidationError';
 
 interface Props {
     validationErrors: ValidationError[],

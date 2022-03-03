@@ -1,7 +1,7 @@
 import { keyboardLetters, status, letters } from '../constants'
 import { useEffect, useCallback } from 'react'
 
-type Props = {
+interface Props {
   letterStatuses: { [key: string]: string }
   gameDisabled: boolean
   onDeletePress: () => void

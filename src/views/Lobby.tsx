@@ -15,10 +15,10 @@ import { validateWordle } from '../utils/validation';
 import useStore from '../utils/store';
 import { generateMatchUri } from '../utils/wordUtils';
 import { TIMEOUT_DURATION } from '../utils/constants';
-import Match  from '../types/Match';
-import ValidationError from '../types/ValidationError';
+import Match  from '../interfaces/Match';
+import ValidationError from '../interfaces/ValidationError';
 
-type Props = {}
+interface Props {}
 
 const Lobby = ({}: Props) => {
     const { user, db, matches, setMatches, addMatch, } = useStore();

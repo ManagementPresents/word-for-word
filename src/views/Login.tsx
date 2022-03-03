@@ -8,7 +8,7 @@ import useStore from '../utils/store';
 
 import Button from '../components/buttons/Button';
 
-type Props = {
+interface Props {
 //   letterStatuses: { [key: string]: string }
 //   gameDisabled: boolean
 //   onDeletePress: () => void
@@ -79,7 +79,7 @@ const Login = ({}: Props) => {
 	return (
 		<div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
 			<div className="max-w-lg w-full space-y-8">
-				<h1 className="text-center text-6xl">Wordles with Friendles</h1>
+				<h1 className="text-center text-6xl">War of the Wordles</h1>
 
 				<div className="mt-8 space-y-6">
 					<input type="hidden" name="remember" value="true" />
