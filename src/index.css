@@ -42,11 +42,6 @@ html {
   background-color: #A0939A; 
 }
 
-.grey {
-  background-color: #3C2A34;
-  color: #F1F1F9;
-}
-
 .guesses-style-default {
   background-color: transparent;
   color: #F1F1F9;
@@ -89,6 +84,11 @@ html {
 
 .gray {
   background-color: #A0939A;
+  color: #F1F1F9;
+}
+
+.dark-gray {
+  background-color: #3C2A34;
   color: #F1F1F9;
 }
 

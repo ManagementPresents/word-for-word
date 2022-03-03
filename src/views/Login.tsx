@@ -117,6 +117,7 @@ const Login = ({}: Props) => {
 
 					{/* TODO: Need to make sure this works when hitting 'Enter' */}
 					<div className="flex flex-col gap-y-4">
+						{/* TODO: Should be a LoadingButton */}
 						<Button onClick={handleSignIn} color="green" copy="Sign In" />
 						<Button onClick={() => { navigate('/register')}} color="yellow" copy="Register (It's Free!)" />
 					</div>

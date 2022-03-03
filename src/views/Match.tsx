@@ -89,108 +89,106 @@ function Game() {
 const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
 
   //TO-DO: Replace Local Storage
-  const [currentRow, setCurrentRow] = useLocalStorage('stateCurrentRow', initialStates.currentRow)
-  const [currentCol, setCurrentCol] = useLocalStorage('stateCurrentCol', initialStates.currentCol)
-  const [letterStatuses, setLetterStatuses] = useLocalStorage(
-    'stateLetterStatuses',
-    initialStates.letterStatuses()
-  )
-  const [submittedInvalidWord, setSubmittedInvalidWord] = useLocalStorage(
-    'stateSubmittedInvalidWord',
-    initialStates.submittedInvalidWord
-  )
-//To-Do: Remove Streaks
-  const [currentStreak, setCurrentStreak] = useLocalStorage('current-streak', 0)
-  const [longestStreak, setLongestStreak] = useLocalStorage('longest-streak', 0)
-  const [modalIsOpen, setIsOpen] = useState(false)
-  //To-Do: Change Local Storage to Firebase Storage for "first time" guest identification purposes
-  const [firstTime, setFirstTime] = useLocalStorage('first-time', true)
-  //To-Do: Kill streaks
-  const [guessesInStreak, setGuessesInStreak] = useLocalStorage(
-    'guesses-in-streak',
-    firstTime ? 0 : -1
-  )
-//   const [infoModalIsOpen, setInfoModalIsOpen] = useState(firstTime)
-  const [inputModalIsOpen, setInputModalIsOpen] = useState(true);
-  const [settingsModalIsOpen, setSettingsModalIsOpen] = useState(false)
-  //To-Do: Remove "Difficulty"
-  const [difficultyLevel, setDifficultyLevel] = useLocalStorage('difficulty', difficulty.normal)
-  const getDifficultyLevelInstructions = () => {
-    if (difficultyLevel === difficulty.easy) {
-      return 'Guess any 5 letters'
-    } else if (difficultyLevel === difficulty.hard) {
-      return "Guess any valid word using all the hints you've been given"
-    } else {
-      return 'Guess any valid word'
+    const [currentRow, setCurrentRow] = useState(initialStates.currentRow);
+    const [currentCol, setCurrentCol] = useState(initialStates.currentCol);
+    const [letterStatuses, setLetterStatuses] = useState(initialStates.letterStatuses());
+  
+    const [submittedInvalidWord, setSubmittedInvalidWord] = useState(initialStates.submittedInvalidWord);
+
+    //To-Do: Remove Streaks
+    const [currentStreak, setCurrentStreak] = useState(0)
+    const [longestStreak, setLongestStreak] = useState(0);
+    const [modalIsOpen, setIsOpen] = useState(false)
+
+    //To-Do: Change Local Storage to Firebase Storage for "first time" guest identification purposes
+    const [firstTime, setFirstTime] = useState(true);
+
+    //To-Do: Kill streaks
+    const [guessesInStreak, setGuessesInStreak] = useState(firstTime ? 0 : -1);
+
+    const [settingsModalIsOpen, setSettingsModalIsOpen] = useState(false);
+
+    //To-Do: Remove "Difficulty"
+    const [difficultyLevel, setDifficultyLevel] = useState(difficulty.normal);
+    const getDifficultyLevelInstructions = () => {
+        if (difficultyLevel === difficulty.easy) {
+            return 'Guess any 5 letters'
+        } else if (difficultyLevel === difficulty.hard) {
+            return "Guess any valid word using all the hints you've been given"
+        } else {
+            return 'Guess any valid word'
+        }
     }
-  }
-  const eg: { [key: number]: string } = {}
+    const eg: { [key: number]: string } = {}
   //To-Do: Remove Localstorage
-  const [exactGuesses, setExactGuesses] = useLocalStorage('exact-guesses', eg)
-  const openModal = () => setIsOpen(true)
-  const closeModal = () => setIsOpen(false)
+    const [exactGuesses, setExactGuesses] = useState(eg);
+    const openModal = () => setIsOpen(true)
+    const closeModal = () => setIsOpen(false)
 
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  const isLoading = useStore((state) => state.isLoading);
-  //To-Do: Probably code we should repurpose for userID
-  const { setIsLoading } = useStore();
-  const { user } = useStore();
+    const isLoading = useStore((state) => state.isLoading);
+    //To-Do: Probably code we should repurpose for userID
+    const { setIsLoading } = useStore();
+    const { user } = useStore();
 
-  //To-Do: Strip out Dark Mode
-  const [darkMode, setDarkMode] = useLocalStorage('dark-mode', false)
-  const toggleDarkMode = () => setDarkMode((prev: boolean) => !prev)
+    //To-Do: Strip out Dark Mode
+    const [darkMode, setDarkMode] = useLocalStorage('dark-mode', false)
+    const toggleDarkMode = () => setDarkMode((prev: boolean) => !prev)
 
-  useEffect(
-    () => document.documentElement.classList[darkMode ? 'add' : 'remove']('dark'),
-    [darkMode]
-  )
+    useEffect(
+        () => document.documentElement.classList[darkMode ? 'add' : 'remove']('dark'),
+        [darkMode]
+    );
 
-//To-Do: Check this later if it pops up whatever modal, if that's a problem for our changes
-  useEffect(() => {
-    if (gameState !== state.playing) {
-      setTimeout(() => {
-        openModal()
-      }, 500)
+    //To-Do: Check this later if it pops up whatever modal, if that's a problem for our changes
+    useEffect(() => {
+        if (gameState !== state.playing) {
+            setTimeout(() => {
+            openModal()
+            }, 500)
+        }
+    }, [gameState])
+
+    const getCellStyles = (rowNumber: number, colNumber: number, letter: string) => {
+        if (rowNumber === currentRow) {
+            if (letter) {
+            return `guesses-style-default border ${
+                submittedInvalidWord ? 'border guesses-border-wrong' : ''
+            }`
+            }
+            return 'guesses-style-default border'
+        }
+
+        switch (cellStatuses[rowNumber][colNumber]) {
+            case status.green:
+                return 'green'
+            case status.yellow:
+                return 'yellow'
+            case status.gray:
+                return 'gray'
+            default:
+                return 'border guesses-style-default'
+        }
     }
-  }, [gameState])
 
-  const getCellStyles = (rowNumber: number, colNumber: number, letter: string) => {
-    if (rowNumber === currentRow) {
-      if (letter) {
-        return `guesses-style-default border ${
-          submittedInvalidWord ? 'border guesses-border-wrong' : ''
-        }`
-      }
-      return 'guesses-style-default border'
-    }
+    const addLetter = (letter: string) => {
+        setSubmittedInvalidWord(false);
 
-    switch (cellStatuses[rowNumber][colNumber]) {
-      case status.green:
-        return 'green'
-      case status.yellow:
-        return 'yellow'
-      case status.gray:
-        return 'gray'
-      default:
-        return 'border guesses-style-default'
-    }
-  }
+        setBoard((prev: string[][]) => {
+            if (currentCol > 4) {
+                return prev
+            }
 
-  const addLetter = (letter: string) => {
-    setSubmittedInvalidWord(false)
-    setBoard((prev: string[][]) => {
-      if (currentCol > 4) {
-        return prev
-      }
-      const newBoard = [...prev]
-      newBoard[currentRow][currentCol] = letter
-      return newBoard
-    })
-    if (currentCol < 5) {
-      setCurrentCol((prev: number) => prev + 1)
+            const newBoard = [...prev]
+            newBoard[currentRow][currentCol] = letter
+            return newBoard
+        })
+        
+        if (currentCol < 5) {
+            setCurrentCol((prev: number) => prev + 1)
+        }
     }
-  }
 
   // returns an array with a boolean of if the word is valid and an error message if it is not
   const isValidWord = (word: string): [boolean] | [boolean, string] => {
@@ -219,7 +217,6 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
     const word = board[currentRow].join('')
     const [valid, _err] = isValidWord(word)
     if (!valid) {
-      console.log({ valid, _err })
       setSubmittedInvalidWord(true)
       // alert(_err)
       return
@@ -253,45 +250,45 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
     setCurrentCol((prev: number) => prev - 1)
   }
 
-  const updateCellStatuses = (word: string, rowNumber: number) => {
-      // TODO: Kludge, need to ensure capitalization (or lack thereof) for answers and guesses is standardized
-      word = word.toUpperCase();
+const updateCellStatuses = (word: string, rowNumber: number) => {
+    // TODO: Kludge, need to ensure capitalization (or lack thereof) for answers and guesses is standardized
+    word = word.toUpperCase();
 
-      console.log({ word, answer});
-
-    const fixedLetters: { [key: number]: string } = {}
+const fixedLetters: { [key: number]: string } = {}
     setCellStatuses((prev: any) => {
-      const newCellStatuses = [...prev]
-      newCellStatuses[rowNumber] = [...prev[rowNumber]]
-      const wordLength = word.length
-      const answerLetters: string[] = answer.split('')
+        const newCellStatuses = [...prev];
+        newCellStatuses[rowNumber] = [...prev[rowNumber]];
 
-      // set all to gray
-      for (let i = 0; i < wordLength; i++) {
-        newCellStatuses[rowNumber][i] = status.gray
-      }
+        const wordLength = word.length;
+        const answerLetters: string[] = answer.split('');
 
-      // check greens
-      for (let i = wordLength - 1; i >= 0; i--) {
-        if (word[i] === answer[i]) {
-          newCellStatuses[rowNumber][i] = status.green
-          answerLetters.splice(i, 1)
-          fixedLetters[i] = answer[i]
+        // Set all to gray
+        for (let i = 0; i < wordLength; i++) {
+            newCellStatuses[rowNumber][i] = status.gray
         }
-      }
 
-      // check yellows
-      for (let i = 0; i < wordLength; i++) {
-        if (answerLetters.includes(word[i]) && newCellStatuses[rowNumber][i] !== status.green) {
-          newCellStatuses[rowNumber][i] = status.yellow
-          answerLetters.splice(answerLetters.indexOf(word[i]), 1)
+        // Check greens
+        for (let i = wordLength - 1; i >= 0; i--) {
+            if (word[i] === answer[i]) {
+                newCellStatuses[rowNumber][i] = status.green
+                answerLetters.splice(i, 1)
+                fixedLetters[i] = answer[i]
+            }
         }
-      }
 
-      return newCellStatuses
+        // check yellows
+        for (let i = 0; i < wordLength; i++) {
+            if (answerLetters.includes(word[i]) && newCellStatuses[rowNumber][i] !== status.green) {
+                newCellStatuses[rowNumber][i] = status.yellow
+                answerLetters.splice(answerLetters.indexOf(word[i]), 1)
+            }
+        }
+
+        return newCellStatuses
     })
+
     setExactGuesses((prev: { [key: number]: string }) => ({ ...prev, ...fixedLetters }))
-  }
+}
 
   const isRowAllGreen = (row: string[]) => {
     return row.every((cell: string) => cell === status.green)
@@ -562,10 +559,6 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
                         <li className="mb-2">
                             After each guess, each letter will turn green, yellow, or gray.
                         </li>
-
-                        <li className="mb-2">
-                            Alternately, you can just have fun generating 3-word urls and making up stories about them. We definitely spent a late night in development doing that. Highly reccomend.
-                        </li>
                     </ul>
 
                     <div className="mb-3 flex flex-row items-center gap-x-2">
@@ -592,7 +585,12 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
                         <span>Letter is not in word</span>
                     </div>
 
-                    <Button color="green" copy="Let's Play!" onClick={() => setIsHowToPlayModalOpen(false)} />
+                    <div>
+                      Alternately, you can just have fun generating 3-word urls and making up stories about them. We definitely spent a late night in development doing that. Highly recommend.
+                    </div>
+
+                    {/* TODO: Should be a LoadingButton */}
+                    <Button color="green" copy="Let's Play!" onClick={handleAcceptMatch} />
                     <Button color="yellow" copy="Go Back" onClick={handleGoBackFromHowToPlay} />
                 </div>
             </Modal>
@@ -604,6 +602,7 @@ const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
                 </h1>
 
                 <div className="flex flex-col gap-y-3">
+                    {/* TODO: Should be a LoadingButton */}
                     <Button onClick={ handleAcceptMatch } copy="Accept" color="green" />
                     <Button onClick={() => { setIsLandingModalOpen(false) }} copy="Rudely Decline" color="gray" />
                     <Button onClick={() => { setIsLandingModalOpen(false) }} copy="Politely Decline" color="yellowHollow" />
