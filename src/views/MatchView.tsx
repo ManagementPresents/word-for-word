@@ -351,7 +351,7 @@ const updateCells = (word: string, rowNumber: number) => {
         setCurrentTurn, 
     } = useStore();
     
-    const [isLandingModalOpen, setIsLandingModalOpen] = useState(true);
+    const [isLandingModalOpen, setIsLandingModalOpen] = useState(false);
     const [isHowToPlayModalOpen, setIsHowToPlayModalOpen] = useState(false);
     const [answer, setAnswer] = useState('');
     const [board, setBoard] = useState(initialStates.board);
@@ -437,6 +437,7 @@ const updateCells = (word: string, rowNumber: number) => {
     useEffect(() => {
         console.log({ board });
     }, [board]);
+
     useEffect(() => {
         // TODO: Clunky way to ensure we see the validatione errors the first time the wordle input renders
         handleValidateWordle();
@@ -458,15 +459,20 @@ const updateCells = (word: string, rowNumber: number) => {
                     if (currentTurn) {
                         // TODO: The capitalization for the wordle needs to be standardized universally, at some point
                         setAnswer(currentTurn.wordle.toUpperCase());
-                    }
 
-                    const opponentPlayerDocRef = doc(db, 'players', matchData.players.hostId);
-                    const opponentPlayerSnap = await getDoc(opponentPlayerDocRef);
+                        const opponentPlayerDocRef = doc(db, 'players', matchData.players.hostId);
+                        const opponentPlayerSnap = await getDoc(opponentPlayerDocRef);
 
-                    if (opponentPlayerSnap.exists()) {
-                        const opponentPlayerData: Player = opponentPlayerSnap.data() as Player;
+                        if (opponentPlayerSnap.exists()) {
+                            const opponentPlayerData: Player = opponentPlayerSnap.data() as Player;
 
-                        setOpponentPlayer(opponentPlayerData);
+                            setOpponentPlayer(opponentPlayerData);
+
+                            if (!Object.keys(currentTurn.guesses).length) {
+                                // TODO: Need a loading throbber or something for the landing modal
+                                setIsLandingModalOpen(true);
+                            }
+                        }
                     }
                 }
             }
