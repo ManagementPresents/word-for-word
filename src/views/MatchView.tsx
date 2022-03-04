@@ -2,14 +2,14 @@
 import { doc, setDoc, getDoc, terminate, } from "firebase/firestore"; 
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from "react-router-dom";
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 import { Keyboard } from '../components/Keyboard'
-import Modal from '../components/Modal';
+import Modal from '../components/modals/Modal';
 import Loading from '../components/Loading';
 import Button from '../components/buttons/Button';
 import WordleInput from "../components/WordleInput";
 import LoadingButton from "../components/buttons/LoadingButton";
+import CopyInput from "../components/CopyInput";
 
 import useStore from '../utils/store';
 import { 
@@ -66,11 +66,11 @@ function MatchView() {
             TODO: Probably a better way to do this. May not even be necessary once the board logic is properly figured out
         */
         board: [
-            Array(5).fill(0).map((emptyCell) => { return { letter: '', status: 'unguessed' }}),
-            Array(5).fill(0).map((emptyCell) => ({ letter: '', status: 'unguessed' } as Cell)),
-            Array(5).fill(0).map((emptyCell) => ({ letter: '', status: 'unguessed' } as Cell)),
-            Array(5).fill(0).map((emptyCell) => ({ letter: '', status: 'unguessed' } as Cell)),
-            Array(5).fill(0).map((emptyCell) => ({ letter: '', status: 'unguessed' } as Cell)),
+            Array(5).fill(0).map(() => { return { letter: '', status: 'unguessed' }}),
+            Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
+            Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
+            Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
+            Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
         ],
         cellStatuses: Array(6).fill(Array(5).fill(status.unguessed)),
         currentRowIndex: 0,
@@ -123,8 +123,8 @@ function MatchView() {
             case 'misplaced':
                 return 'yellow'
             case 'incorrect':
-                return 'gray'
-            default:
+                return 'dark-gray'
+            default: 
                 return 'border guesses-style-default'
         }
     }
@@ -713,17 +713,7 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
                             </div>
 
                             <div className="flex flex-col gap-y-2">
-                                <CopyToClipboard text={matchLink}>
-                                    <input type="text" readOnly value={matchLink} className="text-black cursor-pointer" data-tip="Copied!" data-place="right" /> 
-                                </CopyToClipboard>
-
-                                <CopyToClipboard text={matchLink}>
-                                    {/* TODO: Figure out how to get data-tip working both in a component, AND with CopyToClipboard (they seem to clash with each other) */}
-                                    <Button color="green" copy="Copy Link" data-tip="Copied!"/>
-                                </CopyToClipboard>
-
-                                {/* TODO: Bad interaction with copy to clipboard ): */}
-                                {/* <ReactTooltip event='click' effect='solid' type='dark' afterShow={handleShortTooltip} /> */}
+                                <CopyInput copyText={matchLink} />
                             </div>
 
                             <Button color='yellowHollow' onClick={() => navigate('/lobby')} copy="Return to Lobby"></Button>

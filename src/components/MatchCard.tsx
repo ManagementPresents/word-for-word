@@ -1,15 +1,16 @@
 
-import { FC, useState, } from 'react';
+import { FC, } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
 
 import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
-import Players from '../interfaces/Players';
+import Turn from '../interfaces/Turn';
 import { renderWordleSquares } from '../utils/wordUtils';
+import { getCurrentTurn } from '../utils/misc';
 import useStore from '../utils/store';
-import { collapseTextChangeRangesAcrossMultipleVersions } from 'typescript';
+import { userInfo } from 'os';
 
 interface Props {
     match: Match,
@@ -19,6 +20,8 @@ interface Props {
 }
 
 const MatchCard: FC<Props> = ({ match, matchOpponent, setIsPendingMatchModalOpen }: Props) => {
+    const { setSelectedMatch, user } = useStore();
+
     // TODO: I'm sure there's room for even more abstraction for the repetition across these functions
     const renderCardDetails = () => {
         const { players } = match;
@@ -55,9 +58,15 @@ const MatchCard: FC<Props> = ({ match, matchOpponent, setIsPendingMatchModalOpen
     }
 
     const handleCardClick = () => {
-        const { players } = match;
+        const { players, turns } = match;
+        const currentTurn: Turn =  getCurrentTurn(turns);
 
-        if (!players.guestId) {
+        console.log('fuk', {
+            players,
+            currentTurn,
+        });
+        if (!players.guestId || currentTurn.activePlayer !== user.uid) {
+            setSelectedMatch(match);
             setIsPendingMatchModalOpen(true);
         }
     }

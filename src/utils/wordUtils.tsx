@@ -43,11 +43,11 @@ const renderWordleSquares = (wordle: string, color?: string | []) => {
 
     return wordle.split('').map((letter: string) => {
         if (typeof color === 'string') {
-            return <span className={`${color} h-[40px] w-[40px] text-center leading-[40px]`}>{letter.toUpperCase()}</span>;
+            return <span className={`${color} h-[30px] w-[30px] text-center leading-[30px] text-[14px] sm:text-[18px] sm:leading-[40px] sm:h-[40px] sm:w-[40px]`}>{letter.toUpperCase()}</span>;
         }
         
         // Default to yellow
-        return <span className={`yellow h-[40px] w-[40px] text-center leading-[40px]`}>{letter.toUpperCase()}</span>;
+        return <span className={`yellow h-[30px] w-[30px] text-center leading-[30px] text-[14px] sm:text-[18px] sm:leading-[40px] sm:h-[40px] sm:w-[40px]`}>{letter.toUpperCase()}</span>;
     });
 };
 

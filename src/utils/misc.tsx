@@ -1,6 +1,10 @@
 import Turn from "../interfaces/Turn";
 import Match from "../interfaces/Match";
 
+const {
+    REACT_APP_URL,
+} = process.env;
+
 const renderErrors = (errors: any, className: string) => {
     let validationMessages = [];
 
@@ -22,7 +26,7 @@ const renderErrors = (errors: any, className: string) => {
 }
 
 /*
-    TODO: This, and arrToNumericalObj, are necessary to help get around Firestore's current inability to support arrays of arrays. Instead, we serialize nested arrays into objects where array index maps to a property in the object, and the value at that index becomes the corresponding value in the object.
+    TODO: This, and arrayToNumericalObj, are necessary to help get around Firestore's current inability to support arrays of arrays. Instead, we serialize nested arrays into objects where array index maps to a property in the object, and the value at that index becomes the corresponding value in the object.
 */
 const numericalObjToArray = (numericalObj: {}): any[] => {
     return Object.values(numericalObj);
@@ -57,6 +61,10 @@ const addTurn = (turns: Turn[], turn: Turn): Turn[] => {
     return turns.concat(turn) as Turn[];
 }
 
+const createMatchUrl = (match: Match): string => {
+    return `${REACT_APP_URL}/match/${match.id}`;
+}
+
 export {
     renderErrors,
     numericalObjToArray,
@@ -64,4 +72,5 @@ export {
     updateCurrentTurn,
     getCurrentTurn,
     addTurn,
+    createMatchUrl,
 }

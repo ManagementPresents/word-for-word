@@ -1,15 +1,16 @@
 import { useState, useEffect, Fragment} from 'react'
 import { Default } from 'react-spinners-css';
 import { doc, setDoc, updateDoc, arrayUnion, getDoc, } from "firebase/firestore"; 
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 import ReactTooltip from 'react-tooltip';
 
 import MatchCard from '../components/MatchCard';
 import Loading from '../components/Loading';
-import Modal from '../components/Modal';
+import Modal from '../components/modals/Modal';
 import Button from '../components/buttons/Button';
 import LoadingButton from '../components/buttons/LoadingButton';
 import WordleInput from '../components/WordleInput';
+import PendingModalMatch from '../components/modals/PendingMatchModal';
+import CopyInput from '../components/CopyInput';
 
 import { validateWordle } from '../utils/validation';
 import useStore from '../utils/store';
@@ -27,6 +28,7 @@ const Lobby = ({}: Props) => {
         user, 
         db, 
         matches, 
+        selectedMatch,
         setMatches, 
         setMatchOpponents,
         matchOpponents,
@@ -351,17 +353,7 @@ const Lobby = ({}: Props) => {
                         <div className={`flex justify-center flex-col ${openMatchLink ? 'gap-y-6' : 'gap-y-3'}`}>
                             {openMatchLink ? 
                                 <div className="flex flex-col gap-y-2">
-                                    <CopyToClipboard text={openMatchLink}>
-                                        <input type="text" readOnly value={openMatchLink} className="text-black cursor-pointer" data-tip="Copied!" data-place="right" /> 
-                                    </CopyToClipboard>
-
-                                    <CopyToClipboard text={openMatchLink}>
-                                        {/* TODO: Figure out how to get data-tip working both in a component, AND with CopyToClipboard (they seem to clash with each other) */}
-                                        <Button color="green" copy="Copy Link" data-tip="Copied!"/>
-                                    </CopyToClipboard>
-
-                                    {/* TODO: Bad interaction with copy to clipboard ): */}
-                                    {/* <ReactTooltip event='click' effect='solid' type='dark' afterShow={handleShortTooltip} /> */}
+                                    <CopyInput copyText={openMatchLink} />
                                 </div>
                                 :                                     
                                 <LoadingButton disabled={!isGenerateLinkReady} onClick={handleGenerateLink} color="green" isLoading={isGeneratingLink} isLoadingCopy={'Generating...'} copy="Generate Link" />
@@ -372,9 +364,7 @@ const Lobby = ({}: Props) => {
                 }
             </Modal>
             
-            <Modal isOpen={isPendingMatchModalOpen} onRequestClose={handlePendingMatchModalClose}>
-                
-            </Modal>    
+            <PendingModalMatch isOpen={isPendingMatchModalOpen} onRequestClose={handlePendingMatchModalClose} />    
         </Fragment>
 	)
 }
