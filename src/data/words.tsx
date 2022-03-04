@@ -1,3 +1,8 @@
+/* 
+  TODO: Could be funny to show special messages for the following words:
+  * wordle
+  * the n word, but with the soft 'a' (we're not allowing that, i just don't want to deal with it)
+*/
 const words: { [key: string]: boolean } = {
   aahed: true,
   aalii: true,
@@ -7110,6 +7115,7 @@ const words: { [key: string]: boolean } = {
   shark: true,
   sharn: true,
   sharp: true,
+  shart: true,
   shaul: true,
   shave: true,
   shawl: true,
@@ -7153,6 +7159,7 @@ const words: { [key: string]: boolean } = {
   shirr: true,
   shirt: true,
   shist: true,
+  shits: true,
   shiur: true,
   shiva: true,
   shive: true,
@@ -8464,6 +8471,7 @@ const words: { [key: string]: boolean } = {
   tupik: true,
   tuque: true,
   turbo: true,
+  turds: true,
   turfs: true,
   turfy: true,
   turks: true,

@@ -41,8 +41,8 @@ const arrayToNumericalObj = (array: any[]): {} => {
 
     All this is to say: This function returns an array of /all/ the turns in this match, but /only/ the currentTurn should actually be changed
 */
-const updateCurrentTurn = (currentMatch: Match, callback: (turn: Turn) => Turn): Turn[] => {
-    return currentMatch.turns.map((turn: Turn): Turn => {
+const updateCurrentTurn = (turns: Turn[], callback: (turn: Turn) => Turn): Turn[] => {
+    return turns.map((turn: Turn): Turn => {
         if (!turn.currentTurn) return turn;
 
         return callback(turn);
@@ -53,10 +53,15 @@ const getCurrentTurn = (turns: Turn[]): Turn => {
     return turns.find((turn: Turn): boolean => turn.currentTurn) as Turn;
 };
 
+const addTurn = (turns: Turn[], turn: Turn): Turn[] => {
+    return turns.concat(turn) as Turn[];
+}
+
 export {
     renderErrors,
     numericalObjToArray,
     arrayToNumericalObj,
     updateCurrentTurn,
     getCurrentTurn,
+    addTurn,
 }

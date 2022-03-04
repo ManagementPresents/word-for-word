@@ -1,7 +1,8 @@
 //Adding Firebase imports
-import { doc, setDoc, getDoc, } from "firebase/firestore"; 
+import { doc, setDoc, getDoc, terminate, } from "firebase/firestore"; 
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from "react-router-dom";
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 import { Keyboard } from '../components/Keyboard'
 import Modal from '../components/Modal';
@@ -15,7 +16,8 @@ import {
     arrayToNumericalObj, 
     numericalObjToArray, 
     updateCurrentTurn, 
-    getCurrentTurn 
+    getCurrentTurn,
+    addTurn,
 } from "../utils/misc";
 import { validateWordle } from "../utils/validation";
 import { letters, status } from '../constants'
@@ -87,12 +89,14 @@ function MatchView() {
 
     const [gameState, setGameState] = useState('playing');
     const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
-    const [currentRowIndex, setcurrentRowIndex] = useState(initialStates.currentRowIndex);
+    const [currentRowIndex, setCurrentRowIndex] = useState(initialStates.currentRowIndex);
     const [currentCol, setCurrentCol] = useState(initialStates.currentCol);
     const [keyboardStatus, setKeyboardStatus] = useState(initialStates.keyboardStatus());
     const [submittedInvalidWord, setSubmittedInvalidWord] = useState(initialStates.submittedInvalidWord);
     const [nextWordle, setNextWordle] = useState('');
     const [isNextWordleReady, setIsNextWordleReady] = useState(false);
+    const [isSendingWordle, setIsSendingWordle] = useState(false);
+    const [matchLink, setMatchLink] = useState('');
 
     const eg: { [key: number]: string } = {}
     const [exactGuesses, setExactGuesses] = useState(eg);
@@ -144,8 +148,6 @@ function MatchView() {
         }
 
         setBoard(generateNewBoard);
-
-        console.log('add letter')
         
         if (currentCol < 5) {
             setCurrentCol((prev: number) => prev + 1)
@@ -189,14 +191,13 @@ function MatchView() {
         if (currentRowIndex === 6) return
 
         /*
-            TODO: The idea here is that we can synchronously create an updated version of the board that can then be
+            TODO: The idea here is that we synchronously create an updated version of the board that can then be
             persisted to Firestore. Then, to update the UI, we update state, as per usual. This should HOPEFULLY avoid potential race conditions between firestore & the inherent async of updating component state.
         */
         const updatedBoard: Cell[][] = updateCells(word, currentRowIndex);
         const updatedKeyboardStatus: {} = updateKeyboardStatus(word);
 
-        console.log({ updatedBoard, updatedKeyboardStatus });
-        setcurrentRowIndex((prev: number) => prev + 1);
+        setCurrentRowIndex((prev: number) => prev + 1);
         setCurrentCol(0);
         setBoard(updatedBoard);
         setKeyboardStatus(updatedKeyboardStatus);
@@ -205,10 +206,8 @@ function MatchView() {
             TODO: Right now, in order to update the 'guesses' property of the current turn,
             we make our adjustments to 'guesses' locally then rewrite the entire 'turns' object of the current match in firestore. There may be a way to more intelligently 'push' a new turn in, rather than a total overwrite
         */
-
-        console.log({ currentMatch });
         (async () => {
-            const updatedTurns: Turn[] = updateCurrentTurn(currentMatch, (turn: Turn) => {
+            const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
                 const guessArray: Cell[][] = numericalObjToArray(turn.guesses);
                 const updatedGuessArray = guessArray.concat([currentGuess]);
 
@@ -320,7 +319,7 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
     const [isEndTurnModalOpen, setIsEndTurnModalOpen] = useState(false);
     const [wordleValidationErrors, setWordleValidationErrors] = useState([]);
     const [isLoadingMatch, setIsLoadingMatch] = useState(true);
-    const [currentGuess, setCurrentGuess] = useState([]);
+    const [isExitModalOpen, setIsExitModalOpen] = useState(false);
 
     const handleCloseEndTurnModal = () => {
         setIsEndTurnModalOpen(false);
@@ -353,7 +352,7 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
         //     return turn;
         // }) as Turn[];
         
-        const updatedTurns: Turn[] = updateCurrentTurn(currentMatch, (turn: Turn) => {
+        const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
             turn.activePlayer = user.uid;
 
             return turn;
@@ -393,6 +392,49 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
         }
     }
 
+    const handleSendWordle = async () => {
+        const { players } = currentMatch;
+        const opponentUid: string = user.uid === players.guestId ? players.hostId : players.guestId;
+        const newTurn: Turn = {
+            // TODO: Determine a reliable way to know your opponent's UID. Could be in a firestore schema, could just be a local utility function
+            activePlayer: opponentUid,
+            currentTurn: true,
+            guesses: {},
+            keyboardStatus: {},
+            turnState: 'playing',
+            wordle: nextWordle,
+        };
+        const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
+            turn.currentTurn = false;
+            // TODO: This state obviously needs to depend on whether they won or lost
+            turn.turnState = 'won';
+
+            return turn;
+        });
+        const newTurns: Turn[] = addTurn(updatedTurns, newTurn);
+
+        setIsSendingWordle(true);
+
+        const currentMatchRef = doc(db, 'matches', currentMatch.id);
+
+        console.log('sending up these new turns', { newTurns });
+        await setDoc(currentMatchRef, {
+            turns: newTurns,
+        }, { merge: true });
+
+        /*
+            TODO: Set the local state so we see UI updates
+            In the long term, we might need to think of the best way to keep local state and firestore in sync
+            (something similar to, but not quite, ember data)
+        */
+        setCurrentMatch({...currentMatch, turns: newTurns});
+        setIsSendingWordle(false);
+    }
+
+    const handleCloseExitModal = () => {
+        console.log('leave the match');
+    }
+
     useEffect(() => {
         const reversedBoard = board.slice().reverse();
         const lastFilledRow = reversedBoard.find((row) => {
@@ -402,8 +444,19 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
         if (gameState === state.playing) {                    
             if (lastFilledRow && isRowAllGreen(lastFilledRow)) {
                 setGameState(state.won);
+
+                /* 
+                    TODO: It feels abrupt showing this modal with no delay.
+                    In the long term, perhaps a fun victory animation? 
+                */
+                setTimeout(() => {
+                    setIsEndTurnModalOpen(true);
+                }, 500);
             } else if (currentRowIndex === 6) {
                 setGameState(state.lost);
+                setTimeout(() => {
+                    setIsEndTurnModalOpen(false);
+                }, 500);
             }
         }
     }, [
@@ -461,10 +514,8 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
                                 
                                 const hasKeyboardStatus = Object.keys(currentTurn.keyboardStatus).length;
 
-                                console.log({ hasKeyboardStatus, currentTurn });
-
                                 if (hasKeyboardStatus) setKeyboardStatus(currentTurn.keyboardStatus);
-                                setcurrentRowIndex(guessArray.length);
+                                setCurrentRowIndex(guessArray.length);
                                 setBoard(newBoard);
                             }
 
@@ -475,6 +526,23 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
             }
         })();
     }, [user]);
+
+    // For handling end game state changes and showing the correct 'game over' modals
+    useEffect(() => {
+        const hasCurrentMatch = Object.keys(currentMatch).length;
+
+        if (hasCurrentMatch && currentMatch?.turns?.length && user) {
+            const currentTurn: Turn = getCurrentTurn(currentMatch.turns);
+
+            if (currentTurn.activePlayer && currentTurn.turnState === 'playing' && currentTurn.activePlayer !== user.uid) {
+                setIsEndTurnModalOpen(false);
+                setIsExitModalOpen(true);
+                // TODO: This setOpenMatchLink thing probably needs to be abstracted
+                // @ts-ignore
+                setMatchLink(`${process.env.REACT_APP_URL}/match/${currentMatch.id}`);
+            }
+        }   
+    }, [currentMatch]);
 
     return (
       <div>
@@ -621,13 +689,44 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
                             </div>
 
                             {/* TODO: Hook up isLoading and onClick props */}
-                            <LoadingButton copy={'Send Word'} isLoadingCopy={'Sending Word...'} color='green' isLoading={false} disabled={!!wordleValidationErrors.length} onClick={() => console.log('submit wordle')} />
+                            <LoadingButton copy={'Send Wordle'} isLoadingCopy={'Sending Wordle...'} color='green' isLoading={isSendingWordle} disabled={!!wordleValidationErrors.length} onClick={handleSendWordle} />
 
                             <div className="flex flex-row gap-x-1 justify-center items-center">
                                 <span className="basis-full">Tired of this chicanery? </span>
 
                                 <Button copy="Forfeit Game" color="gray" onClick={() => { console.log('forfeit game')}} />
                             </div>
+                        </Modal>
+                        
+                        <Modal isOpen={isExitModalOpen} onRequestClose={handleCloseExitModal}>    
+                            <h1 className="text-4xl text-center">
+                                Your Wordle Has Been Sent!
+                            </h1>
+
+                            <div className="flex flex-row gap-x-2 justify-center">
+                                {renderWordleSquares(nextWordle, 'green')}
+                            </div>
+
+                            <div className='flex flex-col text-center'>
+                                <p>Your opponent has been notified that it's their turn.</p>
+                                <p>If you're antsy, you can always send them this match's link.</p>
+                            </div>
+
+                            <div className="flex flex-col gap-y-2">
+                                <CopyToClipboard text={matchLink}>
+                                    <input type="text" readOnly value={matchLink} className="text-black cursor-pointer" data-tip="Copied!" data-place="right" /> 
+                                </CopyToClipboard>
+
+                                <CopyToClipboard text={matchLink}>
+                                    {/* TODO: Figure out how to get data-tip working both in a component, AND with CopyToClipboard (they seem to clash with each other) */}
+                                    <Button color="green" copy="Copy Link" data-tip="Copied!"/>
+                                </CopyToClipboard>
+
+                                {/* TODO: Bad interaction with copy to clipboard ): */}
+                                {/* <ReactTooltip event='click' effect='solid' type='dark' afterShow={handleShortTooltip} /> */}
+                            </div>
+
+                            <Button color='yellowHollow' onClick={() => navigate('/lobby')} copy="Return to Lobby"></Button>
                         </Modal>
 
                         <div className={`h-auto relative mt-6 ${gameState === state.playing ? '' : 'invisible'}`}>
