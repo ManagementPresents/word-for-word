@@ -2,6 +2,7 @@ import create from 'zustand';
 
 import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
+import Players from '../interfaces/Players';
 import Turn from '../interfaces/Turn';
 
 // TODO: Figure out the correct type for the 'set's
@@ -15,6 +16,9 @@ interface State {
     opponentPlayer: Player,
     hasCheckedUser: boolean,
     currentTurn: Turn,
+    // All the people you are currently involved in matches with
+    matchOpponents: Players,
+    setMatchOpponents: any,
     setOpponentPlayer: any,
     setCurrentMatch: any,
     setHasCheckedUser: any,
@@ -38,14 +42,13 @@ const useStore = create<State>((set, get) => ({
     setHasCheckedUser: (hasCheckedUser: boolean) => set({ hasCheckedUser }),
     setOpponentPlayer: (opponentPlayer: Player) => set({ opponentPlayer }),
     addMatch: (match: Match) => set({ matches: get().matches.concat(match) }),
+    matchOpponents: {} as Players,
     setMatches: (matches: Match[]) => set({ matches }),
     setIsLoading: (isLoading: boolean) => set({ isLoading }),
     setUser: (user: any) => set({ user }),
-    setCurrentMatch: (currentMatch: Match) => {
-        console.log('nasty boy', currentMatch)
-        set({ currentMatch })
-        },
+    setCurrentMatch: (currentMatch: Match) => set({ currentMatch }),
     setCurrentTurn: (currentTurn: Turn) => set({ currentTurn }),
+    setMatchOpponents: (matchOpponents: Players) => set({ matchOpponents }),
 }));
 
 export default useStore;

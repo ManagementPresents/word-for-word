@@ -17,22 +17,33 @@ import { generateMatchUri } from '../utils/wordUtils';
 import { TIMEOUT_DURATION } from '../utils/constants';
 import Match  from '../interfaces/Match';
 import ValidationError from '../interfaces/ValidationError';
+import Player from '../interfaces/Player';
+import Players from '../interfaces/Players';
 
 interface Props {}
 
 const Lobby = ({}: Props) => {
-    const { user, db, matches, setMatches, addMatch, } = useStore();
+    const { 
+        user, 
+        db, 
+        matches, 
+        setMatches, 
+        setMatchOpponents,
+        matchOpponents,
+        addMatch, 
+    } = useStore();
 
     const [isOpenMatch, setIsOpenMatch] = useState(false);
     const [isSpecificPlayer, setSpecificPlayer] = useState(false);
     const [openMatchLink, setOpenMatchLink] = useState('');
     const [specificMatchLink, setSpecificMatchLink] = useState('');
     const [wordle, setWordle] = useState('');
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isNewMatchModalOpen, setIsNewMatchModalOpen] = useState(false);
     const [isGenerateLinkReady, setIsGenerateLinkReady] = useState(false);
     const [isGeneratingLink, setIsGeneratingLink] = useState(false);
     const [wordleValidationErrors, setWordleValidationErrors] = useState([]);
     const [isLoadingMatches, setIsLoadingMatches] = useState(true);
+    const [isPendingMatchModalOpen, setIsPendingMatchModalOpen] = useState(false);
 
     useEffect(() => {
         // @ts-ignore
@@ -53,16 +64,72 @@ const Lobby = ({}: Props) => {
                 if (playerSnap.exists()) {
                     const matchIds = playerSnap.data().matches;
     
-                    const matches: Match[] = await Promise.all(matchIds.map(async (matchId: string): Promise<Match> => {
+                    /*
+                        TODO: These requests make a separate request for each and every match and player they need, individually.
+                        That is a ton of requests. This could be a place to optimize performance.
+                       
+                        To my understanding, doing these requests separately does have the benefit of only pulling matches
+                        this client has permission to see. Trying to pull /all/ the matches in, then filtering them client side,
+                        would mean /every single match/ is available in the client. Seems like a recipe for disaster.
+
+                        Perhaps this could, eventually, be abstracted to a cloud function end point, where it would be safe to pull/cache all the matches/players, filter on the server, and bring them back here. Need to test and see if that would actually be more performant.
+                    */
+                    const playerMatches: Match[] = await Promise.all(matchIds.map(async (matchId: string): Promise<Match> => {
                         const matchRef = doc(db, 'matches', matchId);
                         const matchSnap = await getDoc(matchRef);
     
                         return matchSnap.data() as Match;
                     }));
     
-                    setMatches(matches);
-                    clearInterval(loadingMatchesTimeout);
+                    const opponentPlayersArray: Player[] = await Promise.all(playerMatches.map(async (match: Match): Promise<Player> => {
+                        const { players } = match;
+
+                        if (players.guestId) {
+                            const playerRef = doc(db, 'players', players.guestId);
+                            const playerSnap = await getDoc(playerRef);
+        
+                            return {
+                                id: players.guestId,
+                                ...playerSnap.data()
+                             } as Player;
+                        }
+
+                        return {} as Player;
+                    }));
+
+                    /* 
+                        TODO: Right now, if an opponent accepts your match, there is no real time update. I.e. you have to refresh
+                        the page before you see that they've accepted your match, or, really, interacted with your match in any way. This seems like a prime candidate for a real time implementation.
+                    */
+                    // Transform (or, i guess, reduce) the opponentPlayersArray into an object, for easier data access
+                    const opponentPlayers: Players = opponentPlayersArray.reduce((accum: Players, player: Player): Players => {
+                        const hasPlayer = !!Object.keys(player).length;
+
+                        if (hasPlayer) {
+                            //
+                            const {
+                                id,
+                                email,
+                                /* 
+                                    TODO: 'matches' is unlikely to be used, but, it's currently required by the interface.
+                                    Investigate in the future if this is the best way to do this
+                                */
+                               matches,
+                            } = player;
+
+                            accum[id as string] = {
+                                email,
+                                matches,
+                            }
+                        }
+
+                        return accum;
+                    }, {} as Players);
+
+                    setMatchOpponents(opponentPlayers);
+                    setMatches(playerMatches);
                     setIsLoadingMatches(false);
+                    clearInterval(loadingMatchesTimeout);
                 }
             })();
         }
@@ -86,7 +153,7 @@ const Lobby = ({}: Props) => {
         setIsGeneratingLink(false);
         setWordleValidationErrors([]);
         setWordle('');
-        setIsModalOpen(true);
+        setIsNewMatchModalOpen(true);
         handleValidateWordle();
     }
 
@@ -105,8 +172,8 @@ const Lobby = ({}: Props) => {
         }
     }
 
-    const handleModalClose = () => {
-        setIsModalOpen(false);
+    const handleNewMatchModalClose = () => {
+        setIsNewMatchModalOpen(false);
     }
 
     const handleGenerateLink = async () => {
@@ -150,11 +217,11 @@ const Lobby = ({}: Props) => {
 
     // TODO: When a new match is made, it should probably load in the first card slot (i.e. it should appear in the top left of the match box on large devices, and at the very top on mobile devices)
     const renderMatches = (matches: Match[]) => {
-        return matches.map((match) => <MatchCard match={match}/>);
+        return matches.map((match) => <MatchCard match={match} matchOpponent={matchOpponents[match.players.guestId]} isPendingMatchModalOpen={isPendingMatchModalOpen} setIsPendingMatchModalOpen={setIsPendingMatchModalOpen} />);
     }
 
     const handleMatchBox = () => {
-        console.log('handleMatchBox', { isLoadingMatches })
+        // TODO: There is some kind of over-rendering nonsense going on here
         if (isLoadingMatches) return <Loading enableCentering={false} />;
 
         return matches.length ? 
@@ -166,6 +233,10 @@ const Lobby = ({}: Props) => {
 
             <Button color="green" copy="Start a New Match" onClick={handleStartNewMatch}></Button>
         </div>
+    }
+
+    const handlePendingMatchModalClose = () => {
+        setIsPendingMatchModalOpen(false);
     }
 
     // TODO: Bring back once you figure out why tooltips prevent the click-copy library from working
@@ -216,8 +287,7 @@ const Lobby = ({}: Props) => {
                 </div>
             </div>
 
-            {/* @ts-ignore */}
-            <Modal isOpen={isModalOpen} onRequestClose={handleModalClose}>
+            <Modal isOpen={isNewMatchModalOpen} onRequestClose={handleNewMatchModalClose}>
                 {(!isSpecificPlayer && !isOpenMatch) && 
                     <Fragment>
                         <h2 className="text-xl text-center font-bold tracking-tight text-[#F1F1F9] md:text-2xl">Start a New Match</h2>    
@@ -301,6 +371,10 @@ const Lobby = ({}: Props) => {
                     </Fragment>
                 }
             </Modal>
+            
+            <Modal isOpen={isPendingMatchModalOpen} onRequestClose={handlePendingMatchModalClose}>
+                
+            </Modal>    
         </Fragment>
 	)
 }

@@ -91,7 +91,7 @@ html {
 
 .yellow {
   background-color: #FFCE47;
-  color: #f1f1f9;
+  color: black;
 }
 
 .gray {
@@ -127,7 +127,7 @@ html {
 
 .yellow-button-style {
   background-color: #FFCE47;
-  color: #f1f1f9;
+  color: black;
 }
 
 .yellow-button-style:hover {
