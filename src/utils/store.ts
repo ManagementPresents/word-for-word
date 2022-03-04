@@ -41,7 +41,10 @@ const useStore = create<State>((set, get) => ({
     setMatches: (matches: Match[]) => set({ matches }),
     setIsLoading: (isLoading: boolean) => set({ isLoading }),
     setUser: (user: any) => set({ user }),
-    setCurrentMatch: (currentMatch: Match) => set({ currentMatch }),
+    setCurrentMatch: (currentMatch: Match) => {
+        console.log('nasty boy', currentMatch)
+        set({ currentMatch })
+        },
     setCurrentTurn: (currentTurn: Turn) => set({ currentTurn }),
 }));
 

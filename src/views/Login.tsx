@@ -9,7 +9,7 @@ import useStore from '../utils/store';
 import Button from '../components/buttons/Button';
 
 interface Props {
-//   letterStatuses: { [key: string]: string }
+//   keyboardStatus: { [key: string]: string }
 //   gameDisabled: boolean
 //   onDeletePress: () => void
 //   onEnterPress: () => void

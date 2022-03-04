@@ -2,7 +2,7 @@ import { keyboardLetters, status, letters } from '../constants'
 import { useEffect, useCallback } from 'react'
 
 interface Props {
-  letterStatuses: { [key: string]: string }
+  keyboardStatus: { [key: string]: string }
   gameDisabled: boolean
   onDeletePress: () => void
   onEnterPress: () => void
@@ -10,19 +10,19 @@ interface Props {
 }
 
 const Keyboard = ({
-  letterStatuses,
+  keyboardStatus,
   addLetter,
   onEnterPress,
   onDeletePress,
   gameDisabled,
 }: Props) => {
   const getKeyStyle = (letter: string) => {
-    switch (letterStatuses[letter]) {
-      case status.green:
+    switch (keyboardStatus[letter]) {
+      case 'correct':
         return 'bg-[#15B097] text-[#f1f1f9]'
-      case status.yellow:
+      case 'misplaced':
         return 'bg-[#FFCE47] text-[#f1f1f9]'
-      case status.gray:
+      case 'incorrect':
         return 'bg-[#3c2a34] text-[#f1f1f9]'
       default:
         return 'text-primary dark:text-primary-dark'
@@ -40,6 +40,7 @@ const Keyboard = ({
 
   const handleKeyDown = useCallback(
     (event) => {
+      console.log({ gameDisabled })
       if (gameDisabled) return
 
       const letter = event.key.toUpperCase()

@@ -2985,6 +2985,7 @@ const words: { [key: string]: boolean } = {
   fryer: true,
   fubsy: true,
   fucus: true,
+  fucks: true,
   fuddy: true,
   fudge: true,
   fudgy: true,

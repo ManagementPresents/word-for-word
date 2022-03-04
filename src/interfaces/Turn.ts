@@ -4,6 +4,7 @@ interface Turn {
     guesses: {},
     turnState: string,
     wordle: string,
+    keyboardStatus: {},
 }
 
 export default Turn;

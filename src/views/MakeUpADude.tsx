@@ -19,7 +19,7 @@ passwordRequirements
 	.has().not('', 'Password cannot have spaces').spaces();
 
 interface Props {
-//   letterStatuses: { [key: string]: string }
+//   keyboardStatus: { [key: string]: string }
 //   gameDisabled: boolean
 //   onDeletePress: () => void
 //   onEnterPress: () => void

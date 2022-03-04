@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import useStore from '../utils/store';
 
 interface Props {
-//   letterStatuses: { [key: string]: string }
+//   keyboardStatus: { [key: string]: string }
 //   gameDisabled: boolean
 //   onDeletePress: () => void
 //   onEnterPress: () => void
