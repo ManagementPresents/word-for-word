@@ -67,13 +67,25 @@ const createMatchUrl = (match: Match): string => {
     return `${REACT_APP_URL}/match/${match.id}`;
 };
 
-// TOOD: What is the type for a firebase auth user objectZ?
-const getMatchOpponent = (user: any, match: Match, matchOpponents: Players): Player => {
+// TODO: What is the type for a firebase auth user object?
+const getMatchOpponentId = (user: any, match: Match): string => {
     const { uid } = user;
     const { players } = match;
 
-    return uid === players.guestId ? matchOpponents[players.hostId] : matchOpponents[players.guestId];
+    return uid === players.guestId ? players.hostId : players.guestId;
 };
+
+/**
+ * 
+ * @param {Match} match
+ * @param {id} id 'The id whose turn you want to determine'
+ * @returns 
+ */
+const isPlayerTurn = (match: Match, id: string): boolean => {
+    const currentTurn = getCurrentTurn(match.turns);
+    
+    return currentTurn.activePlayer === id;
+}
 export {
     renderErrors,
     numericalObjToArray,
@@ -82,5 +94,6 @@ export {
     getCurrentTurn,
     addTurn,
     createMatchUrl,
-    getMatchOpponent,
+    getMatchOpponentId,
+    isPlayerTurn,
 }

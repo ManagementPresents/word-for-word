@@ -13,6 +13,7 @@ import { renderWordleSquares } from '../../utils/wordUtils';
 import {  
     getCurrentTurn,
     createMatchUrl,
+    getMatchOpponentId,
 } from "../../utils/misc";
 
 interface Props {
@@ -20,16 +21,36 @@ interface Props {
     onRequestClose: any,
 }
 
-const PendingMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
-    const { selectedMatch, matchOpponents, user } = useStore();
+const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
+    const { 
+        selectedMatch, 
+        matchOpponents, 
+        user } = useStore();
 
-    const [matchOpponent, setIsMatchOpponent] = useState('');
+    const [matchOpponent, setIsMatchOpponent] = useState(matchOpponents[getMatchOpponentId(user, selectedMatch)]);
 
-    useEffect(() => {
-        const matchOpponent = selectedMatch?.players?.guestId;
+    const renderMatchButtons = () => {
+        
 
-        if (matchOpponent) setIsMatchOpponent(matchOpponent);
-    }, [selectedMatch]);
+        if (matchOpponent) {
+            return (
+                <div className="flex flex-col gap-y-2 mt-4">
+                    <Button copy="Forfeit Match" color="gray" onClick={() => {
+                        console.log('cancel and delete match');
+                    }} /> 
+                    <Button copy="Return to Lobby" color="yellowHollow" onClick={() => {
+                        console.log('cancel and delete match');
+                    }} /> 
+                    </div>
+            );
+        }
+
+        return (
+            <Button customStyle="mt-4" copy="Cancel Invite" color="gray" onClick={() => {
+                console.log('cancel and delete match');
+            }} />
+        );
+    }
     
     return (
         <Modal isOpen={isOpen} onRequestClose={onRequestClose}>
@@ -37,7 +58,7 @@ const PendingMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
                 {matchOpponent ? 
                 <span className="flex flex-col">
                     <span>Match with</span>
-                    <span>{matchOpponents[selectedMatch.players?.guestId].email}</span>
+                    <span>{matchOpponent.email}</span>
                 </span> :
                 'Awaiting Opponent'}
             </h1>
@@ -120,22 +141,10 @@ const PendingMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
                     <CopyInput copyText={createMatchUrl(selectedMatch)} />
                 </div>
 
-                {matchOpponent ? 
-                    <div className="flex flex-col gap-y-2 mt-4">
-                        <Button copy="Forfeit Match" color="gray" onClick={() => {
-                            console.log('cancel and delete match');
-                        }} /> 
-                        <Button copy="Return to Lobby" color="yellowHollow" onClick={() => {
-                            console.log('cancel and delete match');
-                        }} /> 
-                    </div> :
-                    <Button customStyle="mt-4" copy="Cancel Invite" color="gray" onClick={() => {
-                        console.log('cancel and delete match');
-                    }} />
-                }
+                {renderMatchButtons()}
             </div>
         </Modal>
     );
 }
 
-export default PendingMatchModal;
+export default LobbyMatchModal;

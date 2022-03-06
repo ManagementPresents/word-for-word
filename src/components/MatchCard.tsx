@@ -9,26 +9,31 @@ import Turn from '../interfaces/Turn';
 import { renderWordleSquares } from '../utils/wordUtils';
 import { 
     getCurrentTurn,
-    getMatchOpponent,
+    getMatchOpponentId,
+    isPlayerTurn,
 } from '../utils/misc';
 import useStore from '../utils/store';
 
 interface Props {
     match: Match,
-    isPendingMatchModalOpen: boolean,
-    setIsPendingMatchModalOpen: any,
+    isLobbyMatchModalOpen: boolean,
+    setIsLobbyMatchModalOpen: any,
 }
 
-const MatchCard: FC<Props> = ({ match, setIsPendingMatchModalOpen }: Props) => {
+const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
     const { 
         setSelectedMatch, 
         user, 
-        matchOpponents 
+        matchOpponents,
     } = useStore();
 
-    const [currentTurn, setCurrentTurn] = useState(getCurrentTurn(match.turns));
-    const [isPlayerTurn, setIsPlayerTurn] = useState(currentTurn.activePlayer === user.uid);
-    const [matchOpponent, setIsMatchOpponent] = useState(getMatchOpponent(user, match, matchOpponents));
+    const [isUserTurn, setIsUserTurn] = useState(isPlayerTurn(match, user.uid));
+    const [matchOpponent, setIsMatchOpponent] = useState(matchOpponents[getMatchOpponentId(user, match)]);
+
+    console.log({
+        matchOpponents,
+        matchOpponent
+    });
  
     // TODO: I'm sure there's room for even more abstraction for the repetition across these functions
     const renderCardDetails = () => {
@@ -44,7 +49,7 @@ const MatchCard: FC<Props> = ({ match, setIsPendingMatchModalOpen }: Props) => {
 
             <div className="flex flex-col justify-center text-center mb-3">
                 <span className="text-[20px]">Match with</span>
-                <span className="text-[20px]">{matchOpponent.email}</span>
+                <span className="text-[20px]">{matchOpponent?.email}</span>
             </div>
         </>;
     };
@@ -53,7 +58,7 @@ const MatchCard: FC<Props> = ({ match, setIsPendingMatchModalOpen }: Props) => {
         const { players } = match;
 
 
-        if (isPlayerTurn) {
+        if (isUserTurn) {
             return <button className="green-button-style font-bold py-2 px-4 rounded w-full text-[14px] max-w-xs md:text-[18px]">It's Your Turn!</button>;
         }
 
@@ -72,15 +77,15 @@ const MatchCard: FC<Props> = ({ match, setIsPendingMatchModalOpen }: Props) => {
         const { players, turns } = match;
         const currentTurn: Turn =  getCurrentTurn(turns);
 
-        if (!players.guestId || currentTurn.activePlayer !== user.uid) {
+        // if (!players.guestId || currentTurn.activePlayer !== user.uid) {
             setSelectedMatch(match);
-            setIsPendingMatchModalOpen(true);
-        }
+            setIsLobbyMatchModalOpen(true);
+        // }
     }
 
     const handleCardColor = () => {
-        if (isPlayerTurn) return 'bg-[#19647E]';
-        if (!matchOpponent || (matchOpponent && !isPlayerTurn)) return 'bg-[#caa82a]';
+        if (isUserTurn) return 'bg-[#19647E]';
+        if (!matchOpponent || (matchOpponent && !isUserTurn)) return 'bg-[#caa82a]';
     }
 
     return (
