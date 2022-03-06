@@ -11,7 +11,7 @@ import Button from '../components/buttons/Button';
 
 import { renderErrors } from '../utils/misc';
 import useStore from '../utils/store';
-import Player from '../types/Player';
+import Player from '../interfaces/Player';
 import { FirebaseError } from 'firebase/app';
 
 const passwordRequirements = new passwordValidator();
@@ -21,15 +21,15 @@ passwordRequirements
 	.is().max(25, 'Password can only have a maximum of 25 characters.')
 	.has().not('', 'Password cannot have spaces').spaces();
 
-type Props = {
-//   letterStatuses: { [key: string]: string }
+interface Props {
+//   keyboardStatus: { [key: string]: string }
 //   gameDisabled: boolean
 //   onDeletePress: () => void
 //   onEnterPress: () => void
 //   addLetter: any
 }
 
-type EmailError = {
+interface EmailError {
 	message: string,
 	isEmailError: boolean,
 }

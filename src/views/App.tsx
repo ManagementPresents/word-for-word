@@ -21,7 +21,7 @@ import useStore from '../utils/store';
 import AuthRedirectRoute from '../components/wrappers/AuthRedirectRoute';
 import AuthMatchRoute from '../components/wrappers/AuthMatchRoute';
 
-type Props = {};
+interface Props {};
 
 const App = ({}: Props) => {
     useEffect(() => {        
