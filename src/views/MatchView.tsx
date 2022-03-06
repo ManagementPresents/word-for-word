@@ -1,5 +1,5 @@
 //Adding Firebase imports
-import { doc, setDoc, getDoc, terminate, } from "firebase/firestore"; 
+import { doc, setDoc, getDoc, updateDoc, arrayUnion, } from "firebase/firestore"; 
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -336,34 +336,29 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
     }
 
     const handleAcceptMatch = async () => {
-        const docRef = doc(db, 'matches', currentMatch.id as string);
+        const matchDocRef = doc(db, 'matches', currentMatch.id as string);
+        const playerDocRef = doc(db, 'players', user.uid as string);
 
         /*
             TODO: This feels stupid. We shouldn't have to follow this with a 'get' just to update the local store. consider bringing in a firebase listener that, well, listens to changes to the 'matches' collection and automatically updates the store accordingly.
-
             a firebase transaction might be the solution here.
-        */
-
-        // const updatedTurns: Turn[] = currentMatch.turns.map((turn: Turn): Turn => {
-        //     if (!turn.currentTurn) return turn;
-
-        //     turn.activePlayer = user.uid
-
-        //     return turn;
-        // }) as Turn[];
-        
+        */        
         const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
             turn.activePlayer = user.uid;
 
             return turn;
         });
 
-        await setDoc(docRef, { 
+        await updateDoc(playerDocRef, {
+            matches: arrayUnion(params.matchId)
+        });
+
+        await setDoc(matchDocRef, { 
             players: { guestId: user.uid }, 
             turns: updatedTurns, 
          }, { merge: true });
 
-        const updatedCurrentMatchSnap = await getDoc(docRef);
+        const updatedCurrentMatchSnap = await getDoc(matchDocRef);
 
         if (updatedCurrentMatchSnap.exists()) {
             const updatedCurrentMatchData: Match = updatedCurrentMatchSnap.data() as Match;

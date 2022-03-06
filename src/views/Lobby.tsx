@@ -28,7 +28,6 @@ const Lobby = ({}: Props) => {
         user, 
         db, 
         matches, 
-        selectedMatch,
         setMatches, 
         setMatchOpponents,
         matchOpponents,
@@ -51,7 +50,8 @@ const Lobby = ({}: Props) => {
         // @ts-ignore
         handleValidateWordle();
 
-        if (user && !matches.length) {
+        if (user) {
+            console.log('da big bad async')
             setIsLoadingMatches(true);
             
             const loadingMatchesTimeout = setTimeout(() => {
@@ -99,10 +99,6 @@ const Lobby = ({}: Props) => {
                         return {} as Player;
                     }));
 
-                    /* 
-                        TODO: Right now, if an opponent accepts your match, there is no real time update. I.e. you have to refresh
-                        the page before you see that they've accepted your match, or, really, interacted with your match in any way. This seems like a prime candidate for a real time implementation.
-                    */
                     // Transform (or, i guess, reduce) the opponentPlayersArray into an object, for easier data access
                     const opponentPlayers: Players = opponentPlayersArray.reduce((accum: Players, player: Player): Players => {
                         const hasPlayer = !!Object.keys(player).length;
