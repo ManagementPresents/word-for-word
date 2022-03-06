@@ -7,7 +7,7 @@ import Loading from '../Loading';
 
 import { TIMEOUT_DURATION } from '../../utils/constants';
 import useStore from '../../utils/store';
-import Match from '../../types/Match';
+import Match from '../../interfaces/Match';
 
 
 const AuthRoute = ({ children, redirectTo, predicate, }: any) => {

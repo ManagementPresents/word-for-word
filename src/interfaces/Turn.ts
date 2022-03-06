@@ -1,9 +1,10 @@
-type Turn = {
+interface Turn {
     activePlayer: string,
     currentTurn: boolean,
-    guesses: [],
+    guesses: {},
     turnState: string,
     wordle: string,
+    keyboardStatus: {},
 }
 
 export default Turn;

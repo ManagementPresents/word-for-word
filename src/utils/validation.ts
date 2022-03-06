@@ -2,6 +2,8 @@ import isAlpha from 'validator/lib/isAlpha';
 import isLength from 'validator/lib/isLength';
 import words from '../data/words';
 
+// TODO: It's probably necessary to create server side validation, via cloud function or something,
+// so that it's totally impossible to start up a match with a faulty word
 const validateWordle = (wordle: string): string[] => {
     let errors = [];
 

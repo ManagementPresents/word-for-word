@@ -18,15 +18,15 @@ passwordRequirements
 	.is().max(25, 'Password can only have a maximum of 25 characters.')
 	.has().not('', 'Password cannot have spaces').spaces();
 
-type Props = {
-//   letterStatuses: { [key: string]: string }
+interface Props {
+//   keyboardStatus: { [key: string]: string }
 //   gameDisabled: boolean
 //   onDeletePress: () => void
 //   onEnterPress: () => void
 //   addLetter: any
 }
 
-type EmailError = {
+interface EmailError {
 	message: string,
 	isEmailError: boolean,
 }

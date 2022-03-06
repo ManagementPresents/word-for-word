@@ -6,7 +6,7 @@ import { ReactComponent as Close } from '../data/Close.svg'
 
 if (process.env.NODE_ENV !== 'test') Modal.setAppElement('#root')
 
-type Props = {
+interface Props {
   isOpen: boolean
   handleClose: () => void
   styles: any

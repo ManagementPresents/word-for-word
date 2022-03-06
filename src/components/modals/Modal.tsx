@@ -1,10 +1,9 @@
 import ReactModal from 'react-modal';
-import { FC, Fragment, useEffect, useState, } from 'react';
+import { FC, Fragment, } from 'react';
 
-import useStore from '../utils/store';
 
 ReactModal.setAppElement('#root');
-
+ 
 const modalStyle = { 
     overlay: {
         display: 'flex',

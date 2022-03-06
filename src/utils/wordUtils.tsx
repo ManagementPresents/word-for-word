@@ -38,11 +38,16 @@ const makeUpADude = () => {
 };
 
 // TODO: Need to change this to be able to render green, yellow, and gray squares
-const renderWordleSquares = (wordle: string) => {
+const renderWordleSquares = (wordle: string, color?: string | []) => {
     if (!wordle) return;
 
     return wordle.split('').map((letter: string) => {
-        return <span className="bg-[#FFCE47] h-[40px] w-[40px] text-center leading-[40px]">{letter.toUpperCase()}</span>;
+        if (typeof color === 'string') {
+            return <span className={`${color} h-[30px] w-[30px] text-center leading-[30px] text-[14px] sm:text-[18px] sm:leading-[40px] sm:h-[40px] sm:w-[40px]`}>{letter.toUpperCase()}</span>;
+        }
+        
+        // Default to yellow
+        return <span className={`yellow h-[30px] w-[30px] text-center leading-[30px] text-[14px] sm:text-[18px] sm:leading-[40px] sm:h-[40px] sm:w-[40px]`}>{letter.toUpperCase()}</span>;
     });
 };
 
