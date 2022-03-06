@@ -14,6 +14,7 @@ import {
     getCurrentTurn,
     createMatchUrl,
     getMatchOpponentId,
+    isPlayerTurn,
 } from "../../utils/misc";
 
 interface Props {
@@ -25,13 +26,26 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
     const { 
         selectedMatch, 
         matchOpponents, 
-        user } = useStore();
+        user 
+    } = useStore();
 
     const [matchOpponent, setIsMatchOpponent] = useState(matchOpponents[getMatchOpponentId(user, selectedMatch)]);
+    const isUserTurn = isPlayerTurn(selectedMatch, user.uid);
+
+    const renderTitle = () => {
+        if (matchOpponent || isUserTurn) {
+            return (
+                <span className="flex flex-col">
+                    <span>Match with</span>
+                    <span>{matchOpponent?.email}</span>
+                </span>
+            );
+        }
+        
+        return 'Awaiting Opponent';
+    }
 
     const renderMatchButtons = () => {
-        
-
         if (matchOpponent) {
             return (
                 <div className="flex flex-col gap-y-2 mt-4">
@@ -51,16 +65,26 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
             }} />
         );
     }
+
+    const renderTurns = () => {
+        const isSelectedMatch = Object.keys(selectedMatch).length;
+
+        // TODO: This needs abstraction
+        if (isSelectedMatch) { 
+            const selectedMatchCurrentTurn: Turn = getCurrentTurn(selectedMatch.turns);
+
+            if (selectedMatch?.players?.hostId === user.uid) {
+                return renderWordleSquares(selectedMatchCurrentTurn.wordle);
+            }
+
+            return <div></div>
+        }
+    }
     
     return (
         <Modal isOpen={isOpen} onRequestClose={onRequestClose}>
             <h1 className="text-3xl text-center sm:text-4xl">
-                {matchOpponent ? 
-                <span className="flex flex-col">
-                    <span>Match with</span>
-                    <span>{matchOpponent.email}</span>
-                </span> :
-                'Awaiting Opponent'}
+                {renderTitle()}
             </h1>
 
             <div className="flex flex-row justify-center gap-x-4 text-center">
@@ -102,21 +126,8 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
                     <span>Your Word</span>
                 </div>
 
-                <div className="flex flex-row gap-x-2 bg-[#775568]">
-                    {(() => {
-                        const isSelectedMatch = Object.keys(selectedMatch).length;
-
-                        // TODO: This needs abstraction
-                        if (isSelectedMatch) {
-                            const selectedMatchCurrentTurn: Turn = getCurrentTurn(selectedMatch.turns);
-
-                            if (selectedMatch?.players?.hostId === user.uid) {
-                                return renderWordleSquares(selectedMatchCurrentTurn.wordle);
-                            }
-
-                            return <div></div>
-                        }
-                    })()}
+                <div className="flex flex-row bg-[#775568] gap-x-1 sm:gap-x-2 ">
+                    {renderTurns()}
                 </div>
 
                 <div className="flex bg-[#775568] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">

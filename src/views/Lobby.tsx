@@ -54,8 +54,7 @@ const Lobby = ({}: Props) => {
         if (user) {
             setIsLoadingMatches(true);
             
-            const loadingMatchesTimeout = setTimeout(() => {
-                console.log('timeout transpired');
+            const loadingMatchesTimeout = setTimeout(() => {;
                 setIsLoadingMatches(false);
             }, TIMEOUT_DURATION);
 

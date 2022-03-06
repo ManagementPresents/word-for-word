@@ -29,11 +29,6 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 
     const [isUserTurn, setIsUserTurn] = useState(isPlayerTurn(match, user.uid));
     const [matchOpponent, setIsMatchOpponent] = useState(matchOpponents[getMatchOpponentId(user, match)]);
-
-    console.log({
-        matchOpponents,
-        matchOpponent
-    });
  
     // TODO: I'm sure there's room for even more abstraction for the repetition across these functions
     const renderCardDetails = () => {

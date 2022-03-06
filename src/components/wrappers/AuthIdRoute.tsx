@@ -11,15 +11,12 @@ const AuthRoute = ({ children, redirectTo, predicate, }: any) => {
     const { user } = useStore();
 
     const navigate = useNavigate();
-    const params = useParams();
     
     useEffect(() => {
-        console.log({ params });
         setTimeout(() => {
             setIsLoading(false);
 
             if (!useStore.getState().user) {
-                // console.log('redirect is triggering');
                 navigate(redirectTo);
             } else {
                 // console.log('there was a user, and a miracle!', useStore.getState().user);
@@ -33,7 +30,6 @@ const AuthRoute = ({ children, redirectTo, predicate, }: any) => {
         if (user) setIsLoading(false);
     }, [user, setIsLoading]);
 
-    // console.log({ userId: user });
     return isLoading && !user ? <Loading enableCentering={true} /> : children;
 };
 
