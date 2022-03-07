@@ -76,6 +76,7 @@ function MatchView() {
             Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
             Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
             Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
+            Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
         ],
         cellStatuses: Array(6).fill(Array(5).fill('unguessed')),
         currentRowIndex: 0,
@@ -102,9 +103,6 @@ function MatchView() {
     const [isNextWordleReady, setIsNextWordleReady] = useState(false);
     const [isSendingWordle, setIsSendingWordle] = useState(false);
     const [matchLink, setMatchLink] = useState('');
-
-    const eg: { [key: number]: string } = {}
-    const [exactGuesses, setExactGuesses] = useState(eg);
 
     const navigate = useNavigate();
 
@@ -159,27 +157,14 @@ function MatchView() {
         }
     }
 
-  // returns an array with a boolean of if the word is valid and an error message if it is not
-  const isValidWord = (word: string): [boolean] | [boolean, string] => {
-    if (word.length < 5) return [false, `please enter a 5 letter word`]
+    // returns an array with a boolean of if the word is valid and an error message if it is not
+    const isValidWord = (word: string): [boolean] | [boolean, string] => {
+        if (word.length < 5) return [false, `please enter a 5 letter word`]
 
-    if (!words[word.toLowerCase()]) return [false, `${word} is not a valid word. Please try again.`]
-    
-    return [true]
+        if (!words[word.toLowerCase()]) return [false, `${word} is not a valid word. Please try again.`]
 
-    // const guessedLetters = Object.entries(keyboardStatus).filter(([letter, letterStatus]) =>
-    //   [status.yellow, status.green].includes(letterStatus)
-    // )
-
-
-    // const yellowsUsed = guessedLetters.every(([letter, _]) => { return word.includes(letter) })
-    // const greensUsed = Object.entries(exactGuesses).every(
-    //   ([position, letter]) => word[parseInt(position)] === letter
-    // )
-
-    // if (!yellowsUsed || !greensUsed)
-    //   return [false, `In hard mode, you must use all the hints you've been given.`]
-  }
+        return [true]
+    }
 
     const onEnterPress = () => {
         // TODO: Probably not necessary to clone this, but it makes me feel safe
@@ -243,42 +228,42 @@ function MatchView() {
     setCurrentCol((prev: number) => prev - 1)
   }
 
-const updateCells = (word: string, rowNumber: number): Cell[][] => {
-    // TODO: Kludge, need to ensure capitalization (or lack thereof) for answers and guesses is standardized
-    word = word.toUpperCase();
+    const updateCells = (word: string, rowNumber: number): Cell[][] => {
+        // TODO: Kludge, need to ensure capitalization (or lack thereof) for answers and guesses is standardized
+        word = word.toUpperCase();
 
-    const fixedLetters: { [key: number]: string } = {}
+        const fixedLetters: { [key: number]: string } = {}
 
-    const newBoard = [...board];
-    newBoard[rowNumber] = [...board[rowNumber]];
+        const newBoard = [...board];
+        newBoard[rowNumber] = [...board[rowNumber]];
 
-    const wordLength = word.length;
-    const answerLetters: string[] = answer.split('');
+        const wordLength = word.length;
+        const answerLetters: string[] = answer.split('');
 
-    // Set all to gray
-    for (let i = 0; i < wordLength; i++) {
-        newBoard[rowNumber][i].status = 'incorrect';
-    }
-
-    // Check greens
-    for (let i = wordLength - 1; i >= 0; i--) {
-        if (word[i] === answer[i]) {
-            newBoard[rowNumber][i].status = 'correct';
-            answerLetters.splice(i, 1)
-            fixedLetters[i] = answer[i]
+        // Set all to gray
+        for (let i = 0; i < wordLength; i++) {
+            newBoard[rowNumber][i].status = 'incorrect';
         }
-    }
 
-    // check yellows
-    for (let i = 0; i < wordLength; i++) {
-        if (answerLetters.includes(word[i]) && newBoard[rowNumber][i].status !== 'correct') {
-            newBoard[rowNumber][i].status = 'misplaced';
-            answerLetters.splice(answerLetters.indexOf(word[i]), 1)
+        // Check greens
+        for (let i = wordLength - 1; i >= 0; i--) {
+            if (word[i] === answer[i]) {
+                newBoard[rowNumber][i].status = 'correct';
+                answerLetters.splice(i, 1)
+                fixedLetters[i] = answer[i]
+            }
         }
-    }
 
-    return newBoard;
-}
+        // check yellows
+        for (let i = 0; i < wordLength; i++) {
+            if (answerLetters.includes(word[i]) && newBoard[rowNumber][i].status !== 'correct') {
+                newBoard[rowNumber][i].status = 'misplaced';
+                answerLetters.splice(answerLetters.indexOf(word[i]), 1)
+            }
+        }
+
+        return newBoard;
+    }
 
     const isRowAllGreen = (row: Cell[]) => {
         return row.every((cell: Cell) => cell.status ===  'correct')
@@ -311,7 +296,6 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
         db, 
         setOpponentPlayer, 
         opponentPlayer, 
-        matchOpponents,
         currentMatch, 
         user,
         setCurrentMatch, 
@@ -440,7 +424,12 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
             return row.every((cell) => cell.status !== 'unguessed');
         });
 
-        if (gameState === state.playing) {                    
+        console.log({ state });
+        console.log('match state', state.playing);
+        if (gameState === state.playing) {      
+            // console.log('inside if', { lastFilledRow, isRowAllGreen: isRowAllGreen(lastFilledRow as Cell[]) });      
+            console.log('last filled row', lastFilledRow) 
+            console.log({ currentRowIndex })       
             if (lastFilledRow && isRowAllGreen(lastFilledRow)) {
                 setGameState(state.won);
 
@@ -452,6 +441,7 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
                     setIsEndTurnModalOpen(true);
                 }, 500);
             } else if (currentRowIndex === 6) {
+                console.log('ya lose, bitch')
                 setGameState(state.lost);
                 setTimeout(() => {
                     setIsEndTurnModalOpen(false);

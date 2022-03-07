@@ -1,7 +1,6 @@
 import Turn from "../interfaces/Turn";
 import Match from "../interfaces/Match";
 import ValidationError from '../interfaces/ValidationError';
-import Player from "../interfaces/Player";
 
 const {
     REACT_APP_URL,
