@@ -12,6 +12,7 @@ import {
 } from '../utils/misc';
 import useStore from '../utils/store';
 
+
 interface Props {
     match: Match,
     isLobbyMatchModalOpen: boolean,
@@ -51,17 +52,17 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
         const { players } = match;
 
         if (isUserTurn) {
-            return <button className="green-button-style font-bold py-2 px-4 rounded w-full text-[14px] max-w-xs md:text-[18px]">It's Your Turn!</button>;
+            return <button className="green-button">It's Your Turn!</button>;
         }
 
         if (!players.guestId) {
             // TODO: is this language "fun" enough to justify being both twee and potentially a touch unclear?
-            return <button className="gray-button-style font-bold py-2 px-4 rounded w-full text-[14px] max-w-xs md:text-[18px]">{`Waiting for Opponent`}</button>;
+            return <button className="grey-button">{`Waiting for Opponent`}</button>;
         }
 
         if (matchOpponent) {
             // TODO: Copy?
-            return <button className="gray-button-style font-bold py-2 px-4 rounded w-full text-[14px] max-w-xs md:text-[18px]">Opponent's turn ...</button>
+            return <button className="grey-button">Opponent's turn ...</button>
         }
     }
 
