@@ -108,6 +108,11 @@ html {
   color: #F1F1F9;
 }
 
+.transparent {
+  background-color: transparent;
+  color: #F1F1F9;
+}
+
 /* Buttons */
 .gray-button-style {
   background-color: #A0939A;

@@ -1,5 +1,5 @@
 
-import { FC, useState, useEffect } from 'react';
+import { FC, useState, useEffect, ReactElement } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 
@@ -8,14 +8,16 @@ import Button from '../buttons/Button';
 import Modal from './Modal';
 
 import Turn from '../../interfaces/Turn';
+import Cell from '../../interfaces/match/Cell';
 import useStore from '../../utils/store';
-import { renderWordleSquares } from '../../utils/wordUtils';
+import { renderWordleSquares, renderWordleSquaresComplete } from '../../utils/wordUtils';
 import {  
-    getCurrentTurn,
     createMatchUrl,
     getMatchOpponentId,
     isPlayerTurn,
+    numericalObjToArray,
 } from "../../utils/misc";
+import { convertToObject } from 'typescript';
 
 interface Props {
     isOpen: boolean,
@@ -30,7 +32,8 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
     } = useStore();
 
     const [matchOpponent, setIsMatchOpponent] = useState(matchOpponents[getMatchOpponentId(user, selectedMatch)]);
-    const isUserTurn = isPlayerTurn(selectedMatch, user.uid);
+    const [isUserTurn, setIsUserTurn] = useState(isPlayerTurn(selectedMatch, user.uid));
+    const [isOpponentTurn, setIsOpponentTurn] = useState(isPlayerTurn(selectedMatch, matchOpponent.id as string));
 
     const renderTitle = () => {
         if (matchOpponent || isUserTurn) {
@@ -70,15 +73,79 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
         const isSelectedMatch = Object.keys(selectedMatch).length;
 
         // TODO: This needs abstraction
-        if (isSelectedMatch) { 
-            const selectedMatchCurrentTurn: Turn = getCurrentTurn(selectedMatch.turns);
+        if (isSelectedMatch) {
+             const renderedTurns = selectedMatch?.turns.map((turn: Turn) => {
+                const guessesArray: Cell[][] = numericalObjToArray(turn.guesses) as Cell[][];
+                let [ lastGuess ]: Cell[][] = guessesArray.slice(-1) as Cell[][];
+                let wordleHistoryRow: JSX.Element = <></>;
+                
+                if (!lastGuess) lastGuess = Array(5).fill({ letter: '?', status: 'unguessed' }) as Cell[];
 
-            if (selectedMatch?.players?.hostId === user.uid) {
-                return renderWordleSquares(selectedMatchCurrentTurn.wordle);
-            }
+                if (turn.activePlayer === matchOpponent.id) {
+                    console.log('render opponent turn')
+                    wordleHistoryRow = (
+                        <div className="flex flex-row max-h-[30px] sm:max-h-[40px]">
+                            <div className="flex bg-[#775568] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
+                                {guessesArray.length ? `Score: ${guessesArray.length}` : '?'}/6
+                            </div>
+            
+                            <div className="flex flex-row gap-x-2">
+                                {renderWordleSquaresComplete(lastGuess)}
+                            </div>
+            
+                            <div className="flex bg-[#775568] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
+                                <span>Your Word</span>
+                            </div>
+                        </div>
+                    )
+                } else if (turn.activePlayer === user.uid) {
+                    console.log('render my turn')
+                    wordleHistoryRow = (
+                        <div className="flex flex-row max-h-[30px] sm:max-h-[40px]">
+                            <div className="flex bg-[#775568] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
+                                <span>Your Word</span>
+                            </div>
+            
+                            <div className="flex flex-row gap-x-2">
+                                {renderWordleSquaresComplete(lastGuess)}
+                            </div>
+            
+                            <div className="flex bg-[#775568] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
+                                {guessesArray.length ? `Score: ${guessesArray.length}` : '?'}/6
+                            </div>
+                        </div>
+                    )
+                }
+                
+                return wordleHistoryRow;
+            });
 
-            return <div></div>
+            return renderedTurns;
         }
+
+        return <></>;
+    }
+
+    const renderMatchCopy = () => {
+        if (isUserTurn) {
+            return (
+                <div className="text-center max-w-[270px] mx-auto sm:max-w-[370px]">
+                    <p className="text-2xl sm:text-4xl mb-1">It's your turn!</p>
+                    <p className="text-[14px] sm:text-[18px]">Get your game on. Go play!</p>
+                </div>
+            );
+        }
+
+        if (isOpponentTurn) {
+            return (
+                <div className="text-center max-w-[270px] mx-auto sm:max-w-[370px]">
+                    <p className="text-2xl sm:text-4xl mb-1">It's your opponent's turn!</p>
+                    <p className="text-[14px] sm:text-[18px]">Come back once they've completed their turn.</p>
+                </div>
+            );
+        }
+
+        return <p className="text-2xl text-center max-w-[270px] mx-auto sm:text-4xl sm:max-w-[370px]">Waiting for an opponent to accept match invite!</p>;
     }
     
     return (
@@ -120,28 +187,11 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
                 </div>
             </div>
 
-            <div className="flex flex-row justify-center max-h-[30px] sm:max-h-[40px]">
-                {/* TODO: Same 'flanking elements must be same width' as above */}
-                <div className="flex bg-[#775568] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
-                    <span>Your Word</span>
-                </div>
-
-                <div className="flex flex-row bg-[#775568] gap-x-1 sm:gap-x-2 ">
-                    {renderTurns()}
-                </div>
-
-                <div className="flex bg-[#775568] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
-                    ?/6
-                </div>
+            <div className="flex flex-col justify-center gap-y-2 ">
+                {renderTurns()}
             </div>
 
-            {matchOpponent ? 
-                <div className="text-center max-w-[270px] mx-auto sm:max-w-[370px]">
-                    <p className="text-2xl sm:text-4xl mb-1">It's your opponent's turn!</p>
-                    <p className="text-[14px] sm:text-[18px]">Come back once they've completed their turn.</p>
-                </div> :
-                <p className="text-2xl text-center max-w-[270px] mx-auto sm:text-4xl sm:max-w-[370px]">Waiting for an opponent to accept match invite!</p>
-            }
+            {renderMatchCopy()}
 
             <div className="flex flex-col items-center gap-y-2 max-w-[250px] mx-auto mt-2">
                 <h3 className="text-[16px]">

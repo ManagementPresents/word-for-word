@@ -4,6 +4,11 @@ import words from '../data/words';
 
 // TODO: It's probably necessary to create server side validation, via cloud function or something,
 // so that it's totally impossible to start up a match with a faulty word
+/**
+ * 
+ * @param wordle 
+ * @returns {string[]}
+ */
 const validateWordle = (wordle: string): string[] => {
     let errors = [];
 

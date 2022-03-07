@@ -1,17 +1,24 @@
 import Turn from "../interfaces/Turn";
 import Match from "../interfaces/Match";
+import ValidationError from '../interfaces/ValidationError';
 
 const {
     REACT_APP_URL,
 } = process.env;
 
-const renderErrors = (errors: any, className: string) => {
-    let validationMessages = [];
+/**
+ * 
+ * @param errors 
+ * @param className 
+ * @returns { JSX.Element[] }
+ */
+const renderErrors = (errors: ValidationError[], className: string): JSX.Element[] => {
+    let validationMessages: JSX.Element[] = [] as JSX.Element[];
 
     if (errors.length) {
         validationMessages = errors.map((error: any) => {
             /* 
-                TODO: This 'message' property is only necessary because of the 'password-valditor' library.
+                TODO: This 'message' property is only necessary because of the 'password-validator' library.
                 This can be refactored now that we're also using validator.js
             */
             // @ts-ignore
@@ -124,7 +131,6 @@ const isPlayerTurn = (match: Match = {} as Match, id: string): boolean => {
     
     return currentTurn?.activePlayer === id;
 }
-
 
 export {
     renderErrors,

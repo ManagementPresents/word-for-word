@@ -1,5 +1,7 @@
-import { keyboardLetters, status, letters } from '../constants'
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback } from 'react';
+
+import { letters, keyboardLetters, } from '../constants';
+import CellStatus from '../interfaces/CellStatus';
 
 interface Props {
   keyboardStatus: { [key: string]: string }
@@ -19,13 +21,13 @@ const Keyboard = ({
   const getKeyStyle = (letter: string) => {
     switch (keyboardStatus[letter]) {
       case 'correct':
-        return 'bg-[#15B097] text-[#f1f1f9]'
+        return CellStatus.CORRECT;
       case 'misplaced':
-        return 'bg-[#FFCE47] text-[#f1f1f9]'
+        return CellStatus.MISPLACED;
       case 'incorrect':
-        return 'bg-[#3c2a34] text-[#f1f1f9]'
+        return CellStatus.INCORRECT;
       default:
-        return 'text-primary dark:text-primary-dark'
+        return CellStatus.UNGUESSED;
     }
   }
 

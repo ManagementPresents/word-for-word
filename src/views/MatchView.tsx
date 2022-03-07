@@ -21,7 +21,8 @@ import {
     addTurn,
 } from "../utils/misc";
 import { validateWordle } from "../utils/validation";
-import { letters, status } from '../constants'
+import { letters, } from '../constants'
+import CellStatus from '../interfaces/CellStatus';
 import { renderWordleSquares } from "../utils/wordUtils";
 import Turn from "../interfaces/Turn";
 import Match from '../interfaces/Match';
@@ -73,14 +74,14 @@ function MatchView() {
             Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
             Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
         ],
-        cellStatuses: Array(6).fill(Array(5).fill(status.unguessed)),
+        cellStatuses: Array(6).fill(Array(5).fill('unguessed')),
         currentRowIndex: 0,
         currentCol: 0,
         keyboardStatus: () => {
             const keyboardStatus: { [key: string]: string } = {};
 
             letters.forEach((letter) => {
-                keyboardStatus[letter] = status.unguessed
+                keyboardStatus[letter] = 'unguessed'
             });
 
             return keyboardStatus;
