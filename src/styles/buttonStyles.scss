@@ -1,0 +1,56 @@
+@use 'green';
+@use 'buttonBase';
+@use 'colors';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.green-button{
+    @include buttonBase.base; 
+    background-color: $green;
+    color: $lightestGreen;
+}
+
+.green-button:hover{
+    @include buttonBase.base;
+    background-color: $lightGreen;
+    color: $darkGreen;
+}
+
+.yellow-button{
+    @include buttonBase.base;
+    background-color: $yellow;
+    color: $darkestYellow;
+}
+  
+.yellow-button:hover {
+    @include buttonBase.base;
+    background-color: $lightestYellow;
+    color: $darkYellow;
+}
+
+.yellow-button-hollow{
+    @include buttonBase.base;
+    background-color: transparent;
+    border: solid 2px $yellow;
+    color: $yellow;
+}
+
+.yellow-button-hollow:hover{
+    @include buttonBase.base;
+    background-color: $yellow;
+    color: $darkestYellow;
+}
+
+.grey-button{
+    @include buttonBase.base;
+    background-color: $lightGrey;
+    color: $white;
+}
+      
+.grey-button:hover {
+    @include buttonBase.base;
+    background-color: $lightestGrey;
+    color: $black;
+}

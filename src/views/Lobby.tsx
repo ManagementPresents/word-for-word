@@ -227,7 +227,7 @@ const Lobby = ({}: Props) => {
             {renderMatches(matches)}
         </Fragment> :
         <div className="mx-auto max-w-lg">
-            <h2 className="mb-2 text-2xl font-bold tracking-tight text-[#F1F1F9] dark:text-white">You have no currently active matches.</h2>
+            <h2 className="mb-2 text-2xl font-bold tracking-tight text-[#F1F3F9] dark:text-white">You have no currently active matches.</h2>
 
             <Button color="green" copy="Start a New Match" onClick={handleStartNewMatch}></Button>
         </div>
@@ -250,18 +250,19 @@ const Lobby = ({}: Props) => {
 	return (
         <Fragment>
             <div className="max-w-7xl flex flex-col gap-y-3 h-full md:gap-x-6 md:flex-row mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                <div className="flex flex-col gap-y-2 h-max p-4 rounded-lg border border-gray-200 shadow-md bg-[#3C2A34] md:basis-2/12">
+                {/* TODO: Hi it's me zoe again, I know we're probably ganking this part sooner rather than later but just to make it a little easier on the eyes in the meantime I'm having it pull some minor non-functional aesthetics from the matchbox style, feel free to do whatever with it. I changed the font colors below manually */}
+                <div className="flex flex-col gap-y-2 h-max p-4 rounded-lg border shadow-md lobby-matchbox-style md:basis-2/12">
                     <div>
-                        <h3 className="text-1xl font-bold tracking-tight text-[#F1F1F9]">Welcome back,</h3>
+                        <h3 className="text-1xl font-bold tracking-tight text-[#F1F3F9]">Welcome back,</h3>
                         {/* TODO: If email is super long, it'll stretch the page */}
-                        <h2 className="text-2xl font-bold tracking-tight text-[#15B097]">{user?.email}</h2>
+                        <h2 className="text-2xl font-bold tracking-tight text-[#609B94]">{user?.email}</h2>
                     </div>
 
                     <div className="flex flex-col justify-conter font-normal text-gray-700 dark:text-gray-400">
                         <div className="flex flex-row gap-x-6 md:flex-col">
                             <div>
-                                <h3 className="text-base font-bold text-[#F1F1F9] dark:text-gray-400">Matches Played</h3>
-                                <span className="text-[#F1F1F9]">489</span>
+                                <h3 className="text-base font-bold text-[#F1F3F9] dark:text-grey-400">Matches Played</h3>
+                                <span className="text-[#F1F3F9]">489</span>
                             </div>
 
                             <div>
@@ -280,7 +281,8 @@ const Lobby = ({}: Props) => {
                 </div>
 
                 {/* TODO: This basis-[46rem] business is a kludge fix to ensure the layout looks right on moble */}
-                <div className={`grid grid-cols-1 overflow-y-scroll auto-rows-max p-6 basis-[46rem] bg-[#3C2A34] rounded-lg border border-gray-200 shadow-md gap-y-4 ${matches.length ? '' : 'grid grid-cols-1'} md:basis-10/12 md:grid-cols-1 md:gap-x-4 md:grid-flow-row lg:grid-cols-2`}>
+                {/* Hi gabriel, I added "lobby-matchbox-style here to control some colors and such from index.css in case you're wondering wtf this is. Also, you lookin fine as hell over there just fyi. ;) */}
+                <div className={`grid grid-cols-1 overflow-y-scroll auto-rows-max p-6 basis-[46rem] lobby-matchbox-style rounded-lg border shadow-md gap-y-4 ${matches.length ? '' : 'grid grid-cols-1'} md:basis-10/12 md:grid-cols-1 md:gap-x-4 md:grid-flow-row lg:grid-cols-2`}>
                     {handleMatchBox()}
                 </div>
             </div>
@@ -288,9 +290,9 @@ const Lobby = ({}: Props) => {
             <Modal isOpen={isNewMatchModalOpen} onRequestClose={handleNewMatchModalClose}>
                 {(!isSpecificPlayer && !isOpenMatch) && 
                     <Fragment>
-                        <h2 className="text-xl text-center font-bold tracking-tight text-[#F1F1F9] md:text-2xl">Start a New Match</h2>    
+                        <h2 className="text-xl text-center font-bold tracking-tight modals-header md:text-2xl">Start a New Match</h2>    
 
-                        <p>blah blah blah basic rules/instructions.</p>
+                        <p className="modals-body">blah blah blah basic rules/instructions.</p>
                         
                         {/* TODO: Ensure data-tip works with this new component */}
                         <Button data-tip="This mode is not yet available. Check back soon!" color="yellow" disabled={true} copy="Invite Specific Player" onClick={(e: any) => {
@@ -306,9 +308,9 @@ const Lobby = ({}: Props) => {
                 }
                 {isSpecificPlayer && 
                     <Fragment>
-                        <h2 className="text-xl text-center font-bold tracking-tight text-[#F1F1F9] md:text-2xl">Invite Specific Player</h2>   
+                        <h2 className="text-xl text-center font-bold tracking-tight modals-header md:text-2xl">Invite Specific Player</h2>   
 
-                        <p>Get a match link only you and a specific player can use.</p>
+                        <p className="modals-body">Get a match link only you and a specific player can use.</p>
 
                         <div className="flex justify-center flex-col">
                             <span>Your Word</span>
@@ -336,9 +338,9 @@ const Lobby = ({}: Props) => {
 
                 {isOpenMatch && 
                     <Fragment>  
-                        <h2 className="text-xl text-center font-bold tracking-tight text-[#F1F1F9] md:text-2xl">Create Open Match</h2>   
+                        <h2 className="text-xl text-center font-bold tracking-tight modals-header md:text-2xl">Create Open Match</h2>   
 
-                        <p>Play with the first person who opens the link!</p>
+                        <p className="modals-body">Play with the first person who opens the link!</p>
 
                         <div className="flex justify-center flex-col gap-y-2">
                             <span>Your Word</span>

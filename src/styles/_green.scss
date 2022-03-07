@@ -1,0 +1,11 @@
+@import 'colors';
+
+@mixin idle{
+    background-color: $green;
+    color: $lightestGreen;
+}
+
+@mixin highlight{
+    background-color: $lightGreen;
+    color: $darkGreen;
+}
