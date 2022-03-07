@@ -9,9 +9,10 @@ import Modal from '../components/modals/Modal';
 import Button from '../components/buttons/Button';
 import LoadingButton from '../components/buttons/LoadingButton';
 import WordleInput from '../components/WordleInput';
-import PendingModalMatch from '../components/modals/PendingMatchModal';
+import PendingModalMatch from '../components/modals/LobbyMatchModal';
 import CopyInput from '../components/CopyInput';
 
+import { getMatchOpponentId } from '../utils/misc';
 import { validateWordle } from '../utils/validation';
 import useStore from '../utils/store';
 import { generateMatchUri } from '../utils/wordUtils';
@@ -44,18 +45,16 @@ const Lobby = ({}: Props) => {
     const [isGeneratingLink, setIsGeneratingLink] = useState(false);
     const [wordleValidationErrors, setWordleValidationErrors] = useState([]);
     const [isLoadingMatches, setIsLoadingMatches] = useState(true);
-    const [isPendingMatchModalOpen, setIsPendingMatchModalOpen] = useState(false);
+    const [isLobbyMatchModalOpen, setIsLobbyMatchModalOpen] = useState(false);
 
     useEffect(() => {
         // @ts-ignore
         handleValidateWordle();
 
         if (user) {
-            console.log('da big bad async')
             setIsLoadingMatches(true);
             
-            const loadingMatchesTimeout = setTimeout(() => {
-                console.log('timeout transpired');
+            const loadingMatchesTimeout = setTimeout(() => {;
                 setIsLoadingMatches(false);
             }, TIMEOUT_DURATION);
 
@@ -85,13 +84,14 @@ const Lobby = ({}: Props) => {
     
                     const opponentPlayersArray: Player[] = await Promise.all(playerMatches.map(async (match: Match): Promise<Player> => {
                         const { players } = match;
+                        const matchOpponentId = getMatchOpponentId(user, match);
 
-                        if (players.guestId) {
-                            const playerRef = doc(db, 'players', players.guestId);
+                        if (matchOpponentId) {
+                            const playerRef = doc(db, 'players', matchOpponentId);
                             const playerSnap = await getDoc(playerRef);
         
                             return {
-                                id: players.guestId,
+                                id: matchOpponentId,
                                 ...playerSnap.data()
                              } as Player;
                         }
@@ -215,7 +215,7 @@ const Lobby = ({}: Props) => {
 
     // TODO: When a new match is made, it should probably load in the first card slot (i.e. it should appear in the top left of the match box on large devices, and at the very top on mobile devices)
     const renderMatches = (matches: Match[]) => {
-        return matches.map((match) => <MatchCard match={match} matchOpponent={matchOpponents[match.players.guestId]} isPendingMatchModalOpen={isPendingMatchModalOpen} setIsPendingMatchModalOpen={setIsPendingMatchModalOpen} />);
+        return matches.map((match) => <MatchCard match={match} isLobbyMatchModalOpen={isLobbyMatchModalOpen} setIsLobbyMatchModalOpen={setIsLobbyMatchModalOpen} />);
     }
 
     const handleMatchBox = () => {
@@ -233,8 +233,8 @@ const Lobby = ({}: Props) => {
         </div>
     }
 
-    const handlePendingMatchModalClose = () => {
-        setIsPendingMatchModalOpen(false);
+    const handleLobbyMatchModalClose = () => {
+        setIsLobbyMatchModalOpen(false);
     }
 
     // TODO: Bring back once you figure out why tooltips prevent the click-copy library from working
@@ -360,7 +360,7 @@ const Lobby = ({}: Props) => {
                 }
             </Modal>
             
-            <PendingModalMatch isOpen={isPendingMatchModalOpen} onRequestClose={handlePendingMatchModalClose} />    
+            <PendingModalMatch isOpen={isLobbyMatchModalOpen} onRequestClose={handleLobbyMatchModalClose} />    
         </Fragment>
 	)
 }

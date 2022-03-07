@@ -20,10 +20,12 @@ import {
     numericalObjToArray, 
     updateCurrentTurn, 
     getCurrentTurn,
+    getMatchOpponentId,
     addTurn,
 } from "../utils/misc";
 import { validateWordle } from "../utils/validation";
-import { letters, status } from '../constants'
+import { letters, } from '../constants'
+import CellStatus from '../interfaces/CellStatus';
 import { renderWordleSquares } from "../utils/wordUtils";
 import Turn from "../interfaces/Turn";
 import Match from '../interfaces/Match';
@@ -75,14 +77,14 @@ function MatchView() {
             Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
             Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
         ],
-        cellStatuses: Array(6).fill(Array(5).fill(status.unguessed)),
+        cellStatuses: Array(6).fill(Array(5).fill('unguessed')),
         currentRowIndex: 0,
         currentCol: 0,
         keyboardStatus: () => {
             const keyboardStatus: { [key: string]: string } = {};
 
             letters.forEach((letter) => {
-                keyboardStatus[letter] = status.unguessed
+                keyboardStatus[letter] = 'unguessed'
             });
 
             return keyboardStatus;
@@ -309,6 +311,7 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
         db, 
         setOpponentPlayer, 
         opponentPlayer, 
+        matchOpponents,
         currentMatch, 
         user,
         setCurrentMatch, 
@@ -391,11 +394,10 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
     }
 
     const handleSendWordle = async () => {
-        const { players } = currentMatch;
-        const opponentUid: string = user.uid === players.guestId ? players.hostId : players.guestId;
+        const opponentId: string = getMatchOpponentId(user, currentMatch);
+
         const newTurn: Turn = {
-            // TODO: Determine a reliable way to know your opponent's UID. Could be in a firestore schema, could just be a local utility function
-            activePlayer: opponentUid,
+            activePlayer: opponentId,
             currentTurn: true,
             guesses: {},
             keyboardStatus: {},
@@ -415,7 +417,6 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
 
         const currentMatchRef = doc(db, 'matches', currentMatch.id);
 
-        console.log('sending up these new turns', { newTurns });
         await setDoc(currentMatchRef, {
             turns: newTurns,
         }, { merge: true });
@@ -554,7 +555,7 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
               <Lobby />
             </button> 
             <h1 className="flex-1 text-center text-xl xxs:text-2xl sm:text-4xl tracking-wide font-bold font-righteous">
-              War of the Wordles
+              Word for Word
             </h1>
           </header>
           
@@ -632,9 +633,9 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
                         </Modal>
 
                         <Modal isOpen={isLandingModalOpen} onRequestClose={() => { setIsLandingModalOpen(false) }}>
-                            {/* TODO: Think about using a random "fighting words" generator here */}
-                            <h1 className="text-2xl text-center">
-                                <span className="text-[#15B097] block">{opponentPlayer.email}</span> is spoiling for a donnybrook!
+                            {/* TODO: Think about using a random "Word for Word" generator here */}
+                            <h1 className="flex flex-col gap-y-2 text-[20px] sm:text-2xl text-center">
+                                <span className="text-[#15B097] block">{opponentPlayer.email}</span> would like to have a Wordle with you!
                             </h1>
 
                             <div className="flex flex-col gap-y-3">
@@ -652,7 +653,7 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
                         </Modal>
 
                         <Modal isOpen={isEndTurnModalOpen} onRequestClose={handleCloseEndTurnModal}>
-                            {/* TODO: Think about using a random "fighting words" generator here */}
+                            {/* TODO: Think about using a random "Word for Word" generator here */}
                             <div className="flex flex-col gap-y-2">
                                 <h1 className="text-4xl text-center">
                                     Turn 1
@@ -676,11 +677,11 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
                             <span className="yellow-font uppercase text-center text-[24px] md:text-[42px]">You guessed their word!</span>
 
                             <div className="flex flex-row gap-x-2 justify-center">
-                                {renderWordleSquares(answer)}
+                                {renderWordleSquares(answer, 'green')}
                             </div>
 
                             <div className="flex flex-col gap-y-2 text-center mx-auto md:min-w-[250px]">
-                                <span className="text-[20px] md:text-[28px] mt-8">Now it's your turn!</span>
+                                <span className="text-[20px] md:text-[28px]">Now it's your turn!</span>
 
                                 <span className="text-[12px] md:text-[16px]">Send them a word right back!</span>
                                 <WordleInput validationErrors={wordleValidationErrors} handleValidationErrors={(e: React.ChangeEvent<HTMLInputElement>) => { handleValidateWordle(e.target.value) }} />

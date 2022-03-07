@@ -8,12 +8,17 @@ import Loading from '../Loading';
 import { TIMEOUT_DURATION } from '../../utils/constants';
 import useStore from '../../utils/store';
 import Match from '../../interfaces/Match';
+import { isPlayerTurn } from "../../utils/misc";
 
 
 const AuthRoute = ({ children, redirectTo, predicate, }: any) => {
-    const isLoading = useStore((state) => state.isLoading);
-    const { setIsLoading } = useStore();
-    const { user, db, setCurrentMatch, } = useStore();
+    const { 
+        isLoading,
+        setIsLoading,
+        user,
+        db,
+        setCurrentMatch 
+    } = useStore();
 
     const navigate = useNavigate();
     const params = useParams();
@@ -45,32 +50,23 @@ const AuthRoute = ({ children, redirectTo, predicate, }: any) => {
 
                 if (match.exists()) {
                     const matchData: Match = match.data() as Match;
+                    const isUserTurn: boolean = isPlayerTurn(matchData, user.uid);
 
-                    if (user.uid === matchData.players.hostId) {
-                        console.log('host tried to enter when it was not their time');
-                        navigate('/');
-                    }
-
-                    if (matchData.players.guestId && user.uid !== matchData.players.guestId) {
-                        console.log(`a potential guest player, but there's already a guest player in here`);
-                        navigate('/');
-                    } 
-
-                    if (!matchData.players.guestId) {
-                        console.log(`not the host, and there's no guest already in here. come on in!`)
+                    if (isUserTurn) {
+                        console.log('whoever you are, it is your turn, and your time to enter');
                         setCurrentMatch(matchData);
+                    } else {
+                        console.log('for whatever reason, it is not your turn');
+                        navigate('/');
                     }
 
                     setIsLoading(false);
                     // @ts-ignore
                     setHasMatchId(true);
                 } else {
-                    console.log('no such route');
+                    console.log('no such match');
                     navigate(redirectTo);
                 }
-
-                // console.log({ docSnap });
-                // setIsLoading(false);
             }
         })();
     }, [user, setIsLoading]);

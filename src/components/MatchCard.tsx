@@ -5,24 +5,30 @@ import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
 
 import Match from '../interfaces/Match';
-import Player from '../interfaces/Player';
 import Turn from '../interfaces/Turn';
 import { renderWordleSquares } from '../utils/wordUtils';
-import { getCurrentTurn } from '../utils/misc';
+import { 
+    getCurrentTurn,
+    getMatchOpponentId,
+    isPlayerTurn,
+} from '../utils/misc';
 import useStore from '../utils/store';
 
 interface Props {
     match: Match,
-    matchOpponent: Player,
-    isPendingMatchModalOpen: boolean,
-    setIsPendingMatchModalOpen: any,
+    isLobbyMatchModalOpen: boolean,
+    setIsLobbyMatchModalOpen: any,
 }
 
-const MatchCard: FC<Props> = ({ match, matchOpponent, setIsPendingMatchModalOpen }: Props) => {
-    const { setSelectedMatch, user } = useStore();
+const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
+    const { 
+        setSelectedMatch, 
+        user, 
+        matchOpponents,
+    } = useStore();
 
-    const [currentTurn, setCurrentTurn] = useState(getCurrentTurn(match.turns));
-    const [isPlayerTurn, setIsPlayerTurn] = useState(currentTurn.activePlayer === user.uid);
+    const [isUserTurn, setIsUserTurn] = useState(isPlayerTurn(match, user.uid));
+    const [matchOpponent, setIsMatchOpponent] = useState(matchOpponents[getMatchOpponentId(user, match)]);
  
     // TODO: I'm sure there's room for even more abstraction for the repetition across these functions
     const renderCardDetails = () => {
@@ -38,7 +44,7 @@ const MatchCard: FC<Props> = ({ match, matchOpponent, setIsPendingMatchModalOpen
 
             <div className="flex flex-col justify-center text-center mb-3">
                 <span className="text-[20px]">Match with</span>
-                <span className="text-[20px]">{matchOpponent.email}</span>
+                <span className="text-[20px]">{matchOpponent?.email}</span>
             </div>
         </>;
     };
@@ -47,7 +53,7 @@ const MatchCard: FC<Props> = ({ match, matchOpponent, setIsPendingMatchModalOpen
         const { players } = match;
 
 
-        if (isPlayerTurn) {
+        if (isUserTurn) {
             return <button className="green-button-style font-bold py-2 px-4 rounded w-full text-[14px] max-w-xs md:text-[18px]">It's Your Turn!</button>;
         }
 
@@ -66,15 +72,15 @@ const MatchCard: FC<Props> = ({ match, matchOpponent, setIsPendingMatchModalOpen
         const { players, turns } = match;
         const currentTurn: Turn =  getCurrentTurn(turns);
 
-        if (!players.guestId || currentTurn.activePlayer !== user.uid) {
+        // if (!players.guestId || currentTurn.activePlayer !== user.uid) {
             setSelectedMatch(match);
-            setIsPendingMatchModalOpen(true);
-        }
+            setIsLobbyMatchModalOpen(true);
+        // }
     }
 
     const handleCardColor = () => {
-        if (isPlayerTurn) return 'green-match-card';
-        if (!matchOpponent || (matchOpponent && !isPlayerTurn)) return 'yellow-match-card';
+        if (isUserTurn) return 'green-match-card';
+        if (!matchOpponent || (matchOpponent && !isUserTurn)) return 'yellow-match-card';
     }
 
     return (

@@ -16,7 +16,6 @@ const AuthRedirectRoute = ({ authRedirectTarget, noAuthRedirectTarget }: any) =>
             setIsLoading(false);
 
             if (!useStore.getState().user) {
-                console.log('timed out auth redirect');
                 setIsTimedOut(true);
                 /*
                     TODO: This is an attempt to reduce the amount of times we see the loading throbber.

@@ -17,6 +17,7 @@ const CopyInput: FC<Props> = ({ copyText }: Props) => {
     const { selectedMatch } = useStore();
 
     return (
+        // TODO: 'copyText' appears to be undefined 
         <>
             {/* TODO: Bad interaction with copy to clipboard ): */}
             {/* <ReactTooltip event='click' effect='solid' type='dark' afterShow={handleShortTooltip} /> */}
