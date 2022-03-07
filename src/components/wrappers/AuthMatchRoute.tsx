@@ -10,7 +10,6 @@ import useStore from '../../utils/store';
 import Match from '../../interfaces/Match';
 import { isPlayerCurrentTurn } from "../../utils/misc";
 
-
 const AuthRoute = ({ children, redirectTo, predicate, }: any) => {
     const { 
         isLoading,

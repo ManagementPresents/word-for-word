@@ -9,6 +9,7 @@ import { renderWordleSquares } from '../utils/wordUtils';
 import { 
     getMatchOpponentId,
     isPlayerCurrentTurn,
+    getLastPlayedWordByPlayerId
 } from '../utils/misc';
 import useStore from '../utils/store';
 
@@ -85,7 +86,7 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 
             {/* TODO: investigate repsonsiveness at REALLY small screen sizes ( < 360px) */}
             <div className="flex gap-x-3">
-                {renderWordleSquares(match.turns.find((turn) => turn.currentTurn)?.wordle as string)}
+                {renderWordleSquares(getLastPlayedWordByPlayerId(user.uid, match.turns))}
             </div>
 
             {/* 

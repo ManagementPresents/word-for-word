@@ -1,17 +1,12 @@
 import Turn from "../interfaces/Turn";
 import Match from "../interfaces/Match";
 import ValidationError from '../interfaces/ValidationError';
+import Player from "../interfaces/Player";
 
 const {
     REACT_APP_URL,
 } = process.env;
 
-/**
- * 
- * @param errors 
- * @param className 
- * @returns { JSX.Element[] }
- */
 const renderErrors = (errors: ValidationError[], className: string): JSX.Element[] => {
     let validationMessages: JSX.Element[] = [] as JSX.Element[];
 
@@ -35,21 +30,10 @@ const renderErrors = (errors: ValidationError[], className: string): JSX.Element
 /*
     TODO: This, and arrayToNumericalObj, are necessary to help get around Firestore's current inability to support arrays of arrays. Instead, we serialize nested arrays into objects where array index maps to a property in the object, and the value at that index becomes the corresponding value in the object.
 */
-
-/**
- * 
- * @param {[key: string]: any} numericalObj an object where the properties are sequential numbers (representing array indices)
- * @returns 
- */
 const numericalObjToArray = (numericalObj: {[key: string]: any}): any[] => {
     return Object.values(numericalObj);
 };
 
-/**
- * 
- * @param { any[] } array
- * @returns an object whose keys are numbers, same as the indice in the passed in array
- */
 const arrayToNumericalObj = (array: any[]): {[key: string]: any} => {
     return Object.assign({}, array);
 };
@@ -63,13 +47,6 @@ const arrayToNumericalObj = (array: any[]): {[key: string]: any} => {
 
     All this is to say: This function returns an array of /all/ the turns in this match, but /only/ the currentTurn should actually be changed
 */
-
-/**
- * 
- * @param turns 
- * @param {(turn: Turn) => Turn} callback an update to perform on the current turn 
- * @returns {Turn[]} all the passed in turns, with the current turn updated
- */
 const updateCurrentTurn = (turns: Turn[], callback: (turn: Turn) => Turn): Turn[] => {
     return turns.map((turn: Turn): Turn => {
         if (!turn.currentTurn) return turn;
@@ -78,41 +55,18 @@ const updateCurrentTurn = (turns: Turn[], callback: (turn: Turn) => Turn): Turn[
     }) as Turn[];
 };
 
-/**
- * 
- * @param {Turn[]} turns
- * @returns {Turn} the current turn;
- */
 const getCurrentTurn = (turns: Turn[] = []): Turn => { 
     return turns.find((turn: Turn): boolean => turn.currentTurn) as Turn;
 };
 
-/**
- * 
- * @param turns
- * @param {Turn}
- * @returns {Turn[]} All of the passed in turns, with the new turn concatenated to the end
- */
 const addTurn = (turns: Turn[], turn: Turn): Turn[] => {
     return turns.concat(turn) as Turn[];
 };
 
-/**
- * 
- * @param {Match} match 
- * @returns {string} returns a url built from the match id and the current REACT_APP_URL
- */
 const createMatchUrl = (match: Match): string => {
     return `${REACT_APP_URL}/match/${match.id}`;
 };
 
-// TODO: What is the type for a firebase auth user object?
-/**
- * 
- * @param {any} user
- * @param {Match} match
- * @returns 
- */
 const getMatchOpponentId = (user: any, match: Match): string => {
     const { uid } = user;
     const { players } = match;
@@ -120,16 +74,16 @@ const getMatchOpponentId = (user: any, match: Match): string => {
     return uid === players?.guestId ? players?.hostId : players?.guestId;
 };
 
-/**
- * 
- * @param {Match} match
- * @param {id} id 'The id whose turn you want to determine'
- * @returns 
- */
 const isPlayerCurrentTurn = (match: Match = {} as Match, id: string): boolean => {
     const currentTurn: Turn = getCurrentTurn(match.turns) as Turn;
     
     return currentTurn?.activePlayer === id;
+}
+
+const getLastPlayedWordByPlayerId = (id: string, turns: Turn[]): string => {
+    const reversedTurns = [...turns].reverse();
+
+    return reversedTurns.find((turn) => turn.activePlayer !== id)?.wordle as string;
 }
 
 export {
@@ -142,4 +96,5 @@ export {
     createMatchUrl,
     getMatchOpponentId,
     isPlayerCurrentTurn,
+    getLastPlayedWordByPlayerId,
 }

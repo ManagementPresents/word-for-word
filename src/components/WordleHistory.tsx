@@ -73,7 +73,7 @@ const WordleHistory: FC<Props> = ({ guesses, turn, matchOpponent, }: Props) => {
                 </div>
 
                 <div className="flex bg-[#775568] text-[12px] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
-                    <span>Your Word</span>
+                    <span>Their Word</span>
                 </div>
             </div>
         </div>
