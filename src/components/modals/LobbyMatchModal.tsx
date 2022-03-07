@@ -6,15 +6,17 @@ import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import CopyInput from '../CopyInput';
 import Button from '../buttons/Button';
 import Modal from './Modal';
+import WordleHistory from '../WordleHistory';
 
+import Player from '../../interfaces/Player';
 import Turn from '../../interfaces/Turn';
 import Cell from '../../interfaces/match/Cell';
 import useStore from '../../utils/store';
-import { renderWordleSquares, renderWordleSquaresComplete } from '../../utils/wordUtils';
+import { renderWordleSquaresComplete } from '../../utils/wordUtils';
 import {  
     createMatchUrl,
     getMatchOpponentId,
-    isPlayerTurn,
+    isPlayerCurrentTurn,
     numericalObjToArray,
 } from "../../utils/misc";
 import { convertToObject } from 'typescript';
@@ -31,9 +33,13 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
         user 
     } = useStore();
 
-    const [matchOpponent, setIsMatchOpponent] = useState(matchOpponents[getMatchOpponentId(user, selectedMatch)]);
-    const [isUserTurn, setIsUserTurn] = useState(isPlayerTurn(selectedMatch, user.uid));
-    const [isOpponentTurn, setIsOpponentTurn] = useState(isPlayerTurn(selectedMatch, matchOpponent?.id as string));
+    const [matchOpponent, setIsMatchOpponent] = useState({} as Player);
+    const [isUserTurn, setIsUserTurn] = useState(isPlayerCurrentTurn(selectedMatch, user.uid));
+    const [isOpponentTurn, setIsOpponentTurn] = useState(isPlayerCurrentTurn(selectedMatch, matchOpponent?.id as string));
+
+    useEffect(() => {
+        setIsMatchOpponent(matchOpponents[getMatchOpponentId(user, selectedMatch)]);
+    }, [matchOpponents, selectedMatch]);
 
     const renderTitle = () => {
         if (matchOpponent || isUserTurn) {
@@ -76,54 +82,14 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
         if (isSelectedMatch) {
              const renderedTurns = selectedMatch?.turns.map((turn: Turn) => {
                 const guessesArray: Cell[][] = numericalObjToArray(turn.guesses) as Cell[][];
-                let [ lastGuess ]: Cell[][] = guessesArray.slice(-1) as Cell[][];
-                let wordleHistoryRow: JSX.Element = <></>;
                 
-                if (!lastGuess) lastGuess = Array(5).fill({ letter: '?', status: 'unguessed' }) as Cell[];
-
-                if (turn?.activePlayer === matchOpponent?.id) {
-                    console.log('render opponent turn')
-                    wordleHistoryRow = (
-                        <div className="flex flex-row max-h-[30px] sm:max-h-[40px]">
-                            <div className="flex bg-[#775568] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
-                                {guessesArray.length ? `Score: ${guessesArray.length}` : '?'}/6
-                            </div>
-            
-                            <div className="flex flex-row gap-x-2">
-                                {renderWordleSquaresComplete(lastGuess)}
-                            </div>
-            
-                            <div className="flex bg-[#775568] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
-                                <span>Your Word</span>
-                            </div>
-                        </div>
-                    )
-                } else if (turn?.activePlayer === user?.uid) {
-                    console.log('render my turn')
-                    wordleHistoryRow = (
-                        <div className="flex flex-row max-h-[30px] sm:max-h-[40px]">
-                            <div className="flex bg-[#775568] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
-                                <span>Your Word</span>
-                            </div>
-            
-                            <div className="flex flex-row gap-x-2">
-                                {renderWordleSquaresComplete(lastGuess)}
-                            </div>
-            
-                            <div className="flex bg-[#775568] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
-                                {guessesArray.length ? `Score: ${guessesArray.length}` : '?'}/6
-                            </div>
-                        </div>
-                    )
-                }
-                
-                return wordleHistoryRow;
+                return <WordleHistory guesses={guessesArray} turn={turn} matchOpponent={matchOpponent} />;
             });
 
             return renderedTurns;
         }
 
-        return <></>;
+        return [<></>];
     }
 
     const renderMatchCopy = () => {

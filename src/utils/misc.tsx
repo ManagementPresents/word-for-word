@@ -126,7 +126,7 @@ const getMatchOpponentId = (user: any, match: Match): string => {
  * @param {id} id 'The id whose turn you want to determine'
  * @returns 
  */
-const isPlayerTurn = (match: Match = {} as Match, id: string): boolean => {
+const isPlayerCurrentTurn = (match: Match = {} as Match, id: string): boolean => {
     const currentTurn: Turn = getCurrentTurn(match.turns) as Turn;
     
     return currentTurn?.activePlayer === id;
@@ -141,5 +141,5 @@ export {
     addTurn,
     createMatchUrl,
     getMatchOpponentId,
-    isPlayerTurn,
+    isPlayerCurrentTurn,
 }
