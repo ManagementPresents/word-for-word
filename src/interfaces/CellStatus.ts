@@ -3,7 +3,7 @@ enum CellStyle {
     CORRECT = 'green',
     MISPLACED = 'yellow',
     INCORRECT = 'dark-gray',
-    UNGUESSED = 'transparent',
+    UNGUESSED = 'neutral',
 }
 
 export default CellStyle;

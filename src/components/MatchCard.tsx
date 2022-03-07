@@ -5,12 +5,10 @@ import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
 
 import Match from '../interfaces/Match';
-import Turn from '../interfaces/Turn';
 import { renderWordleSquares } from '../utils/wordUtils';
 import { 
-    getCurrentTurn,
     getMatchOpponentId,
-    isPlayerTurn,
+    isPlayerCurrentTurn,
 } from '../utils/misc';
 import useStore from '../utils/store';
 
@@ -28,7 +26,7 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
         matchOpponents,
     } = useStore();
 
-    const [isUserTurn, setIsUserTurn] = useState(isPlayerTurn(match, user.uid));
+    const [isUserTurn, setIsUserTurn] = useState(isPlayerCurrentTurn(match, user.uid));
     const [matchOpponent, setIsMatchOpponent] = useState(matchOpponents[getMatchOpponentId(user, match)]);
  
     // TODO: I'm sure there's room for even more abstraction for the repetition across these functions
@@ -53,7 +51,6 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
     const renderMatchButton = () => {
         const { players } = match;
 
-
         if (isUserTurn) {
             return <button className="green-button">It's Your Turn!</button>;
         }
@@ -70,13 +67,8 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
     }
 
     const handleCardClick = () => {
-        const { players, turns } = match;
-        const currentTurn: Turn =  getCurrentTurn(turns);
-
-        // if (!players.guestId || currentTurn.activePlayer !== user.uid) {
-            setSelectedMatch(match);
-            setIsLobbyMatchModalOpen(true);
-        // }
+        setSelectedMatch(match);
+        setIsLobbyMatchModalOpen(true);
     }
 
     const handleCardColor = () => {

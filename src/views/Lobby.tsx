@@ -31,7 +31,6 @@ const Lobby = ({}: Props) => {
         matches, 
         setMatches, 
         setMatchOpponents,
-        matchOpponents,
         addMatch, 
     } = useStore();
 
@@ -118,6 +117,7 @@ const Lobby = ({}: Props) => {
                             accum[id as string] = {
                                 email,
                                 matches,
+                                id,
                             }
                         }
 

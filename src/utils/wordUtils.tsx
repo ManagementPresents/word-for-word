@@ -89,6 +89,7 @@ const renderWordleSquaresComplete = (wordle: Cell[]): JSX.Element[] => {
                 color = 'dark-grey';
                 break;
             default:
+                color = 'neutral';
                 break;
         }
 
