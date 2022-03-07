@@ -33,7 +33,7 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
 
     const [matchOpponent, setIsMatchOpponent] = useState(matchOpponents[getMatchOpponentId(user, selectedMatch)]);
     const [isUserTurn, setIsUserTurn] = useState(isPlayerTurn(selectedMatch, user.uid));
-    const [isOpponentTurn, setIsOpponentTurn] = useState(isPlayerTurn(selectedMatch, matchOpponent.id as string));
+    const [isOpponentTurn, setIsOpponentTurn] = useState(isPlayerTurn(selectedMatch, matchOpponent?.id as string));
 
     const renderTitle = () => {
         if (matchOpponent || isUserTurn) {
@@ -81,7 +81,7 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
                 
                 if (!lastGuess) lastGuess = Array(5).fill({ letter: '?', status: 'unguessed' }) as Cell[];
 
-                if (turn.activePlayer === matchOpponent.id) {
+                if (turn?.activePlayer === matchOpponent?.id) {
                     console.log('render opponent turn')
                     wordleHistoryRow = (
                         <div className="flex flex-row max-h-[30px] sm:max-h-[40px]">
@@ -98,7 +98,7 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
                             </div>
                         </div>
                     )
-                } else if (turn.activePlayer === user.uid) {
+                } else if (turn?.activePlayer === user?.uid) {
                     console.log('render my turn')
                     wordleHistoryRow = (
                         <div className="flex flex-row max-h-[30px] sm:max-h-[40px]">

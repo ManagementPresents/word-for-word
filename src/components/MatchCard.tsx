@@ -79,8 +79,8 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
     }
 
     const handleCardColor = () => {
-        if (isUserTurn) return 'bg-[#19647E]';
-        if (!matchOpponent || (matchOpponent && !isUserTurn)) return 'bg-[#caa82a]';
+        if (isUserTurn) return 'green-match-card';
+        if (!matchOpponent || (matchOpponent && !isUserTurn)) return 'yellow-match-card';
     }
 
     return (

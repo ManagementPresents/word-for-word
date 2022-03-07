@@ -3,6 +3,9 @@ import { doc, setDoc, getDoc, updateDoc, arrayUnion, } from "firebase/firestore"
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from "react-router-dom";
 
+//Adding animate import
+import 'animate.css';
+
 import { Keyboard } from '../components/Keyboard'
 import Modal from '../components/modals/Modal';
 import Loading from '../components/Loading';
@@ -121,13 +124,13 @@ function MatchView() {
         // TODO: Make an enum or something for these statuses
         switch (currentCell.status) {
             case 'correct':
-                return 'green'
+                return 'green animate__flipInY';
             case 'misplaced':
-                return 'yellow'
+                return 'yellow animate__flipInY'
             case 'incorrect':
-                return 'dark-gray'
+                return 'dark-gray animate__flipInY'
             default: 
-                return 'border guesses-style-default'
+                return 'animate__flipInY border guesses-style-default'
         }
     }
 
@@ -571,7 +574,7 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
                                             rowNumber,
                                             colNumber,
                                             cell.status
-                                        )} inline-flex items-center font-medium justify-center text-lg w-[13vw] h-[13vw] xs:w-14 xs:h-14 sm:w-20 sm:h-20`}
+                                        )} animate__animated animate__backInDown inline-flex items-center font-medium justify-center text-lg w-[13vw] h-[13vw] xs:w-14 xs:h-14 sm:w-20 sm:h-20`}
                                         >
                                             {cell.letter}
                                         </span>
