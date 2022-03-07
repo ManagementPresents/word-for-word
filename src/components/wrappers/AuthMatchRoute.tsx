@@ -8,7 +8,7 @@ import Loading from '../Loading';
 import { TIMEOUT_DURATION } from '../../utils/constants';
 import useStore from '../../utils/store';
 import Match from '../../interfaces/Match';
-import { isPlayerTurn } from "../../utils/misc";
+import { isPlayerCurrentTurn } from "../../utils/misc";
 
 
 const AuthRoute = ({ children, redirectTo, predicate, }: any) => {
@@ -50,7 +50,7 @@ const AuthRoute = ({ children, redirectTo, predicate, }: any) => {
 
                 if (match.exists()) {
                     const matchData: Match = match.data() as Match;
-                    const isUserTurn: boolean = isPlayerTurn(matchData, user.uid);
+                    const isUserTurn: boolean = isPlayerCurrentTurn(matchData, user.uid);
 
                     if (isUserTurn) {
                         console.log('whoever you are, it is your turn, and your time to enter');
