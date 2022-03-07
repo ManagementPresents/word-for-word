@@ -41,6 +41,10 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
         setIsMatchOpponent(matchOpponents[getMatchOpponentId(user, selectedMatch)]);
     }, [matchOpponents, selectedMatch]);
 
+    useEffect(() => {
+        setIsMatchOpponent(matchOpponents[getMatchOpponentId(user, selectedMatch)]);
+    }, [matchOpponents, selectedMatch]);
+
     const renderTitle = () => {
         if (matchOpponent || isUserTurn) {
             return (
@@ -78,7 +82,6 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
     const renderTurns = () => {
         const isSelectedMatch = Object.keys(selectedMatch).length;
 
-        // TODO: This needs abstraction
         if (isSelectedMatch) {
              const renderedTurns = selectedMatch?.turns.map((turn: Turn) => {
                 const guessesArray: Cell[][] = numericalObjToArray(turn.guesses) as Cell[][];

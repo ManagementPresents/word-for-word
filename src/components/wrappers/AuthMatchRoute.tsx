@@ -1,4 +1,4 @@
-import { doc, collection, getDoc, setDoc } from "firebase/firestore"; 
+import { doc, getDoc,} from "firebase/firestore"; 
 
 import { useEffect, useState, } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -51,8 +51,9 @@ const AuthRoute = ({ children, redirectTo, predicate, }: any) => {
                 if (match.exists()) {
                     const matchData: Match = match.data() as Match;
                     const isUserTurn: boolean = isPlayerCurrentTurn(matchData, user.uid);
+                    const { players } = matchData;
 
-                    if (isUserTurn) {
+                    if (isUserTurn || (user.uid !== players.hostId && !players.guestId)) {
                         console.log('whoever you are, it is your turn, and your time to enter');
                         setCurrentMatch(matchData);
                     } else {
