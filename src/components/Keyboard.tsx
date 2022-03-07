@@ -19,13 +19,13 @@ const Keyboard = ({
   const getKeyStyle = (letter: string) => {
     switch (keyboardStatus[letter]) {
       case 'correct':
-        return 'bg-[#15B097] text-[#f1f1f9]'
+        return 'bg-[#5ED4C6] text-[#2A272A]'
       case 'misplaced':
-        return 'bg-[#FFCE47] text-[#f1f1f9]'
+        return 'bg-[#F8E797] text-[#2A272A]'
       case 'incorrect':
-        return 'bg-[#3c2a34] text-[#f1f1f9]'
+        return 'bg-[#353135] text-[#f1f3f9]'
       default:
-        return 'text-primary dark:text-primary-dark'
+        return 'text-[#f1f3f9]'
     }
   }
 
