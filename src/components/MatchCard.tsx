@@ -73,8 +73,8 @@ const MatchCard: FC<Props> = ({ match, matchOpponent, setIsPendingMatchModalOpen
     }
 
     const handleCardColor = () => {
-        if (isPlayerTurn) return 'bg-[#19647E]';
-        if (!matchOpponent || (matchOpponent && !isPlayerTurn)) return 'bg-[#caa82a]';
+        if (isPlayerTurn) return 'green-match-card';
+        if (!matchOpponent || (matchOpponent && !isPlayerTurn)) return 'yellow-match-card';
     }
 
     return (

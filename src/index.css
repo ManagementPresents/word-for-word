@@ -25,34 +25,35 @@ html {
   /* Prevent overscroll on chrome (not supported on safari) */
   overscroll-behavior-y: none;
   height: 100vh;
-  background-color: #24191F;
-  color: #F1F1F9;
+  background-color: #2A272A;
+  color: #F1F3F9;
   font-family: 'Anton', sans-serif;
 }
 
 .text-primary {
-  color: #F1F1F9;
+  color: #F1F3F9;
 }
 
 .text-primary-dark {
-  color: #f1f1f9;
+  color: #2A272A;
 }
 
 .bg-background {
-  background-color: #24191F;
+  background-color: #2A272A;
 }
 
 .keyboard-style {
-  background-color: #A0939A; 
+  background-color: #736F75;
+  color: #F1F3F9 
 }
 
 .guesses-style-default {
-  background-color: transparent;
-  color: #F1F1F9;
+  background-color: #f1f3F9;
+  color: #2A272A;
   box-sizing: border-box;
   border-width: 1;
   border-style: solid;
-  border-color: #3C2A34;
+  border-color: #736F75;
 }
 
 .guesses-border-wrong {
@@ -67,94 +68,112 @@ html {
 
 .modals-style {
   @apply flex border-2 rounded-[3rem];
-  background-color: #3C2A34;
-  color: #F1F1F9;
+  background-color: #353135;
+  color: #F1F3F9;
   box-sizing: border-box;
   border-width: 1;
   border-style: solid;
-  border-color: #F1F1F9;
+  border-color: #2A272A;
 }
 
 /* Base color styles */ 
 .yellow-font {
-  color: #FFCE47;
+  color: #F8E797;
 }
 
 .green-font {
-  color: #15B097;
+  color: #609B94;
 }
 
 .gray-font {
-  color: #A0939A;
+  color: #C7C7CD;
 }
 
 .green {
-  background-color: #15B097;
-  color: #F1F1F9;
+  background-color: #609B94;
+  color: #dff0f3;
 }
 
 .yellow {
-  background-color: #FFCE47;
-  color: black;
+  background-color: #F8E797;
+  color: #443F38;
 }
 
 .gray {
-  background-color: #A0939A;
-  color: #F1F1F9;
+  background-color: #C7C7CD;
+  color: #2A272A;
 }
 
 .dark-gray {
-  background-color: #3C2A34;
-  color: #F1F1F9;
+  background-color: #353135;
+  color: #F1F3F9;
 }
 
 /* Buttons */
 .gray-button-style {
-  background-color: #A0939A;
-  color: #F1F1F9;
+  background-color: #9D9BA1;
+  color: #f1f3F9;
 }
 
 .gray-button-style:hover {
-  background-color: #D9D4D6;
-  color: #3C2A34;
+  background-color: #C7C7CD;
+  color: #2A272A;
 }
 
 .green-button-style {
-  background-color: #15B097;
-  color: #F1F1F9;
+  background-color: #609B94;
+  color: #DFF0F3;
 }
 
 .green-button-style:hover {
-  background-color: #19647e;
-  color: #f1f1f9;
+  background-color: #a8e4e0;
+  color: #4e7471;
 }
 
 .yellow-button-style {
-  background-color: #FFCE47;
-  color: black;
+  background-color: #CDBF7D;
+  color: #2A272A;
 }
 
 .yellow-button-style:hover {
-  background-color: #CBA82A;
+  background-color: #F8E797;
 }
 
 .yellow-button-style--hollow {
   background-color: transparent;
-  border: solid 2px #FFCE47;
-  color: #FFCE47;
+  border: solid 2px #CDBF7D;
+  color: #CDBF7D;
 }
 
 .yellow-button-style--hollow:hover {
-  background-color: #FFCE47;
-  color: black;
+  background-color: #F8E797;
+  color: #2A272A;
 }
 
 /* Text styles */
 .yellow-link {
-  color: #FFCE47;
+  color: #CDBF7D;
   cursor: pointer;
 }
 
 .yellow-link:hover {
-  color: #CBA82A;
+  color: #F8E797;
+}
+
+/* Match Card Styles */
+
+.green-match-card {
+  background-color: #609B94;
+  color: #dff0f3;
+  border-color: #4E7471;
+  border-width: 2px;
+  border-style: solid;
+}
+
+.yellow-match-card {
+  background-color: #f8e797;
+  color: #443F38;
+  border-color: #c5b77c;
+  border-width: 2px;
+  border-style: solid;
 }
