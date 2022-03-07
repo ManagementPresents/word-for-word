@@ -7,6 +7,7 @@ import CopyInput from '../CopyInput';
 import Button from '../buttons/Button';
 import Modal from './Modal';
 
+import Player from '../../interfaces/Player';
 import Turn from '../../interfaces/Turn';
 import Cell from '../../interfaces/match/Cell';
 import useStore from '../../utils/store';
@@ -31,9 +32,13 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
         user 
     } = useStore();
 
-    const [matchOpponent, setIsMatchOpponent] = useState(matchOpponents[getMatchOpponentId(user, selectedMatch)]);
+    const [matchOpponent, setIsMatchOpponent] = useState({} as Player);
     const [isUserTurn, setIsUserTurn] = useState(isPlayerTurn(selectedMatch, user.uid));
     const [isOpponentTurn, setIsOpponentTurn] = useState(isPlayerTurn(selectedMatch, matchOpponent?.id as string));
+
+    useEffect(() => {
+        setIsMatchOpponent(matchOpponents[getMatchOpponentId(user, selectedMatch)]);
+    }, [matchOpponents, selectedMatch]);
 
     const renderTitle = () => {
         if (matchOpponent || isUserTurn) {
@@ -72,6 +77,7 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
     const renderTurns = () => {
         const isSelectedMatch = Object.keys(selectedMatch).length;
 
+        console.log({ isSelectedMatch });
         // TODO: This needs abstraction
         if (isSelectedMatch) {
              const renderedTurns = selectedMatch?.turns.map((turn: Turn) => {
@@ -99,7 +105,7 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
                         </div>
                     )
                 } else if (turn?.activePlayer === user?.uid) {
-                    console.log('render my turn')
+                    console.log('render user turn')
                     wordleHistoryRow = (
                         <div className="flex flex-row max-h-[30px] sm:max-h-[40px]">
                             <div className="flex bg-[#775568] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
@@ -117,13 +123,15 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
                     )
                 }
                 
+                console.log({ wordleHistoryRow });
                 return wordleHistoryRow;
             });
 
+            console.log({ renderedTurns });
             return renderedTurns;
         }
 
-        return <></>;
+        return [<></>];
     }
 
     const renderMatchCopy = () => {
