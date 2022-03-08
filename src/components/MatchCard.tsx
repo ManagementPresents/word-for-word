@@ -33,6 +33,9 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
     const [matchOpponent, setIsMatchOpponent] = useState(matchOpponents[getMatchOpponentId(user, match)]);
  
     // TODO: I'm sure there's room for even more abstraction for the repetition across these functions
+
+    // Hello gabriel. As you'll see way after this, I sweatily cobbled together something that piggybacks off the other good stuff you did and kinda extends the yellow match functionality and all that. Hope that's cool. Like you. A cool guy. Cool guys love to sing about poop and pee. They must. Otherwise, what am I....? 
+
     const renderCardDetails = () => {
         const { players } = match;
 
@@ -71,12 +74,14 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 
         if (!players.guestId) {
             // TODO: is this language "fun" enough to justify being both twee and potentially a touch unclear?
+            // took another pass at it
             return <button className="yellow-match-button">{`Waiting for an Opponent to Accept`}</button>;
         }
 
         if (matchOpponent) {
             // TODO: Copy?
-            return <button className="yellow-match-button-hollow">Opponent's turn ...</button>
+            // hey, here's another bad version of it!
+            return <button className="yellow-match-button-hollow">Your opponent is taking their turn.</button>
         }
     }
 
@@ -90,6 +95,8 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
             setIsLobbyMatchModalOpen(true);
         // }
     }
+
+    /* Hello Gabriel. It's me again. The sleepy dipshit. I changed stuff below here to return just the color instead of the full "[color]-match-style" it was before, and in the section after that, I copied over the handleCardColor use I saw in the next class name, but for all the other now super modular class names in lieu of bugging you to write a whole thing about it. I think this works for now, but I am a sleepy sweaty dumb dumb who lost the ability to read when I gained massive boobies. So. Yknow. Grain of salt.*/
 
     const handleCardColor = () => {
         if (isUserTurn) return 'green';
