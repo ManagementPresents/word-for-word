@@ -26,3 +26,19 @@
 .grey-match-card {
     @apply flex border-2 rounded-[3rem];
 }
+
+.green-match-card {
+  background-color: $green;
+  color: $lightestGreen;
+  border-color: $darkGreen;
+  border-width: 2px;
+  border-style: solid;
+}
+
+.yellow-match-card {
+  background-color: $yellow;
+  color: $darkestYellow;
+  border-color: #c5b77c;
+  border-width: 2px;
+  border-style: solid;
+}

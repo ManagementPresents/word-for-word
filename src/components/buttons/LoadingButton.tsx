@@ -19,6 +19,10 @@ const LoadingButton: FC<Props> = ({ onClick, color, copy, disabled, isLoading, i
     if (color === 'yellow') return 'yellow-button';
 
     if (color === 'yellowHollow') return 'yellow-button-hollow';
+
+    if (color === 'greenHollow') return 'green-button-hollow';
+
+    if (color === 'grayHollow') return 'grey-button-hollow';
   }
 
     // TODO: Should not have a hover state when disabled
