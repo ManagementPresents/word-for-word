@@ -3,6 +3,7 @@ import { FC, useEffect, useState, } from 'react';
 import { doc, setDoc, } from "firebase/firestore"; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from 'react-router-dom';
 
 import Button from '../buttons/Button';
 import Modal from './Modal';
@@ -42,6 +43,8 @@ const EndTurnModal: FC<Props> = ({ isOpen, onRequestClose, nextWordle, setNextWo
     const [answer] = useState(getCurrentTurn(currentMatch.turns)?.wordle.toUpperCase());
     const [wordleValidationErrors, setWordleValidationErrors] = useState([]);
     const [isSendingWordle, setIsSendingWordle] = useState(false);
+
+    const navigate = useNavigate();
 
     const handleValidateWordle = (wordle: string  = ''): void => {
         // TODO: this 'message' property can be refactored away when we stop using 'password-validator.js'
@@ -150,10 +153,10 @@ const EndTurnModal: FC<Props> = ({ isOpen, onRequestClose, nextWordle, setNextWo
         } else if (gameState === GameState.LOST) {
             return (
                 <div className="flex flex-col items-center gap-y-3">
-                    <Button copy="Rematch?" color="grey"></Button>
-                    <Button copy="Challenge Somoene Else" color="grey"></Button>
-                    <Button copy="Comfort Yourself, Make Up a Guy" color="grey"></Button>
-                    <Button copy="Back to Lobby" color="yellow"></Button>
+                    <Button copy="Rematch?" color="grey" />
+                    <Button copy="Challenge Someone Else" color="grey" />
+                    <Button copy="Comfort Yourself, Make Up a Guy" color="grey" onClick={() => navigate('/makeupaguy')} />
+                    <Button copy="Back to Lobby" color="yellow" onClick={() => navigate('/lobby')} />
                 </div>
             );
         }
@@ -164,7 +167,7 @@ const EndTurnModal: FC<Props> = ({ isOpen, onRequestClose, nextWordle, setNextWo
     useEffect(() => {
         // TODO: Clunky way to ensure we see the validation errors the first time the wordle input renders
         handleValidateWordle();
-    }, []);
+    }, []); 
 
     return (
         <Modal isOpen={isOpen} onRequestClose={onRequestClose}>
