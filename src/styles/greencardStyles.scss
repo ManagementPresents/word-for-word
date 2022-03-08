@@ -1,0 +1,86 @@
+@use 'colors';
+@use 'cards';
+@use 'buttonBase';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* TODO: ok dipshit you made these modular as fuck, now go make them pretty */
+
+.green-match-card {
+    @include cards.base;
+    background-color: $green;
+    color: $lightestGreen;
+    border-color: $darkGreen;
+  }
+
+.green-match-title {
+  @include cards.title;
+}
+
+.green-match-opponent {
+    @include cards.opponent;
+}
+
+.green-match-user {
+    @include cards.username;
+    color: $darkGreen;
+}
+
+.green-match-avatar {
+    @include cards.avatar;
+}
+
+.green-match-content {
+    @include cards.content;
+}
+
+.green-match-lastplay {
+    @include cards.lastplay;
+}
+
+.green-match-text {
+  @include cards.textbit;
+}
+
+.green-match-playbox {
+    @include cards.playbox;
+    background-color: $darkGreen;
+    color: $lightestGreen;
+}
+
+.green-match-button {
+    @include buttonBase.base;
+    background-color: $lightGreen;
+    color: $darkGreen;
+}
+
+.green-match-button:hover {
+  @include buttonBase.base;
+  background-color: $lightestGreen;
+  color: $green;
+}
+
+
+/* not sure why these are here but I don't want to delete them and find out the hard way
+.green-match-card {
+  background-color: $green;
+  color: $lightestGreen;
+  border-color: $darkGreen;
+  border-width: 2px;
+  border-style: solid;
+}
+
+.yellow-match-card {
+  background-color: $yellow;
+  color: $darkestYellow;
+  border-color: #c5b77c;
+  border-width: 2px;
+  border-style: solid;
+}
+
+*/
+
+.card-label {
+  @include cards.label;
+}

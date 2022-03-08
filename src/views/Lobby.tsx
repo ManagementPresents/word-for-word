@@ -178,6 +178,7 @@ const Lobby = ({}: Props) => {
         setIsGeneratingLink(true);
 
         // TODO: Schemas need to be permanently stored and reused
+        // I, too, need to be permanently stored and reused
         const generatedUri = generateMatchUri(3);
         const newMatch: Match = {
             id: generatedUri,

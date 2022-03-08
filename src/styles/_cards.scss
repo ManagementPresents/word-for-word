@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@mixin base {
+    @apply flex border-2 rounded-[3rem];
+    border-width: 2px;
+    border-style: solid;
+}
+
+@mixin title {
+    @apply text-4xl;
+}
+
+@mixin opponent {
+    @apply flex flex-col justify-center text-center mb-3 px-8 py-4 rounded-[3rem];    
+}
+
+@mixin username {
+    @apply text-xl;
+}
+
+@mixin avatar {
+    @apply object-contain py-4;
+}
+
+@mixin content {
+    @apply flex flex-col justify-center text-center mb-3 px-8 py-4 rounded-[3rem];
+}
+
+@mixin lastplay {
+    @apply relative flex flex-col rounded-3xl p-6 justify-center items-center gap-y-3 cursor-pointer;
+}
+
+@mixin textbit {
+    @apply text-[20px];
+}
+
+@mixin playbox {
+    @apply relative flex rounded-3xl p-6 justify-center items-center gap-y-3 cursor-pointer gap-x-3;
+}
+
+@mixin label {
+    @apply flex flex-col items-center;
+}

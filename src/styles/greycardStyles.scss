@@ -1,0 +1,16 @@
+@use 'colors';
+@use 'cards';
+@use 'buttonBase';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* TODO: ok dipshit you made these modular as fuck, now go make them pretty */
+
+.grey-match-card {
+    @include cards.base;
+  }
+
+.gray-match-text {
+    @include cards.textbit;
+  }

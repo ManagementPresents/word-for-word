@@ -72,7 +72,7 @@ export const EndGameModal = ({
         <button
           autoFocus
           type="button"
-          className="gray-button hover:gray-button-hover"
+          className="gray-button"
           onClick={playAgain}
         >
           Play Again
@@ -97,7 +97,7 @@ export const EndGameModal = ({
           </button>
           {gameState === state.won && (
             <>
-              <h1 className=" text-3xl">Congrats! 🎉</h1>
+              <h1 className="modal-header">Congrats! 🎉</h1>
               <dl className="mt-5 grid grid-cols-1 gap-5">
                
               </dl>
