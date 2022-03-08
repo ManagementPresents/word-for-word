@@ -72,7 +72,7 @@ export const EndGameModal = ({
         <button
           autoFocus
           type="button"
-          className="rounded-lg px-6 py-2 mt-8 text-lg gray-button-style hover:gray-button-hover"
+          className="gray-button"
           onClick={playAgain}
         >
           Play Again
@@ -88,16 +88,16 @@ export const EndGameModal = ({
       contentLabel="Game End Modal"
     >
       <div className={darkMode ? 'dark' : ''}>
-        <div className="h-full flex flex-col items-center justify-center max-w-[300px] mx-auto modals-style text-primary">
+        <div className="big-modal-style">
           <button
-            className="absolute top-4 right-4 rounded-full gray-button-style text-primary p-1 w-6 h-6 sm:p-2 sm:h-8 sm:w-8 hover:gray-button-hover"
+            className="close-button"
             onClick={handleClose}
           >
             <Close />
           </button>
           {gameState === state.won && (
             <>
-              <h1 className=" text-3xl">Congrats! 🎉</h1>
+              <h1 className="modal-header">Congrats! 🎉</h1>
               <dl className="mt-5 grid grid-cols-1 gap-5">
                
               </dl>

@@ -79,3 +79,7 @@
     background-color: $lightGrey;
     color: $white;
 }
+
+.close-button {
+    @include buttonBase.close;
+}

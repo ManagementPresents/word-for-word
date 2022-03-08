@@ -1,0 +1,11 @@
+@use 'colors';
+@use 'lobbyMessages';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.lobby-messages {
+    @include lobbyMessages.base;
+    color: $white;
+}
