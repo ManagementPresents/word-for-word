@@ -1,4 +1,3 @@
-@use 'green';
 @use 'buttonBase';
 @use 'colors';
 @tailwind base;
@@ -16,6 +15,19 @@
     @include buttonBase.base;
     background-color: $lightGreen;
     color: $darkGreen;
+}
+
+.green-button-hollow{
+    @include buttonBase.base;
+    background-color: transparent;
+    color: $green;
+    border: solid 2px $green;
+}
+
+.green-button-hollow:hover{
+    @include buttonBase.base;
+    background-color: $green;
+    color: $lightestGreen;
 }
 
 .yellow-button{
@@ -53,4 +65,17 @@
     @include buttonBase.base;
     background-color: $lightestGrey;
     color: $black;
+}
+
+.grey-button-hollow{
+    @include buttonBase.base;
+    background-color: transparent;
+    color: $lightGrey;
+    border: solid 2px $lightGrey;
+}
+
+.grey-button-hollow:hover{
+    @include buttonBase.base;
+    background-color: $lightGrey;
+    color: $white;
 }

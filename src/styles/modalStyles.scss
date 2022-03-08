@@ -1,0 +1,22 @@
+@use 'colors';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.modals-style {
+    @apply flex border-2 rounded-[3rem];
+    background-color: $darkestGrey;
+    color: $white;
+    box-sizing: border-box;
+    border-width: 1;
+    border-style: solid;
+    border-color: $black;
+  }
+  
+  .modals-header {
+    color: $white;
+  }
+  
+  .modals-body {
+    color: $white;
+  }
