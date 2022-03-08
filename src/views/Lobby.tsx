@@ -283,7 +283,7 @@ const Lobby = ({}: Props) => {
 
                 {/* TODO: This basis-[46rem] business is a kludge fix to ensure the layout looks right on moble */}
                 {/* Hi gabriel, I added "lobby-matchbox-style here to control some colors and such from index.css in case you're wondering wtf this is. Also, you lookin fine as hell over there just fyi. ;) */}
-                <div className={`grid grid-cols-1 overflow-y-scroll auto-rows-max p-6 basis-[46rem] lobby-matchbox-style rounded-lg border shadow-md gap-y-4 ${matches.length ? '' : 'grid grid-cols-1'} md:basis-10/12 md:grid-cols-1 md:gap-x-4 md:grid-flow-row lg:grid-cols-2`}>
+                <div className={`lobby-matchbox-style ${matches.length ? '' : 'grid grid-cols-1'} `}>
                     {handleMatchBox()}
                 </div>
             </div>

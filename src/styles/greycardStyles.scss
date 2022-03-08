@@ -9,8 +9,74 @@
 
 .grey-match-card {
     @include cards.base;
+    background-color: $yellow;
+    color: $darkestYellow;
+    border-color: $darkYellow;
   }
 
-.gray-match-text {
+.grey-match-text {
     @include cards.textbit;
   }
+
+  
+.grey-match-title {
+    @include cards.title;
+  }
+    
+.grey-match-opponent {
+    @include cards.opponent;
+  }
+    
+.grey-match-user {
+    @include cards.username;
+    color: $darkYellow;
+  }
+    
+.grey-match-avatar {
+    @include cards.avatar;
+  }
+    
+.grey-match-content {
+    @include cards.content;
+  }
+    
+.grey-match-lastplay {
+    @include cards.lastplay;
+  }
+
+//TODO: this is where you stopped for the night
+ .yellow-match-text {
+    @include cards.textbit;
+    }
+    
+  .yellow-match-playbox {
+    @include cards.playbox;
+    background-color: $darkYellow;
+    color: $lightestYellow;
+    }
+    
+  .yellow-match-button {
+    @include buttonBase.base;
+    background-color: $lightestYellow;
+    color: $darkestYellow;
+    }
+    
+  .yellow-match-button:hover {
+    @include buttonBase.base;
+    background-color: $lightestYellow;
+    color: $darkYellow;
+    }
+
+    .yellow-match-button-hollow {
+        @include buttonBase.base;
+        background-color: transparent;
+        color: $darkestYellow;
+        border-width: 2px;
+        border-color: $darkestYellow;
+        }
+        
+      .yellow-match-button-hollow:hover {
+        @include buttonBase.base;
+        background-color: $lightestYellow;
+        color: $darkYellow;
+        }
