@@ -227,7 +227,7 @@ const Lobby = ({}: Props) => {
             {renderMatches(matches)}
         </Fragment> :
         <div className="mx-auto max-w-lg">
-            <h2 className="mb-2 text-2xl font-bold tracking-tight text-[#F1F3F9] dark:text-white">You have no currently active matches.</h2>
+            <h2 className="lobby-messages">You have no currently active matches.</h2>
 
             <Button color="green" copy="Start a New Match" onClick={handleStartNewMatch}></Button>
         </div>
@@ -290,12 +290,12 @@ const Lobby = ({}: Props) => {
             <Modal isOpen={isNewMatchModalOpen} onRequestClose={handleNewMatchModalClose}>
                 {(!isSpecificPlayer && !isOpenMatch) && 
                     <Fragment>
-                        <h2 className="text-xl text-center font-bold tracking-tight modals-header md:text-2xl">Start a New Match</h2>    
+                        <h2 className="modal-header">Start a New Match</h2>    
 
-                        <p className="modals-body">blah blah blah basic rules/instructions.</p>
+                        <p className="modal-body">blah blah blah basic rules/instructions.</p>
                         
                         {/* TODO: Ensure data-tip works with this new component */}
-                        <Button data-tip="This mode is not yet available. Check back soon!" color="yellow" disabled={true} copy="Invite Specific Player" onClick={(e: any) => {
+                        <Button data-tip="This mode is not yet available. Check back soon!" color="grayHollow" disabled={true} copy="Invite Specific Player" onClick={(e: any) => {
                             e.preventDefault();
                             return;
                             //  handleModalButtonClick('specific') 
@@ -303,21 +303,21 @@ const Lobby = ({}: Props) => {
 
                         <Button color="green" copy="Create Open Match" onClick={() => { handleModalButtonClick('open') }}></Button>
 
-                        <ReactTooltip effect='solid' type='dark' />
+                        <ReactTooltip effect='solid' type='dark' /> 
                     </Fragment>
                 }
                 {isSpecificPlayer && 
                     <Fragment>
-                        <h2 className="text-xl text-center font-bold tracking-tight modals-header md:text-2xl">Invite Specific Player</h2>   
+                        <h2 className="modal-header">Invite Specific Player</h2>   
 
-                        <p className="modals-body">Get a match link only you and a specific player can use.</p>
+                        <p className="modal-body">Get a match link only you and a specific player can use.</p>
 
-                        <div className="flex justify-center flex-col">
+                        <div className="modal-label">
                             <span>Your Word</span>
                             <input type="text" className="text-black"></input>
                         </div>
 
-                        <div className="flex justify-center flex-col">
+                        <div className="modal-label">
                             <span>Enter user email</span>
                             <input type="text" className="text-black pd-2" placeholder="User's email"></input>
                         </div> 
@@ -325,7 +325,7 @@ const Lobby = ({}: Props) => {
                         {specificMatchLink ?
                             <input type="text" />
                             :
-                            <div className="flex justify-center flex-col gap-y-2">
+                            <div className="modal-buttonzone">
                                 <button className="green-style hover:green-hover font-bold py-2 px-4 rounded w-full">Generate Link</button>
                                 <button className="yellow hover:yellow-hover text-black font-bold py-2 px-4 rounded w-full" onClick={() => {
                                     setIsOpenMatch(false);
@@ -338,11 +338,11 @@ const Lobby = ({}: Props) => {
 
                 {isOpenMatch && 
                     <Fragment>  
-                        <h2 className="text-xl text-center font-bold tracking-tight modals-header md:text-2xl">Create Open Match</h2>   
+                        <h2 className="modal-header">Create Open Match</h2>   
 
-                        <p className="modals-body">Play with the first person who opens the link!</p>
+                        <p className="modal-body">Play with the first person who opens the link!</p>
 
-                        <div className="flex justify-center flex-col gap-y-2">
+                        <div className="modal-label">
                             <span>Your Word</span>
                             
                             <WordleInput validationErrors={wordleValidationErrors} handleValidationErrors={(e: any) => { handleValidateWordle(e.target.value)}} />
@@ -350,13 +350,13 @@ const Lobby = ({}: Props) => {
 
                         <div className={`flex justify-center flex-col ${openMatchLink ? 'gap-y-6' : 'gap-y-3'}`}>
                             {openMatchLink ? 
-                                <div className="flex flex-col gap-y-2">
+                                <div className="modal-buttonzone">
                                     <CopyInput copyText={openMatchLink} />
                                 </div>
                                 :                                     
                                 <LoadingButton disabled={!isGenerateLinkReady} onClick={handleGenerateLink} color="green" isLoading={isGeneratingLink} isLoadingCopy={'Generating...'} copy="Generate Link" />
                             }
-                            <Button color="yellow" copy="Go Back" onClick={handleStartNewMatch} />
+                            <Button color="yellowHollow" copy="Go Back" onClick={handleStartNewMatch} />
                         </div>
                     </Fragment>
                 }

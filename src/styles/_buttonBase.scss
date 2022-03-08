@@ -5,3 +5,7 @@
 @mixin base {
     @apply font-bold py-2 px-4 rounded w-full text-[14px] max-w-xs md:text-[18px];
 }
+
+@mixin close {
+    @apply absolute top-4 right-4 rounded-full text-primary p-1 w-6 h-6 sm:p-2 sm:h-8 sm:w-8;
+}
