@@ -40,27 +40,33 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
         const { players } = match;
 
         if (!players.guestId) {
-            return  <div className="yellow-match-opponent">
-            <span className="yellow-match-title">Awaiting a Challenger</span>
-            <FontAwesomeIcon icon={faUserClock} size='4x' className="yellow-match-avatar" />
-            <span className="yellow-match-user">Who will it be?</span>
-            </div>;
+            return ( 
+                <div className="yellow-match-opponent">
+                    <span className="yellow-match-title">Awaiting a Challenger</span>
+                    <FontAwesomeIcon icon={faUserClock} size='4x' className="yellow-match-avatar" />
+                    <span className="yellow-match-user">Who will it be?</span>
+                </div>
+            );
         }
 
         if (isUserTurn) {
-        return <div className="green-match-opponent">
-                <span className="green-match-title">Match With</span>
-                <FontAwesomeIcon icon={faCircleUser} size='4x' className="green-match-avatar" />
-                <span className="green-match-user">{matchOpponent?.email}</span>
-            </div>;
+            return (
+                <div className="green-match-opponent">
+                    <span className="green-match-title">Match With</span>
+                    <FontAwesomeIcon icon={faCircleUser} size='4x' className="green-match-avatar" />
+                    <span className="green-match-user">{matchOpponent?.email}</span>
+                </div>
+            );
         }
 
         if (matchOpponent) {
-            return <div className="yellow-match-opponent">
-                <span className="yellow-match-title">Match With</span>
-                <FontAwesomeIcon icon={faCircleUser} size='4x' className="yellow-match-avatar" />
-                <span className="yellow-match-user">{matchOpponent?.email}</span>
-            </div>;
+            return (
+                <div className="yellow-match-opponent">
+                    <span className="yellow-match-title">Match With</span>
+                    <FontAwesomeIcon icon={faCircleUser} size='4x' className="yellow-match-avatar" />
+                    <span className="yellow-match-user">{matchOpponent?.email}</span>
+                </div>
+            );
         }
     };
 
