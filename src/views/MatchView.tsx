@@ -1,18 +1,17 @@
-//Adding Firebase imports
+// Adding Firebase imports
 import { doc, setDoc, getDoc, updateDoc, arrayUnion, } from "firebase/firestore"; 
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from "react-router-dom";
 
-//Adding animate import
+// Adding animate import
 import 'animate.css';
 
 import { Keyboard } from '../components/Keyboard'
 import Modal from '../components/modals/Modal';
 import Loading from '../components/Loading';
 import Button from '../components/buttons/Button';
-import WordleInput from "../components/WordleInput";
-import LoadingButton from "../components/buttons/LoadingButton";
 import CopyInput from "../components/CopyInput";
+import EndTurnModal from '../components/modals/EndTurnModal';
 
 import useStore from '../utils/store';
 import { 
@@ -20,21 +19,14 @@ import {
     numericalObjToArray, 
     updateCurrentTurn, 
     getCurrentTurn,
-    getMatchOpponentId,
-    addTurn,
 } from "../utils/misc";
-import { validateWordle } from "../utils/validation";
 import { letters, } from '../constants'
-import CellStatus from '../interfaces/CellStatus';
 import { renderWordleSquares } from "../utils/wordUtils";
 import Turn from "../interfaces/Turn";
 import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
-import ValidationError from "../interfaces/ValidationError";
 import Cell from '../interfaces/match/Cell';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { ReactComponent as Lobby } from '../data/Lobby.svg'
 
 const words = require('../data/words').default as { [key: string]: boolean }
@@ -67,9 +59,7 @@ function MatchView() {
     const initialStates: State = {
         answer: '',
         gameState: state.playing,
-        /* 
-            TODO: Probably a better way to do this. May not even be necessary once the board logic is properly figured out
-        */
+        // TODO: Probably a better way to do this. May not even be necessary once the board logic is properly figured out
         board: [
             Array(5).fill(0).map(() => { return { letter: '', status: 'unguessed' }}),
             Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
@@ -100,8 +90,6 @@ function MatchView() {
     const [keyboardStatus, setKeyboardStatus] = useState(initialStates.keyboardStatus());
     const [submittedInvalidWord, setSubmittedInvalidWord] = useState(initialStates.submittedInvalidWord);
     const [nextWordle, setNextWordle] = useState('');
-    const [isNextWordleReady, setIsNextWordleReady] = useState(false);
-    const [isSendingWordle, setIsSendingWordle] = useState(false);
     const [matchLink, setMatchLink] = useState('');
 
     const navigate = useNavigate();
@@ -307,7 +295,6 @@ function MatchView() {
     const [answer, setAnswer] = useState('');
     const [board, setBoard] = useState(initialStates.board);
     const [isEndTurnModalOpen, setIsEndTurnModalOpen] = useState(false);
-    const [wordleValidationErrors, setWordleValidationErrors] = useState([]);
     const [isLoadingMatch, setIsLoadingMatch] = useState(true);
     const [isExitModalOpen, setIsExitModalOpen] = useState(false);
 
@@ -362,58 +349,6 @@ function MatchView() {
         }
     }
 
-    const handleValidateWordle = (wordle: string  = ''): void => {
-        // TODO: this 'message' property can be refactored away when we stop using 'password-validator.js'
-        const validationErrors: ValidationError[] = validateWordle(wordle).map(error => ({ message: error } as ValidationError));
-
-        // @ts-ignore
-        setWordleValidationErrors(validationErrors); 
-
-        if (!validationErrors.length) {
-            setNextWordle(wordle);
-            setIsNextWordleReady(true);
-        } else {
-            setIsNextWordleReady(false);
-        }
-    }
-
-    const handleSendWordle = async () => {
-        const opponentId: string = getMatchOpponentId(user, currentMatch);
-
-        const newTurn: Turn = {
-            activePlayer: opponentId,
-            currentTurn: true,
-            guesses: {},
-            keyboardStatus: {},
-            turnState: 'playing',
-            wordle: nextWordle,
-        };
-        const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
-            turn.currentTurn = false;
-            // TODO: This state obviously needs to depend on whether they won or lost
-            turn.turnState = 'won';
-
-            return turn;
-        });
-        const newTurns: Turn[] = addTurn(updatedTurns, newTurn);
-
-        setIsSendingWordle(true);
-
-        const currentMatchRef = doc(db, 'matches', currentMatch.id);
-
-        await setDoc(currentMatchRef, {
-            turns: newTurns,
-        }, { merge: true });
-
-        /*
-            TODO: Set the local state so we see UI updates
-            In the long term, we might need to think of the best way to keep local state and firestore in sync
-            (something similar to, but not quite, ember data)
-        */
-        setCurrentMatch({...currentMatch, turns: newTurns});
-        setIsSendingWordle(false);
-    }
-
     const handleCloseExitModal = () => {
         console.log('leave the match');
     }
@@ -441,10 +376,9 @@ function MatchView() {
                     setIsEndTurnModalOpen(true);
                 }, 500);
             } else if (currentRowIndex === 6) {
-                console.log('ya lose, bitch')
                 setGameState(state.lost);
                 setTimeout(() => {
-                    setIsEndTurnModalOpen(false);
+                    setIsEndTurnModalOpen(true);
                 }, 500);
             }
         }
@@ -456,9 +390,6 @@ function MatchView() {
     ]);
 
     useEffect(() => {
-        // TODO: Clunky way to ensure we see the validation errors the first time the wordle input renders
-        handleValidateWordle();
-
         (async () => {
             // TODO: This runs every time there's an update to user. This could potentially lead to this running multiple times, which would not be good.
             if (user) {
@@ -642,50 +573,7 @@ function MatchView() {
                             </div>
                         </Modal>
 
-                        <Modal isOpen={isEndTurnModalOpen} onRequestClose={handleCloseEndTurnModal}>
-                            {/* TODO: Think about using a random "Word for Word" generator here */}
-                            <div className="flex flex-col gap-y-2">
-                                <h1 className="text-4xl text-center">
-                                    Turn 1
-                                </h1>
-
-                                <div className="flex flex-row items-center justify-center gap-x-3">
-                                    <div className="flex flex-col gap-y-2">
-                                        <FontAwesomeIcon icon={faCircleUser} size='4x' />
-                                        <span>{opponentPlayer.email}</span>
-                                    </div>
-
-                                    <span>vs</span>
-
-                                    <div className="flex flex-col gap-y-2">
-                                        <FontAwesomeIcon icon={faCircleUser} size='4x' />
-                                        <span>{user.email}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <span className="yellow-font uppercase text-center text-[24px] md:text-[42px]">You guessed their word!</span>
-
-                            <div className="flex flex-row gap-x-2 justify-center">
-                                {renderWordleSquares(answer, 'green')}
-                            </div>
-
-                            <div className="flex flex-col gap-y-2 text-center mx-auto md:min-w-[250px]">
-                                <span className="text-[20px] md:text-[28px]">Now it's your turn!</span>
-
-                                <span className="text-[12px] md:text-[16px]">Send them a word right back!</span>
-                                <WordleInput validationErrors={wordleValidationErrors} handleValidationErrors={(e: React.ChangeEvent<HTMLInputElement>) => { handleValidateWordle(e.target.value) }} />
-                            </div>
-
-                            {/* TODO: Hook up isLoading and onClick props */}
-                            <LoadingButton copy={'Send Wordle'} isLoadingCopy={'Sending Wordle...'} color='green' isLoading={isSendingWordle} disabled={!!wordleValidationErrors.length} onClick={handleSendWordle} />
-
-                            <div className="flex flex-row gap-x-1 justify-center items-center">
-                                <span className="basis-full">Tired of this chicanery? </span>
-
-                                <Button copy="Forfeit Game" color="gray" onClick={() => { console.log('forfeit game')}} />
-                            </div>
-                        </Modal>
+                        <EndTurnModal isOpen={isEndTurnModalOpen} onRequestClose={handleCloseEndTurnModal} nextWordle={nextWordle} setNextWordle={setNextWordle} />
                         
                         <Modal isOpen={isExitModalOpen} onRequestClose={handleCloseExitModal}>    
                             <h1 className="text-4xl text-center">

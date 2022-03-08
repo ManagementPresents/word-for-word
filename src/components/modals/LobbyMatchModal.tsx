@@ -12,14 +12,12 @@ import Player from '../../interfaces/Player';
 import Turn from '../../interfaces/Turn';
 import Cell from '../../interfaces/match/Cell';
 import useStore from '../../utils/store';
-import { renderWordleSquaresComplete } from '../../utils/wordUtils';
 import {  
     createMatchUrl,
     getMatchOpponentId,
     isPlayerCurrentTurn,
     numericalObjToArray,
 } from "../../utils/misc";
-import { convertToObject } from 'typescript';
 
 interface Props {
     isOpen: boolean,
