@@ -26,16 +26,11 @@ import Turn from "../interfaces/Turn";
 import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
 import Cell from '../interfaces/match/Cell';
+import GameState from "../interfaces/GameState";
 
 import { ReactComponent as Lobby } from '../data/Lobby.svg'
 
 const words = require('../data/words').default as { [key: string]: boolean }
-
-const state = {
-  playing: 'playing',
-  won: 'won',
-  lost: 'lost',
-}
 
 export const difficulty = {
   easy: 'easy',
@@ -47,7 +42,6 @@ interface State {
   answer: '',
   gameState: string
   board: Cell[][]
-  cellStatuses: string[][]
   // Will be zero indexed
   currentRowIndex: number
   currentCol: number
@@ -58,7 +52,7 @@ interface State {
 function MatchView() {
     const initialStates: State = {
         answer: '',
-        gameState: state.playing,
+        gameState: GameState.PLAYING,
         // TODO: Probably a better way to do this. May not even be necessary once the board logic is properly figured out
         board: [
             Array(5).fill(0).map(() => { return { letter: '', status: 'unguessed' }}),
@@ -68,7 +62,6 @@ function MatchView() {
             Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
             Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
         ],
-        cellStatuses: Array(6).fill(Array(5).fill('unguessed')),
         currentRowIndex: 0,
         currentCol: 0,
         keyboardStatus: () => {
@@ -84,7 +77,6 @@ function MatchView() {
     }
 
     const [gameState, setGameState] = useState('playing');
-    const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
     const [currentRowIndex, setCurrentRowIndex] = useState(initialStates.currentRowIndex);
     const [currentCol, setCurrentCol] = useState(initialStates.currentCol);
     const [keyboardStatus, setKeyboardStatus] = useState(initialStates.keyboardStatus());
@@ -359,14 +351,9 @@ function MatchView() {
             return row.every((cell) => cell.status !== 'unguessed');
         });
 
-        console.log({ state });
-        console.log('match state', state.playing);
-        if (gameState === state.playing) {      
-            // console.log('inside if', { lastFilledRow, isRowAllGreen: isRowAllGreen(lastFilledRow as Cell[]) });      
-            console.log('last filled row', lastFilledRow) 
-            console.log({ currentRowIndex })       
+        if (gameState === GameState.PLAYING) {           
             if (lastFilledRow && isRowAllGreen(lastFilledRow)) {
-                setGameState(state.won);
+                setGameState(GameState.WON);
 
                 /* 
                     TODO: It feels abrupt showing this modal with no delay.
@@ -376,7 +363,8 @@ function MatchView() {
                     setIsEndTurnModalOpen(true);
                 }, 500);
             } else if (currentRowIndex === 6) {
-                setGameState(state.lost);
+                setGameState(GameState.LOST);
+
                 setTimeout(() => {
                     setIsEndTurnModalOpen(true);
                 }, 500);
@@ -573,7 +561,7 @@ function MatchView() {
                             </div>
                         </Modal>
 
-                        <EndTurnModal isOpen={isEndTurnModalOpen} onRequestClose={handleCloseEndTurnModal} nextWordle={nextWordle} setNextWordle={setNextWordle} />
+                        <EndTurnModal isOpen={isEndTurnModalOpen} onRequestClose={handleCloseEndTurnModal} nextWordle={nextWordle} setNextWordle={setNextWordle} gameState={gameState} />
                         
                         <Modal isOpen={isExitModalOpen} onRequestClose={handleCloseExitModal}>    
                             <h1 className="text-4xl text-center">
@@ -596,13 +584,13 @@ function MatchView() {
                             <Button color='yellowHollow' onClick={() => navigate('/lobby')} copy="Return to Lobby"></Button>
                         </Modal>
 
-                        <div className={`h-auto relative mt-6 ${gameState === state.playing ? '' : 'invisible'}`}>
+                        <div className={`h-auto relative mt-6 ${gameState === GameState.PLAYING ? '' : 'invisible'}`}>
                             <Keyboard
                             keyboardStatus={keyboardStatus}
                             addLetter={addLetter}
                             onEnterPress={onEnterPress}
                             onDeletePress={onDeletePress}
-                            gameDisabled={gameState !== state.playing || isLandingModalOpen || isHowToPlayModalOpen}
+                            gameDisabled={gameState !== GameState.PLAYING || isLandingModalOpen || isHowToPlayModalOpen}
                             />
                         </div>
                     </>

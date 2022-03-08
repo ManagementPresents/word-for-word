@@ -12,7 +12,7 @@ const Button: FC<Props> = ({ onClick, color, copy, disabled, customStyle }: Prop
   const generateClassName = () => {
     if (color === 'green') return 'green-button';
 
-    if (color === 'gray') return 'grey-button';
+    if (color === 'grey') return 'grey-button';
 
     if (color === 'yellow') return 'yellow-button';
 
