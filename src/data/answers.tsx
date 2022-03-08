@@ -852,6 +852,7 @@ const answers = [
   'glean',
   'glide',
   'gloom',
+  'glomp',
   'glued',
   'glues',
   'gnarl',
