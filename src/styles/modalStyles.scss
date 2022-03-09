@@ -1,0 +1,58 @@
+@use 'colors';
+@use 'modalBase';
+@use 'bigmodalBase';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.modals-style{
+  @include modalBase.base;
+  background-color: $darkestGrey;
+  color: $white;
+  border-width: 1;
+  border-style: solid;
+  border-color: $black;
+}
+
+/*
+.modal-style {
+  @include modalBase.base;
+  background-color: $darkestGrey;
+  color: $white;
+
+  box-sizing: border-box;
+
+  border-width: 1;
+  border-style: solid;
+  border-color: $black;
+
+}
+*/
+
+  .modal-header {
+    @include modalBase.header;
+    color: $white;
+  }
+  
+  .modal-body {
+    color: $white;
+  }
+
+  .modal-label {
+    @include modalBase.label;
+  }
+
+  .modal-buttonzone{
+    @include modalBase.buttonzone;
+  }
+
+  .big-modal-style {
+    @include bigmodalBase.base;
+    background-color: $darkestGrey;
+    color: $white;
+    border-width: 1;
+    border-style: solid;
+    border-color: $black;
+  }

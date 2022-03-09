@@ -17,6 +17,10 @@ const Button: FC<Props> = ({ onClick, color, copy, disabled, customStyle }: Prop
     if (color === 'yellow') return 'yellow-button';
 
     if (color === 'yellowHollow') return 'yellow-button-hollow';
+
+    if (color === 'greenHollow') return 'green-button-hollow';
+
+    if (color === 'grayHollow') return 'grey-button-hollow';
   }
 
   return <button className={`${generateClassName() } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} font-bold py-2 px-4 rounded w-full ${customStyle}`} onClick={onClick}>{copy}</button>;

@@ -142,7 +142,7 @@ const Lobby = ({}: Props) => {
             {renderMatches(matches)}
         </Fragment> :
         <div className="mx-auto max-w-lg">
-            <h2 className="mb-2 text-2xl font-bold tracking-tight text-[#F1F3F9] dark:text-white">You have no currently active matches.</h2>
+            <h2 className="lobby-messages">You have no currently active matches.</h2>
 
             <Button color="green" copy="Start a New Match" onClick={handleStartNewMatch}></Button>
         </div>
