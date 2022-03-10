@@ -4,31 +4,30 @@
 @tailwind components;
 @tailwind utilities;
 
-
 .lobby-matchbox-style {
-  @include lobbyBox.base;
-    background-color: $darkestGrey;
-    color: $white;
-    border-color: $black;
-  }
-  
-  .lobby-matchbox-green{
-    @include lobbyBox.base;
-    background-color: $darkestGrey;
-    color: $white;
-    border-color: $green;
-  }
-  
-  .lobby-matchbox-yellow{
-    @include lobbyBox.base;
-    background-color: $darkestGrey;
-    color: $white;
-    border-color: $yellow;
-  }
-  
-  .lobby-matchbox-grey {
-    @include lobbyBox.base;
-    background-color: $darkestGrey;
-    color: $white;
-    border-color: $lightGrey;
-  }
+	@include lobbyBox.base;
+	background-color: $darkestGrey;
+	color: $white;
+	border-color: $black;
+}
+
+.lobby-matchbox-green {
+	@include lobbyBox.base;
+	background-color: $darkestGrey;
+	color: $white;
+	border-color: $green;
+}
+
+.lobby-matchbox-yellow {
+	@include lobbyBox.base;
+	background-color: $darkestGrey;
+	color: $white;
+	border-color: $yellow;
+}
+
+.lobby-matchbox-grey {
+	@include lobbyBox.base;
+	background-color: $darkestGrey;
+	color: $white;
+	border-color: $lightGrey;
+}

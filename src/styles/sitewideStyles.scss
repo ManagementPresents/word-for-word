@@ -6,14 +6,14 @@
 #root,
 body,
 html {
-  /* Prevent overscroll on chrome (not supported on safari) */
-  overscroll-behavior-y: none;
-  height: 100vh;
-  background-color: $black;
-  color: $white;
-  font-family: 'Anton', sans-serif;
+	/* Prevent overscroll on chrome (not supported on safari) */
+	overscroll-behavior-y: none;
+	height: 100vh;
+	background-color: $black;
+	color: $white;
+	font-family: 'Anton', sans-serif;
 }
 
 .bg-background {
-    background-color: $black;
-  }
+	background-color: $black;
+}

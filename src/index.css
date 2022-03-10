@@ -22,163 +22,154 @@
 #root,
 body,
 html {
-  /* Prevent overscroll on chrome (not supported on safari) */
-  overscroll-behavior-y: none;
-  height: 100vh;
-  background-color: #2A272A;
-  color: #F1F3F9;
-  font-family: 'Anton', sans-serif;
+	/* Prevent overscroll on chrome (not supported on safari) */
+	overscroll-behavior-y: none;
+	height: 100vh;
+	background-color: #2a272a;
+	color: #f1f3f9;
+	font-family: 'Anton', sans-serif;
 }
 
 .text-primary {
-  color: #F1F3F9;
+	color: #f1f3f9;
 }
 
 .text-primary-dark {
-  color: #2A272A;
+	color: #2a272a;
 }
 
 .bg-background {
-  background-color: #2A272A;
+	background-color: #2a272a;
 }
 
 .keyboard-style {
-  background-color: #736F75;
-  color: #F1F3F9 
+	background-color: #736f75;
+	color: #f1f3f9;
 }
 
 .guesses-style-default {
-  background-color: #f1f3F9;
-  color: #2A272A;
-  box-sizing: border-box;
-  border-width: 1;
-  border-style: solid;
-  border-color: #736F75;
+	background-color: #f1f3f9;
+	color: #2a272a;
+	box-sizing: border-box;
+	border-width: 1;
+	border-style: solid;
+	border-color: #736f75;
 }
 
 .guesses-border-wrong {
-  background-color: transparent;
-  color: red;
-  box-sizing: border-box;
-  border-width: 1;
-  border-style: solid;
-  border-color: red;
-  border-radius: 1px;
+	background-color: transparent;
+	color: red;
+	box-sizing: border-box;
+	border-width: 1;
+	border-style: solid;
+	border-color: red;
+	border-radius: 1px;
 }
 
-.modals-style {
-  @apply flex border-2 rounded-[3rem];
-  background-color: #353135;
-  color: #F1F3F9;
-  box-sizing: border-box;
-  border-width: 1;
-  border-style: solid;
-  border-color: #2A272A;
-}
 
-/* Base color styles */ 
+/* Base color styles */
 .yellow-font {
-  color: #F8E797;
+	color: #f8e797;
 }
 
 .green-font {
-  color: #609B94;
+	color: #609b94;
 }
 
 .gray-font {
-  color: #C7C7CD;
+	color: #c7c7cd;
 }
 
 .green {
-  background-color: #609B94;
-  color: #dff0f3;
+	background-color: #609b94;
+	color: #dff0f3;
 }
 
 .yellow {
-  background-color: #F8E797;
-  color: #443F38;
+	background-color: #f8e797;
+	color: #443f38;
 }
 
 .gray {
-  background-color: #C7C7CD;
-  color: #2A272A;
+	background-color: #c7c7cd;
+	color: #2a272a;
 }
 
 .dark-gray {
-  background-color: #353135;
-  color: #F1F3F9;
+	background-color: #353135;
+	color: #f1f3f9;
 }
 
 .neutral {
-  background-color: #353135;
-  color: #F1F1F9;
+	background-color: #353135;
+	color: #f1f1f9;
 }
 
 /* Buttons */
 .gray-button-style {
-  background-color: #9D9BA1;
-  color: #f1f3F9;
+	background-color: #9d9ba1;
+	color: #f1f3f9;
 }
 
 .gray-button-style:hover {
-  background-color: #C7C7CD;
-  color: #2A272A;
+	background-color: #c7c7cd;
+	color: #2a272a;
 }
 
 .green-button-style {
-  background-color: #609B94;
-  color: #DFF0F3;
+	background-color: #609b94;
+	color: #dff0f3;
 }
 
 .green-button-style:hover {
-  background-color: #a8e4e0;
-  color: #4e7471;
+	background-color: #a8e4e0;
+	color: #4e7471;
 }
 
 .yellow-button-style {
-  background-color: #CDBF7D;
-  color: #2A272A;
+	background-color: #cdbf7d;
+	color: #2a272a;
 }
 
 .yellow-button-style:hover {
-  background-color: #F8E797;
+	background-color: #f8e797;
 }
 
 .yellow-button-style--hollow {
-  background-color: transparent;
-  border: solid 2px #CDBF7D;
-  color: #CDBF7D;
+	background-color: transparent;
+	border: solid 2px #cdbf7d;
+	color: #cdbf7d;
 }
 
 .yellow-button-style--hollow:hover {
-  background-color: #F8E797;
-  color: #2A272A;
+	background-color: #f8e797;
+	color: #2a272a;
 }
 
 /* Text styles */
 .yellow-link {
-  color: #CDBF7D;
-  cursor: pointer;
+	color: #cdbf7d;
+	cursor: pointer;
 }
 
 .yellow-link:hover {
-  color: #F8E797;
+	color: #f8e797;
 }
 
 /* Match Card Styles */
 
 .green-match-card {
-  background-color: #609B94;
-  color: #dff0f3;
-  border-color: #4E7471;
-  border-width: 2px;
-  border-style: solid;
+	background-color: #609b94;
+	color: #dff0f3;
+	border-color: #4e7471;
+	border-width: 2px;
+	border-style: solid;
 }
 
 .yellow-match-card {
-  background-color: #f8e797;
-  color: #443F38;
-  border-color: #c5b77c;
-  border-width: 2px;
-  border-style: solid;
+	background-color: #f8e797;
+	color: #443f38;
+	border-color: #c5b77c;
+	border-width: 2px;
+	border-style: solid;
 }

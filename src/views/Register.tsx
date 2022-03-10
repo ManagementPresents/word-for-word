@@ -1,10 +1,10 @@
-import { Fragment, useEffect, useCallback, useState } from 'react'
-import { getAuth, createUserWithEmailAndPassword, } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore"; 
+import { Fragment, useEffect, useCallback, useState } from 'react';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 // TODO: Should probably replace this with the other 'validator.js' library
 import passwordValidator from 'password-validator';
 import * as EmailValidator from 'email-validator';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 import LoadingButton from '../components/buttons/LoadingButton';
 import Button from '../components/buttons/Button';
@@ -17,21 +17,25 @@ import { FirebaseError } from 'firebase/app';
 const passwordRequirements = new passwordValidator();
 
 passwordRequirements
-	.is().min(8, 'Password must have a minimum of 8 characters.')
-	.is().max(25, 'Password can only have a maximum of 25 characters.')
-	.has().not('', 'Password cannot have spaces').spaces();
+	.is()
+	.min(8, 'Password must have a minimum of 8 characters.')
+	.is()
+	.max(25, 'Password can only have a maximum of 25 characters.')
+	.has()
+	.not('', 'Password cannot have spaces')
+	.spaces();
 
 interface Props {
-//   keyboardStatus: { [key: string]: string }
-//   gameDisabled: boolean
-//   onDeletePress: () => void
-//   onEnterPress: () => void
-//   addLetter: any
+	//   keyboardStatus: { [key: string]: string }
+	//   gameDisabled: boolean
+	//   onDeletePress: () => void
+	//   onEnterPress: () => void
+	//   addLetter: any
 }
 
 interface EmailError {
-	message: string,
-	isEmailError: boolean,
+	message: string;
+	isEmailError: boolean;
 }
 
 // TODO: Need to add logic for if the email already exists
@@ -51,8 +55,8 @@ const Register = ({}: Props) => {
 	const handleRegistration = async () => {
 		// TODO: Should probably be some kind of server validation for this, at some point, and not just front end
 		if (!isRegistrationReady) return;
-	
-	    const auth = getAuth();
+
+		const auth = getAuth();
 
 		setIsRegistering(true);
 
@@ -93,21 +97,27 @@ const Register = ({}: Props) => {
 			// @ts-ignore
 			setServerErrors(serverErrors);
 		}
-	}
+	};
 
 	const isValidEmail = () => {
 		// Validation from passwordValidator will always include the 'validation' property
-		return !validationErrors.some((validationError: EmailError) => validationError.isEmailError);
-	}
+		return !validationErrors.some(
+			(validationError: EmailError) => validationError.isEmailError,
+		);
+	};
 
 	const isValidPassword = () => {
 		// @ts-ignore
 		return !validationErrors.some((validationError: object) => validationError.validation);
-	}
+	};
 
 	const isValidRegistration = useCallback(() => {
-		const passwordErrors = passwordRequirements.validate(password.trim(), { details: true }) as any[];
-		const validatedPasswordErrors = passwordRequirements.validate(verifyPassword.trim(), { details: true }) as any[];
+		const passwordErrors = passwordRequirements.validate(password.trim(), {
+			details: true,
+		}) as any[];
+		const validatedPasswordErrors = passwordRequirements.validate(verifyPassword.trim(), {
+			details: true,
+		}) as any[];
 		const isValidEmail = EmailValidator.validate(email);
 
 		/*
@@ -120,18 +130,27 @@ const Register = ({}: Props) => {
 			validationErrors = [{ message: 'Passwords must match.', validation: 'matching' }];
 		} else if (passwordErrors.length || validatedPasswordErrors.length) {
 			// Filters out duplicates
-			const combinedErrors = [...passwordErrors, ...validatedPasswordErrors].filter((error, index, self) => {
-				return index === self.findIndex((foundError) => {
-					return foundError.message === error.message;
-				});
-			});
+			const combinedErrors = [...passwordErrors, ...validatedPasswordErrors].filter(
+				(error, index, self) => {
+					return (
+						index ===
+						self.findIndex((foundError) => {
+							return foundError.message === error.message;
+						})
+					);
+				},
+			);
 
 			// @ts-ignore
 			validationErrors = combinedErrors;
-		} 
+		}
 
-		if (!isValidEmail) validationErrors.push({ message: 'Must be a valid email.', isEmailError: true } as EmailError);
-		
+		if (!isValidEmail)
+			validationErrors.push({
+				message: 'Must be a valid email.',
+				isEmailError: true,
+			} as EmailError);
+
 		// @ts-ignore
 		setValidationErrors(validationErrors);
 		return validationErrors.length === 0;
@@ -149,36 +168,97 @@ const Register = ({}: Props) => {
 		<div className="min-h-full flex flex-col gap-y-4 items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
 			<div className="flex flex-col gap-y-4 w-80">
 				<div>
-					<label htmlFor="email-address" className="sr-only">Email address</label>
+					<label htmlFor="email-address" className="sr-only">
+						Email address
+					</label>
 
-					<input id="email-address" name="email" type="email" autoComplete="email" required className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm ${!isValidEmail() ? 'border-red-500 focus:border-red-500 focus:ring-red-500': ''}`}placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)}/>
+					<input
+						id="email-address"
+						name="email"
+						type="email"
+						autoComplete="email"
+						required
+						className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm ${
+							!isValidEmail()
+								? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+								: ''
+						}`}
+						placeholder="Email address"
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
+					/>
 				</div>
 
 				<div>
-					<label htmlFor="password" className="sr-only">Password</label>
+					<label htmlFor="password" className="sr-only">
+						Password
+					</label>
 
-					<input id="password" name="password" type="password" autoComplete="current-password" required className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm ${!isValidPassword() ? 'border-red-500 focus:border-red-500 focus:ring-red-500': ''}`} placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}/>
+					<input
+						id="password"
+						name="password"
+						type="password"
+						autoComplete="current-password"
+						required
+						className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm ${
+							!isValidPassword()
+								? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+								: ''
+						}`}
+						placeholder="Password"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+					/>
 				</div>
 
 				<div>
-					<label htmlFor="password" className="sr-only">Verify Password</label>
+					<label htmlFor="password" className="sr-only">
+						Verify Password
+					</label>
 
-					<input id="password" name="password" type="password" autoComplete="current-password" required className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm ${!isValidPassword() ? 'border-red-500 focus:border-red-500 focus:ring-red-500': ''}`} placeholder="Verify password" value={verifyPassword} onChange={(e) => setVerifyPassword(e.target.value)}/>
+					<input
+						id="password"
+						name="password"
+						type="password"
+						autoComplete="current-password"
+						required
+						className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm ${
+							!isValidPassword()
+								? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+								: ''
+						}`}
+						placeholder="Verify password"
+						value={verifyPassword}
+						onChange={(e) => setVerifyPassword(e.target.value)}
+					/>
 				</div>
 
 				<div className="flex flex-col">
 					{renderErrors(validationErrors, 'text-red-600 text-sm')}
 				</div>
 
-				<LoadingButton onClick={handleRegistration} copy={'Sign Up'} isLoadingCopy={"Registering..."} disabled={!isRegistrationReady} isLoading={isRegistering} color={"green"} />
-				<Button onClick={() => { navigate('/') }} copy={'Return'} color={"yellow"} />
+				<LoadingButton
+					onClick={handleRegistration}
+					copy={'Sign Up'}
+					isLoadingCopy={'Registering...'}
+					disabled={!isRegistrationReady}
+					isLoading={isRegistering}
+					color={'green'}
+				/>
+				<Button
+					onClick={() => {
+						navigate('/');
+					}}
+					copy={'Return'}
+					color={'yellow'}
+				/>
 
 				<div className="flex flex-col">
 					{renderErrors(serverErrors, 'text-blue-600 text-sm')}
 				</div>
 			</div>
 		</div>
-	)
-}
+	);
+};
 
 export default Register;

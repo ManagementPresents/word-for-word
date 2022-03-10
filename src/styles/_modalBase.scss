@@ -3,21 +3,29 @@
 @tailwind utilities;
 
 @mixin base {
-    @apply flex border-2 rounded-[3rem];
+	@apply flex rounded-[3rem];
 }
 
-@mixin header{
-    @apply text-xl text-center font-bold tracking-tight md:text-2xl;
+@mixin header {
+	@apply text-3xl sm:text-4xl mb-1 text-center font-bold tracking-tight md:text-2xl gap-y-2 mt-4;
+}
+
+@mixin body {
+	@apply text-[14px] sm:text-[18px] gap-y-2 mt-4;
 }
 
 @mixin label {
-    @apply flex justify-center flex-col;
+	@apply flex flex-col items-center w-[250px] mx-auto mt-2 gap-y-2;
 }
 
-@mixin buttonzone{
-    @apply flex justify-center flex-col gap-y-2;
+@mixin content {
+	@apply text-center max-w-[270px] mx-auto sm:max-w-[370px] gap-y-2 mt-4;
+}
+
+@mixin buttonzone {
+	@apply flex flex-col gap-y-2 w-[250px] justify-center; 
 }
 
 @mixin base2 {
-    @apply flex justify-center flex-col text-xs mx-auto gap-y-4 p-[2.5rem] md:text-base md:gap-y-8 md:p-12 md:max-w-lg;
+	@apply flex justify-center flex-col text-xs mx-auto gap-y-4 p-[2.5rem] md:text-base md:gap-y-8 md:p-12 md:max-w-lg rounded-[3rem];
 }

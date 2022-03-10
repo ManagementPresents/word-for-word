@@ -3,54 +3,51 @@
 @tailwind components;
 @tailwind utilities;
 
-
 .green {
-    background-color: $green;
-    color: $lightestGreen;
-  }
-  
-  .yellow {
-    background-color: $yellow;
-    color: $darkestYellow;
-  }
-  
-  .gray {
-    background-color: $lightestGrey;
-    color: $black;
-  }
-  
-  .dark-gray {
-    background-color: $darkestGrey;
-    color: $white;
-  }
-  
-  .transparent {
-    background-color: transparent;
-    color: $white;
-  }
+	background-color: $green;
+	color: $lightestGreen;
+}
 
+.yellow {
+	background-color: $yellow;
+	color: $darkestYellow;
+}
 
+.gray {
+	background-color: $lightestGrey;
+	color: $black;
+}
 
-  .keyboard-style {
-    background-color: $darkestGrey;
-    color: $white 
-  }
-  
-  .guesses-style-default {
-    background-color: $white;
-    color: $black;
-    box-sizing: border-box;
-    border-width: 1;
-    border-style: solid;
-    border-color: $darkestGrey;
-  }
-  
-  .guesses-border-wrong {
-    background-color: transparent;
-    color: red;
-    box-sizing: border-box;
-    border-width: 1;
-    border-style: solid;
-    border-color: red;
-    border-radius: 1px;
-  }
+.dark-gray {
+	background-color: $darkestGrey;
+	color: $white;
+}
+
+.transparent {
+	background-color: transparent;
+	color: $white;
+}
+
+.keyboard-style {
+	background-color: $darkestGrey;
+	color: $white;
+}
+
+.guesses-style-default {
+	background-color: $white;
+	color: $black;
+	box-sizing: border-box;
+	border-width: 1;
+	border-style: solid;
+	border-color: $darkestGrey;
+}
+
+.guesses-border-wrong {
+	background-color: transparent;
+	color: red;
+	box-sizing: border-box;
+	border-width: 1;
+	border-style: solid;
+	border-color: red;
+	border-radius: 1px;
+}

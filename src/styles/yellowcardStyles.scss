@@ -8,69 +8,69 @@
 /* TODO: ok dipshit you made these modular as fuck, now go make them pretty */
 
 .yellow-match-card {
-    @include cards.base;
-    background-color: $yellow;
-    color: $darkestYellow;
-    border-color: $darkYellow;
-    }
-  
-  .yellow-match-title {
-    @include cards.title;
-    }
-    
-  .yellow-match-opponent {
-    @include cards.opponent;
-    }
-    
-  .yellow-match-user {
-    @include cards.username;
-    color: $darkYellow;
-    }
-    
-  .yellow-match-avatar {
-    @include cards.avatar;
-    }
-    
-  .yellow-match-content {
-    @include cards.content;
-    }
-    
-  .yellow-match-lastplay {
-    @include cards.lastplay;
-    }
+	@include cards.base;
+	background-color: $yellow;
+	color: $darkestYellow;
+	border-color: $darkYellow;
+}
 
- .yellow-match-text {
-    @include cards.textbit;
-    }
-    
-  .yellow-match-playbox {
-    @include cards.playbox;
-    background-color: $darkYellow;
-    color: $lightestYellow;
-    }
-    
-  .yellow-match-button {
-    @include buttonBase.base;
-    background-color: $lightestYellow;
-    color: $darkestYellow;
-    }
-    
-  .yellow-match-button:hover {
-    @include buttonBase.base;
-    background-color: $lightestYellow;
-    color: $darkYellow;
-    }
+.yellow-match-title {
+	@include cards.title;
+}
 
-    .yellow-match-button-hollow {
-        @include buttonBase.base;
-        background-color: transparent;
-        color: $darkestYellow;
-        border-width: 2px;
-        border-color: $darkestYellow;
-        }
-        
-      .yellow-match-button-hollow:hover {
-        @include buttonBase.base;
-        background-color: $lightestYellow;
-        color: $darkYellow;
-        }
+.yellow-match-opponent {
+	@include cards.opponent;
+}
+
+.yellow-match-user {
+	@include cards.username;
+	color: $darkYellow;
+}
+
+.yellow-match-avatar {
+	@include cards.avatar;
+}
+
+.yellow-match-content {
+	@include cards.content;
+}
+
+.yellow-match-lastplay {
+	@include cards.lastplay;
+}
+
+.yellow-match-text {
+	@include cards.textbit;
+}
+
+.yellow-match-playbox {
+	@include cards.playbox;
+	background-color: $darkYellow;
+	color: $lightestYellow;
+}
+
+.yellow-match-button {
+	@include buttonBase.base;
+	background-color: $lightestYellow;
+	color: $darkestYellow;
+}
+
+.yellow-match-button:hover {
+	@include buttonBase.base;
+	background-color: $lightestYellow;
+	color: $darkYellow;
+}
+
+.yellow-match-button-hollow {
+	@include buttonBase.base;
+	background-color: transparent;
+	color: $darkestYellow;
+	border-width: 2px;
+	border-color: $darkestYellow;
+}
+
+.yellow-match-button-hollow:hover {
+	@include buttonBase.base;
+	background-color: $lightestYellow;
+	color: $darkYellow;
+}

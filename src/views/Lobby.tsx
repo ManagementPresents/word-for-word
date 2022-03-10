@@ -1,5 +1,5 @@
-import { useState, useEffect, Fragment} from 'react'
-import { doc, getDoc } from "firebase/firestore"; 
+import { useState, useEffect, Fragment } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
 
 import MatchCard from '../components/MatchCard';
 import Loading from '../components/Loading';
@@ -10,41 +10,35 @@ import NewMatchModal from '../components/modals/NewMatchModal';
 import { getMatchOpponentId } from '../utils/misc';
 import useStore from '../utils/store';
 import { TIMEOUT_DURATION } from '../utils/constants';
-import Match  from '../interfaces/Match';
+import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
 import Players from '../interfaces/Players';
 
 interface Props {}
 
 const Lobby = ({}: Props) => {
-    const { 
-        user, 
-        db, 
-        matches, 
-        setMatches, 
-        setMatchOpponents,
-    } = useStore();
+	const { user, db, matches, setMatches, setMatchOpponents } = useStore();
 
-    const [isNewMatchModalOpen, setIsNewMatchModalOpen] = useState(false);
-    const [isLoadingMatches, setIsLoadingMatches] = useState(true);
-    const [isLobbyMatchModalOpen, setIsLobbyMatchModalOpen] = useState(false);
+	const [isNewMatchModalOpen, setIsNewMatchModalOpen] = useState(false);
+	const [isLoadingMatches, setIsLoadingMatches] = useState(true);
+	const [isLobbyMatchModalOpen, setIsLobbyMatchModalOpen] = useState(false);
 
-    useEffect(() => {
-        if (user) {
-            setIsLoadingMatches(true);
-            
-            const loadingMatchesTimeout = setTimeout(() => {;
-                setIsLoadingMatches(false);
-            }, TIMEOUT_DURATION);
+	useEffect(() => {
+		if (user) {
+			setIsLoadingMatches(true);
 
-            (async () => {
-                const playerRef = doc(db, 'players', user.uid);
-                const playerSnap = await getDoc(playerRef);
-        
-                if (playerSnap.exists()) {
-                    const matchIds = playerSnap.data().matches;
-    
-                    /*
+			const loadingMatchesTimeout = setTimeout(() => {
+				setIsLoadingMatches(false);
+			}, TIMEOUT_DURATION);
+
+			(async () => {
+				const playerRef = doc(db, 'players', user.uid);
+				const playerSnap = await getDoc(playerRef);
+
+				if (playerSnap.exists()) {
+					const matchIds = playerSnap.data().matches;
+
+					/*
                         TODO: These requests make a separate request for each and every match and player they need, individually.
                         That is a ton of requests. This could be a place to optimize performance.
                        
@@ -54,159 +48,195 @@ const Lobby = ({}: Props) => {
 
                         Perhaps this could, eventually, be abstracted to a cloud function end point, where it would be safe to pull/cache all the matches/players, filter on the server, and bring them back here. Need to test and see if that would actually be more performant.
                     */
-                    const playerMatches: Match[] = await Promise.all(matchIds.map(async (matchId: string): Promise<Match> => {
-                        const matchRef = doc(db, 'matches', matchId);
-                        const matchSnap = await getDoc(matchRef);
-    
-                        return matchSnap.data() as Match;
-                    }));
-    
-                    const opponentPlayersArray: Player[] = await Promise.all(playerMatches.map(async (match: Match): Promise<Player> => {
-                        const matchOpponentId = getMatchOpponentId(user, match);
+					const playerMatches: Match[] = await Promise.all(
+						matchIds.map(async (matchId: string): Promise<Match> => {
+							const matchRef = doc(db, 'matches', matchId);
+							const matchSnap = await getDoc(matchRef);
 
-                        if (matchOpponentId) {
-                            const playerRef = doc(db, 'players', matchOpponentId);
-                            const playerSnap = await getDoc(playerRef);
-        
-                            return {
-                                id: matchOpponentId,
-                                ...playerSnap.data()
-                             } as Player;
-                        }
+							return matchSnap.data() as Match;
+						}),
+					);
 
-                        return {} as Player;
-                    }));
+					const opponentPlayersArray: Player[] = await Promise.all(
+						playerMatches.map(async (match: Match): Promise<Player> => {
+							const matchOpponentId = getMatchOpponentId(user, match);
 
-                    // Transform (or, i guess, reduce) the opponentPlayersArray into an object, for easier data access
-                    const opponentPlayers: Players = opponentPlayersArray.reduce((accum: Players, player: Player): Players => {
-                        const hasPlayer = !!Object.keys(player).length;
+							if (matchOpponentId) {
+								const playerRef = doc(db, 'players', matchOpponentId);
+								const playerSnap = await getDoc(playerRef);
 
-                        if (hasPlayer) {
-                            //
-                            const {
-                                id,
-                                email,
-                                /* 
+								return {
+									id: matchOpponentId,
+									...playerSnap.data(),
+								} as Player;
+							}
+
+							return {} as Player;
+						}),
+					);
+
+					// Transform (or, i guess, reduce) the opponentPlayersArray into an object, for easier data access
+					const opponentPlayers: Players = opponentPlayersArray.reduce(
+						(accum: Players, player: Player): Players => {
+							const hasPlayer = !!Object.keys(player).length;
+
+							if (hasPlayer) {
+								//
+								const {
+									id,
+									email,
+									/* 
                                     TODO: 'matches' is unlikely to be used, but, it's currently required by the interface.
                                     Investigate in the future if this is the best way to do this
                                 */
-                               matches,
-                            } = player;
+									matches,
+								} = player;
 
-                            accum[id as string] = {
-                                email,
-                                matches,
-                                id,
-                            }
-                        }
+								accum[id as string] = {
+									email,
+									matches,
+									id,
+								};
+							}
 
-                        return accum;
-                    }, {} as Players);
+							return accum;
+						},
+						{} as Players,
+					);
 
-                    setMatchOpponents(opponentPlayers);
-                    setMatches(playerMatches);
-                    setIsLoadingMatches(false);
-                    clearInterval(loadingMatchesTimeout);
-                }
-            })();
-        }
-    }, [user]);
+					setMatchOpponents(opponentPlayers);
+					setMatches(playerMatches);
+					setIsLoadingMatches(false);
+					clearInterval(loadingMatchesTimeout);
+				}
+			})();
+		}
+	}, [user]);
 
-    const handleStartNewMatch = () => {
-        // TODO: The idea here is totally reset the game creation modal whenever it is closed. There may be a more elegant way to handle this.
-        // setIsOpenMatch(false);
-        // setOpenMatchLink('');
-        // setIsGenerateLinkReady(false);
-        // setIsGeneratingLink(false);
-        // setWordleValidationErrors([]);
-        // setWordle('');
-        setIsNewMatchModalOpen(true);
-        // handleValidateWordle();
-    }
+	const handleStartNewMatch = () => {
+		// TODO: The idea here is totally reset the game creation modal whenever it is closed. There may be a more elegant way to handle this.
+		// setIsOpenMatch(false);
+		// setOpenMatchLink('');
+		// setIsGenerateLinkReady(false);
+		// setIsGeneratingLink(false);
+		// setWordleValidationErrors([]);
+		// setWordle('');
+		setIsNewMatchModalOpen(true);
+		// handleValidateWordle();
+	};
 
-    const handleNewMatchModalClose = () => {
-        setIsNewMatchModalOpen(false);
-    }
+	const handleNewMatchModalClose = () => {
+		setIsNewMatchModalOpen(false);
+	};
 
-    // TODO: When a new match is made, it should probably load in the first card slot (i.e. it should appear in the top left of the match box on large devices, and at the very top on mobile devices)
-    const renderMatches = (matches: Match[]) => {
-        return matches.map((match) => <MatchCard match={match} isLobbyMatchModalOpen={isLobbyMatchModalOpen} setIsLobbyMatchModalOpen={setIsLobbyMatchModalOpen} />);
-    }
+	// TODO: When a new match is made, it should probably load in the first card slot (i.e. it should appear in the top left of the match box on large devices, and at the very top on mobile devices)
+	const renderMatches = (matches: Match[]) => {
+		return matches.map((match) => (
+			<MatchCard
+				match={match}
+				isLobbyMatchModalOpen={isLobbyMatchModalOpen}
+				setIsLobbyMatchModalOpen={setIsLobbyMatchModalOpen}
+			/>
+		));
+	};
 
-    const handleMatchBox = () => {
-        // TODO: There is some kind of over-rendering nonsense going on here
-        if (isLoadingMatches) return <Loading enableCentering={false} />;
+	const handleMatchBox = () => {
+		// TODO: There is some kind of over-rendering nonsense going on here
+		if (isLoadingMatches) return <Loading enableCentering={false} />;
 
-        return matches.length ? 
-        <Fragment>
-            {renderMatches(matches)}
-        </Fragment> :
-        <div className="mx-auto max-w-lg">
-            <h2 className="lobby-messages">You have no currently active matches.</h2>
+		return matches.length ? (
+			<Fragment>{renderMatches(matches)}</Fragment>
+		) : (
+			<div className="mx-auto max-w-lg">
+				<h2 className="lobby-messages">You have no currently active matches.</h2>
 
-            <Button color="green" copy="Start a New Match" onClick={handleStartNewMatch}></Button>
-        </div>
-    }
+				<Button
+					color="green"
+					copy="Start a New Match"
+					onClick={handleStartNewMatch}
+				></Button>
+			</div>
+		);
+	};
 
-    const handleLobbyMatchModalClose = () => {
-        setIsLobbyMatchModalOpen(false);
-    }
+	const handleLobbyMatchModalClose = () => {
+		setIsLobbyMatchModalOpen(false);
+	};
 
-    // TODO: Bring back once you figure out why tooltips prevent the click-copy library from working
-    // const handleShortTooltip = (e: any) => {
-    //     const { tip }  = e.target.dataset;
+	// TODO: Bring back once you figure out why tooltips prevent the click-copy library from working
+	// const handleShortTooltip = (e: any) => {
+	//     const { tip }  = e.target.dataset;
 
-    //     // TODO: Kludge way to ensure only the 'copied' tooltips go away automatically
-    //     if (tip.toLowerCase().includes('copied')) {
-    //         setTimeout(ReactTooltip.hide, 2000);
-    //     }
-    // }
+	//     // TODO: Kludge way to ensure only the 'copied' tooltips go away automatically
+	//     if (tip.toLowerCase().includes('copied')) {
+	//         setTimeout(ReactTooltip.hide, 2000);
+	//     }
+	// }
 
 	return (
-        <Fragment>
-            <div className="max-w-7xl flex flex-col gap-y-3 h-full md:gap-x-6 md:flex-row mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                {/* TODO: Hi it's me zoe again, I know we're probably ganking this part sooner rather than later but just to make it a little easier on the eyes in the meantime I'm having it pull some minor non-functional aesthetics from the matchbox style, feel free to do whatever with it. I changed the font colors below manually */}
-                <div className="flex flex-col gap-y-2 h-max p-4 rounded-lg border shadow-md lobby-matchbox-style md:basis-2/12">
-                    <div>
-                        <h3 className="text-1xl font-bold tracking-tight text-[#F1F3F9]">Welcome back,</h3>
-                        {/* TODO: If email is super long, it'll stretch the page */}
-                        <h2 className="text-2xl font-bold tracking-tight text-[#609B94]">{user?.email}</h2>
-                    </div>
+		<Fragment>
+			<div className="max-w-7xl flex flex-col gap-y-3 h-full md:gap-x-6 md:flex-row mx-auto py-6 px-4 sm:px-6 lg:px-8">
+				{/* TODO: Hi it's me zoe again, I know we're probably ganking this part sooner rather than later but just to make it a little easier on the eyes in the meantime I'm having it pull some minor non-functional aesthetics from the matchbox style, feel free to do whatever with it. I changed the font colors below manually */}
+				<div className="flex flex-col gap-y-2 h-max p-4 rounded-lg border shadow-md lobby-matchbox-style md:basis-2/12">
+					<div>
+						<h3 className="text-1xl font-bold tracking-tight text-[#F1F3F9]">
+							Welcome back,
+						</h3>
+						{/* TODO: If email is super long, it'll stretch the page */}
+						<h2 className="text-2xl font-bold tracking-tight text-[#609B94]">
+							{user?.email}
+						</h2>
+					</div>
 
-                    <div className="flex flex-col justify-conter font-normal text-gray-700 dark:text-gray-400">
-                        <div className="flex flex-row gap-x-6 md:flex-col">
-                            <div>
-                                <h3 className="text-base font-bold text-[#F1F3F9] dark:text-grey-400">Matches Played</h3>
-                                <span className="text-[#F1F3F9]">489</span>
-                            </div>
+					<div className="flex flex-col justify-conter font-normal text-gray-700 dark:text-gray-400">
+						<div className="flex flex-row gap-x-6 md:flex-col">
+							<div>
+								<h3 className="text-base font-bold text-[#F1F3F9] dark:text-grey-400">
+									Matches Played
+								</h3>
+								<span className="text-[#F1F3F9]">489</span>
+							</div>
 
-                            <div>
-                                <h3 className="text-base font-bold text-[#F1F1F9] dark:text-gray-400">Wins</h3>
-                                <span className="text-[#F1F1F9]">69</span>
-                            </div>
+							<div>
+								<h3 className="text-base font-bold text-[#F1F1F9] dark:text-gray-400">
+									Wins
+								</h3>
+								<span className="text-[#F1F1F9]">69</span>
+							</div>
 
-                            <div>
-                                <h3 className="text-base font-bold text-[#F1F1F9] dark:text-gray-400">Losses</h3>
-                                <span className="text-[#F1F1F9]">420</span>
-                            </div>
-                        </div>
-                    </div>
+							<div>
+								<h3 className="text-base font-bold text-[#F1F1F9] dark:text-gray-400">
+									Losses
+								</h3>
+								<span className="text-[#F1F1F9]">420</span>
+							</div>
+						</div>
+					</div>
 
-                    <Button color="green" copy="Start a New Match" onClick={handleStartNewMatch} />
-                </div>
+					<Button color="green" copy="Start a New Match" onClick={handleStartNewMatch} />
+				</div>
 
-                {/* TODO: This basis-[46rem] business is a kludge fix to ensure the layout looks right on moble */}
-                {/* Hi gabriel, I added "lobby-matchbox-style here to control some colors and such from index.css in case you're wondering wtf this is. Also, you lookin fine as hell over there just fyi. ;) */}
-                <div className={`lobby-matchbox-style ${matches.length ? '' : 'grid grid-cols-1'} `}>
-                    {handleMatchBox()}
-                </div>
-            </div>
+				{/* TODO: This basis-[46rem] business is a kludge fix to ensure the layout looks right on moble */}
+				{/* Hi gabriel, I added "lobby-matchbox-style here to control some colors and such from index.css in case you're wondering wtf this is. Also, you lookin fine as hell over there just fyi. ;) */}
+				<div
+					className={`lobby-matchbox-style ${matches.length ? '' : 'grid grid-cols-1'} `}
+				>
+					{handleMatchBox()}
+				</div>
+			</div>
 
-            <NewMatchModal isOpen={isNewMatchModalOpen} onRequestClose={handleNewMatchModalClose} returnCopy={'Go Back'} />
-            
-            <PendingModalMatch isOpen={isLobbyMatchModalOpen} onRequestClose={handleLobbyMatchModalClose} />    
-        </Fragment>
-	)
-}
+			<NewMatchModal
+				isOpen={isNewMatchModalOpen}
+				onRequestClose={handleNewMatchModalClose}
+				returnCopy={'Go Back'}
+			/>
+
+			<PendingModalMatch
+				isOpen={isLobbyMatchModalOpen}
+				onRequestClose={handleLobbyMatchModalClose}
+			/>
+		</Fragment>
+	);
+};
 
 export default Lobby;

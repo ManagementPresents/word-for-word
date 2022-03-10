@@ -4,30 +4,30 @@
 @tailwind utilities;
 
 .text-primary {
-    color: $white;
-  }
-  
-  .text-primary-dark {
-    color: $black;
-  }
-  
-  .yellow-font {
-    color: $yellow;
-  }
-  
-  .green-font {
-    color: $green;
-  }
-  
-  .gray-font {
-    color: $lightestGrey;
-  }
+	color: $white;
+}
 
-  .yellow-link {
-    color: #CDBF7D;
-    cursor: pointer;
-  }
-  
-  .yellow-link:hover {
-    color: $yellow;
-  }
+.text-primary-dark {
+	color: $black;
+}
+
+.yellow-font {
+	color: $yellow;
+}
+
+.green-font {
+	color: $green;
+}
+
+.gray-font {
+	color: $lightestGrey;
+}
+
+.yellow-link {
+	color: #cdbf7d;
+	cursor: pointer;
+}
+
+.yellow-link:hover {
+	color: $yellow;
+}
