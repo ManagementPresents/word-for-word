@@ -1,34 +1,34 @@
 @use 'colors';
+@use 'lobbyBox';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 
 .lobby-matchbox-style {
+  @include lobbyBox.base;
     background-color: $darkestGrey;
     color: $white;
-    border-width: 1;
-    border-style: solid;
     border-color: $black;
   }
   
   .lobby-matchbox-green{
+    @include lobbyBox.base;
     background-color: $darkestGrey;
     color: $white;
-    border-width: 1;
-    border-style: solid;
     border-color: $green;
   }
   
   .lobby-matchbox-yellow{
+    @include lobbyBox.base;
     background-color: $darkestGrey;
     color: $white;
-    border-width: 1;
-    border-style: solid;
     border-color: $yellow;
   }
   
-  .lobby-matchbox-green {
+  .lobby-matchbox-grey {
+    @include lobbyBox.base;
     background-color: $darkestGrey;
     color: $white;
+    border-color: $lightGrey;
   }

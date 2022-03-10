@@ -17,3 +17,7 @@
 @mixin buttonzone{
     @apply flex justify-center flex-col gap-y-2;
 }
+
+@mixin base2 {
+    @apply flex justify-center flex-col text-xs mx-auto gap-y-4 p-[2.5rem] md:text-base md:gap-y-8 md:p-12 md:max-w-lg;
+}

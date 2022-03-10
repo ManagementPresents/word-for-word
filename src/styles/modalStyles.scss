@@ -6,7 +6,7 @@
 @tailwind components;
 @tailwind utilities;
 
-
+/*TODO: the below style isn't as good as the last one*/
 .modals-style{
   @include modalBase.base;
   background-color: $darkestGrey;
@@ -16,22 +16,11 @@
   border-color: $black;
 }
 
-/*
-.modal-style {
-  @include modalBase.base;
-  background-color: $darkestGrey;
-  color: $white;
-
-  box-sizing: border-box;
-
-  border-width: 1;
-  border-style: solid;
-  border-color: $black;
-
+.modal {
+  @include modalBase.base2;
 }
-*/
 
-  .modal-header {
+ .modal-header {
     @include modalBase.header;
     color: $white;
   }
@@ -56,3 +45,8 @@
     border-style: solid;
     border-color: $black;
   }
+
+  /* TODO: check for redundancies. this is a little kludge because the tailwind styles for the modals differed a little so I need to check for redundancy and go with whatever looks better */
+ .modal-close {
+   @apply fixed top-6 right-6 text-6xl not-italic cursor-pointer transition-all hover:text-zinc-500;
+ }

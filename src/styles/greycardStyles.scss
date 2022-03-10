@@ -9,8 +9,73 @@
 
 .grey-match-card {
     @include cards.base;
+    background-color: $yellow;
+    color: $darkestYellow;
+    border-color: $darkYellow;
   }
 
-.gray-match-text {
+.grey-match-text {
     @include cards.textbit;
   }
+
+  
+.grey-match-title {
+    @include cards.title;
+  }
+    
+.grey-match-opponent {
+    @include cards.opponent;
+  }
+    
+.grey-match-user {
+    @include cards.username;
+    color: $darkYellow;
+  }
+    
+.grey-match-avatar {
+    @include cards.avatar;
+  }
+    
+.grey-match-content {
+    @include cards.content;
+  }
+    
+.grey-match-lastplay {
+    @include cards.lastplay;
+  }
+
+ .grey-match-text {
+    @include cards.textbit;
+    }
+    
+  .grey-match-playbox {
+    @include cards.playbox;
+    background-color: $darkGrey;
+    color: $lightestGrey;
+    }
+    
+  .grey-match-button {
+    @include buttonBase.base;
+    background-color: $lightestGrey;
+    color: $darkestGrey;
+    }
+    
+  .grey-match-button:hover {
+    @include buttonBase.base;
+    background-color: $lightestGrey;
+    color: $darkGrey;
+    }
+
+    .grey-match-button-hollow {
+        @include buttonBase.base;
+        background-color: transparent;
+        color: $darkGrey;
+        border-width: 2px;
+        border-color: $darkGrey;
+        }
+        
+      .grey-match-button-hollow:hover {
+        @include buttonBase.base;
+        background-color: $lightGrey;
+        color: $darkestGrey;
+        }

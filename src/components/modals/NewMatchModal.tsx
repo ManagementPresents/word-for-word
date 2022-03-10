@@ -123,11 +123,11 @@ const NewMatchModal: FC<Props> = ({
         <Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={isLobbyReturn}>
             {(!isSpecificPlayer && !isOpenMatch) && 
                 <>
-                    <h2 className="text-xl text-center font-bold tracking-tight modals-header md:text-2xl">Start a New Match</h2>    
+                    <h2 className="modal-header">Start a New Match</h2>    
 
                     <p className="modals-body">blah blah blah basic rules/instructions.</p>
                     
-                    <div className="flex flex-col gap-y-2">
+                    <div className="modal-buttonzone">
                         {/* TODO: Ensure data-tip works with this new component */}
                         <Button data-tip="This mode is not yet available. Check back soon!" color="yellow" disabled={true} copy="Invite Specific Player" onClick={(e: any) => {
                             e.preventDefault();
@@ -146,16 +146,16 @@ const NewMatchModal: FC<Props> = ({
 
             {isSpecificPlayer && 
                 <>
-                    <h2 className="text-xl text-center font-bold tracking-tight modals-header md:text-2xl">Invite Specific Player</h2>   
+                    <h2 className="modal-header">Invite Specific Player</h2>   
 
                     <p className="modals-body">Get a match link only you and a specific player can use.</p>
 
-                    <div className="flex justify-center flex-col">
+                    <div className="modal-label">
                         <span>Your Word</span>
                         <input type="text" className="text-black"></input>
                     </div>
 
-                    <div className="flex justify-center flex-col">
+                    <div className="modal-label">
                         <span>Enter user email</span>
                         <input type="text" className="text-black pd-2" placeholder="User's email"></input>
                     </div> 
@@ -163,9 +163,9 @@ const NewMatchModal: FC<Props> = ({
                     {specificMatchLink ?
                         <input type="text" />
                         :
-                        <div className="flex justify-center flex-col gap-y-2">
-                            <button className="green-style hover:green-hover font-bold py-2 px-4 rounded w-full">Generate Link</button>
-                            <button className="yellow hover:yellow-hover text-black font-bold py-2 px-4 rounded w-full" onClick={() => {
+                        <div className="modal-buttonzone">
+                            <button className="green-button">Generate Link</button>
+                            <button className="yellow-button" onClick={() => {
                                 setIsOpenMatch(false);
                                 setIsSpecificPlayer(false);
                             }}>Go Back</button>
@@ -176,11 +176,11 @@ const NewMatchModal: FC<Props> = ({
 
             {isOpenMatch && 
                 <>  
-                    <h2 className="text-xl text-center font-bold tracking-tight modals-header md:text-2xl">Create Open Match</h2>   
+                    <h2 className="modal-header">Create Open Match</h2>   
 
                     <p className="modals-body">Play with the first person who opens the link!</p>
 
-                    <div className="flex justify-center flex-col gap-y-2">
+                    <div className="modal-label">
                         <span>Your Word</span>
                         
                         <WordleInput 
@@ -192,7 +192,7 @@ const NewMatchModal: FC<Props> = ({
 
                     <div className={`flex justify-center flex-col ${openMatchLink ? 'gap-y-6' : 'gap-y-3'}`}>
                         {openMatchLink ? 
-                            <div className="flex flex-col gap-y-2">
+                            <div className="modal-buttonzone">
                                 <CopyInput copyText={openMatchLink} />
                             </div>
                             :                                     

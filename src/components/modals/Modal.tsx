@@ -47,12 +47,12 @@ const Modal: FC<Props> = ({
                         <i className="fixed top-6 right-6 p-1 rounded-full cursor-pointer" onClick={() => navigate("/lobby")} >
                             <Lobby className="h-[50px] w-[50px]" />
                         </i> : 
-                        <i className="fixed top-6 right-6 text-6xl not-italic cursor-pointer transition-all hover:text-zinc-500" onClick={onRequestClose}>
+                        <i className="modal-close" onClick={onRequestClose}>
                             'X'
                         </i>
                     } 
 
-                    <div className="flex justify-center flex-col text-xs mx-auto gap-y-4 p-[2.5rem] md:text-base md:gap-y-8 md:p-12 md:max-w-lg">
+                    <div className="modals-style">
                         {children}
                     </div>
                 </Fragment>
