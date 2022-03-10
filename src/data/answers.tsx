@@ -1028,6 +1028,7 @@ const answers = [
   'jokes',
   'jokey',
   'jolly',
+  'jorts',
   'joust',
   'judge',
   'juice',

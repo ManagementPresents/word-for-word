@@ -4073,6 +4073,7 @@ const words: { [key: string]: boolean } = {
   jones: true,
   jooks: true,
   joram: true,
+  jorts: true,
   jorum: true,
   jotas: true,
   jotty: true,

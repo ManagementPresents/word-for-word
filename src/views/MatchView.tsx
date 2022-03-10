@@ -1,18 +1,18 @@
-//Adding Firebase imports
+// Adding Firebase imports
 import { doc, setDoc, getDoc, updateDoc, arrayUnion, } from "firebase/firestore"; 
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from "react-router-dom";
 
-//Adding animate import
+// Adding animate import
 import 'animate.css';
 
 import { Keyboard } from '../components/Keyboard'
 import Modal from '../components/modals/Modal';
 import Loading from '../components/Loading';
 import Button from '../components/buttons/Button';
-import WordleInput from "../components/WordleInput";
-import LoadingButton from "../components/buttons/LoadingButton";
 import CopyInput from "../components/CopyInput";
+import EndTurnModal from '../components/modals/EndTurnModal';
+import NewMatchModal from "../components/modals/NewMatchModal";
 
 import useStore from '../utils/store';
 import { 
@@ -20,30 +20,18 @@ import {
     numericalObjToArray, 
     updateCurrentTurn, 
     getCurrentTurn,
-    getMatchOpponentId,
-    addTurn,
 } from "../utils/misc";
-import { validateWordle } from "../utils/validation";
 import { letters, } from '../constants'
-import CellStatus from '../interfaces/CellStatus';
 import { renderWordleSquares } from "../utils/wordUtils";
 import Turn from "../interfaces/Turn";
 import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
-import ValidationError from "../interfaces/ValidationError";
 import Cell from '../interfaces/match/Cell';
+import GameState from "../interfaces/GameState";
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { ReactComponent as Lobby } from '../data/Lobby.svg'
 
 const words = require('../data/words').default as { [key: string]: boolean }
-
-const state = {
-  playing: 'playing',
-  won: 'won',
-  lost: 'lost',
-}
 
 export const difficulty = {
   easy: 'easy',
@@ -55,7 +43,6 @@ interface State {
   answer: '',
   gameState: string
   board: Cell[][]
-  cellStatuses: string[][]
   // Will be zero indexed
   currentRowIndex: number
   currentCol: number
@@ -66,18 +53,16 @@ interface State {
 function MatchView() {
     const initialStates: State = {
         answer: '',
-        gameState: state.playing,
-        /* 
-            TODO: Probably a better way to do this. May not even be necessary once the board logic is properly figured out
-        */
+        gameState: GameState.PLAYING,
+        // TODO: Probably a better way to do this. May not even be necessary once the board logic is properly figured out
         board: [
             Array(5).fill(0).map(() => { return { letter: '', status: 'unguessed' }}),
             Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
             Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
             Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
             Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
+            Array(5).fill(0).map(() => ({ letter: '', status: 'unguessed' } as Cell)),
         ],
-        cellStatuses: Array(6).fill(Array(5).fill('unguessed')),
         currentRowIndex: 0,
         currentCol: 0,
         keyboardStatus: () => {
@@ -93,18 +78,13 @@ function MatchView() {
     }
 
     const [gameState, setGameState] = useState('playing');
-    const [cellStatuses, setCellStatuses] = useState(initialStates.cellStatuses);
     const [currentRowIndex, setCurrentRowIndex] = useState(initialStates.currentRowIndex);
     const [currentCol, setCurrentCol] = useState(initialStates.currentCol);
     const [keyboardStatus, setKeyboardStatus] = useState(initialStates.keyboardStatus());
     const [submittedInvalidWord, setSubmittedInvalidWord] = useState(initialStates.submittedInvalidWord);
     const [nextWordle, setNextWordle] = useState('');
-    const [isNextWordleReady, setIsNextWordleReady] = useState(false);
-    const [isSendingWordle, setIsSendingWordle] = useState(false);
     const [matchLink, setMatchLink] = useState('');
-
-    const eg: { [key: number]: string } = {}
-    const [exactGuesses, setExactGuesses] = useState(eg);
+    const [isOpenMatchChallenge, setIsOpenMatchChallenge] = useState(false);
 
     const navigate = useNavigate();
 
@@ -159,27 +139,14 @@ function MatchView() {
         }
     }
 
-  // returns an array with a boolean of if the word is valid and an error message if it is not
-  const isValidWord = (word: string): [boolean] | [boolean, string] => {
-    if (word.length < 5) return [false, `please enter a 5 letter word`]
+    // returns an array with a boolean of if the word is valid and an error message if it is not
+    const isValidWord = (word: string): [boolean] | [boolean, string] => {
+        if (word.length < 5) return [false, `please enter a 5 letter word`]
 
-    if (!words[word.toLowerCase()]) return [false, `${word} is not a valid word. Please try again.`]
-    
-    return [true]
+        if (!words[word.toLowerCase()]) return [false, `${word} is not a valid word. Please try again.`]
 
-    // const guessedLetters = Object.entries(keyboardStatus).filter(([letter, letterStatus]) =>
-    //   [status.yellow, status.green].includes(letterStatus)
-    // )
-
-
-    // const yellowsUsed = guessedLetters.every(([letter, _]) => { return word.includes(letter) })
-    // const greensUsed = Object.entries(exactGuesses).every(
-    //   ([position, letter]) => word[parseInt(position)] === letter
-    // )
-
-    // if (!yellowsUsed || !greensUsed)
-    //   return [false, `In hard mode, you must use all the hints you've been given.`]
-  }
+        return [true]
+    }
 
     const onEnterPress = () => {
         // TODO: Probably not necessary to clone this, but it makes me feel safe
@@ -243,42 +210,42 @@ function MatchView() {
     setCurrentCol((prev: number) => prev - 1)
   }
 
-const updateCells = (word: string, rowNumber: number): Cell[][] => {
-    // TODO: Kludge, need to ensure capitalization (or lack thereof) for answers and guesses is standardized
-    word = word.toUpperCase();
+    const updateCells = (word: string, rowNumber: number): Cell[][] => {
+        // TODO: Kludge, need to ensure capitalization (or lack thereof) for answers and guesses is standardized
+        word = word.toUpperCase();
 
-    const fixedLetters: { [key: number]: string } = {}
+        const fixedLetters: { [key: number]: string } = {}
 
-    const newBoard = [...board];
-    newBoard[rowNumber] = [...board[rowNumber]];
+        const newBoard = [...board];
+        newBoard[rowNumber] = [...board[rowNumber]];
 
-    const wordLength = word.length;
-    const answerLetters: string[] = answer.split('');
+        const wordLength = word.length;
+        const answerLetters: string[] = answer.split('');
 
-    // Set all to gray
-    for (let i = 0; i < wordLength; i++) {
-        newBoard[rowNumber][i].status = 'incorrect';
-    }
-
-    // Check greens
-    for (let i = wordLength - 1; i >= 0; i--) {
-        if (word[i] === answer[i]) {
-            newBoard[rowNumber][i].status = 'correct';
-            answerLetters.splice(i, 1)
-            fixedLetters[i] = answer[i]
+        // Set all to gray
+        for (let i = 0; i < wordLength; i++) {
+            newBoard[rowNumber][i].status = 'incorrect';
         }
-    }
 
-    // check yellows
-    for (let i = 0; i < wordLength; i++) {
-        if (answerLetters.includes(word[i]) && newBoard[rowNumber][i].status !== 'correct') {
-            newBoard[rowNumber][i].status = 'misplaced';
-            answerLetters.splice(answerLetters.indexOf(word[i]), 1)
+        // Check greens
+        for (let i = wordLength - 1; i >= 0; i--) {
+            if (word[i] === answer[i]) {
+                newBoard[rowNumber][i].status = 'correct';
+                answerLetters.splice(i, 1)
+                fixedLetters[i] = answer[i]
+            }
         }
-    }
 
-    return newBoard;
-}
+        // check yellows
+        for (let i = 0; i < wordLength; i++) {
+            if (answerLetters.includes(word[i]) && newBoard[rowNumber][i].status !== 'correct') {
+                newBoard[rowNumber][i].status = 'misplaced';
+                answerLetters.splice(answerLetters.indexOf(word[i]), 1)
+            }
+        }
+
+        return newBoard;
+    }
 
     const isRowAllGreen = (row: Cell[]) => {
         return row.every((cell: Cell) => cell.status ===  'correct')
@@ -311,7 +278,6 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
         db, 
         setOpponentPlayer, 
         opponentPlayer, 
-        matchOpponents,
         currentMatch, 
         user,
         setCurrentMatch, 
@@ -323,12 +289,13 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
     const [answer, setAnswer] = useState('');
     const [board, setBoard] = useState(initialStates.board);
     const [isEndTurnModalOpen, setIsEndTurnModalOpen] = useState(false);
-    const [wordleValidationErrors, setWordleValidationErrors] = useState([]);
     const [isLoadingMatch, setIsLoadingMatch] = useState(true);
     const [isExitModalOpen, setIsExitModalOpen] = useState(false);
 
     const handleCloseEndTurnModal = () => {
-        setIsEndTurnModalOpen(false);
+        // navigate('/lobby');
+        // TODO: Right now, if this modal closes, we shoot the player back to the lobby. It seems like a bad idea, if the user taps off the modal, to just close it normally and freeze them in a finished game.
+        console.log('intentionally do nothing');
     }
 
     const handleOpenHowToPlay = () => {
@@ -378,58 +345,6 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
         }
     }
 
-    const handleValidateWordle = (wordle: string  = ''): void => {
-        // TODO: this 'message' property can be refactored away when we stop using 'password-validator.js'
-        const validationErrors: ValidationError[] = validateWordle(wordle).map(error => ({ message: error } as ValidationError));
-
-        // @ts-ignore
-        setWordleValidationErrors(validationErrors); 
-
-        if (!validationErrors.length) {
-            setNextWordle(wordle);
-            setIsNextWordleReady(true);
-        } else {
-            setIsNextWordleReady(false);
-        }
-    }
-
-    const handleSendWordle = async () => {
-        const opponentId: string = getMatchOpponentId(user, currentMatch);
-
-        const newTurn: Turn = {
-            activePlayer: opponentId,
-            currentTurn: true,
-            guesses: {},
-            keyboardStatus: {},
-            turnState: 'playing',
-            wordle: nextWordle,
-        };
-        const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
-            turn.currentTurn = false;
-            // TODO: This state obviously needs to depend on whether they won or lost
-            turn.turnState = 'won';
-
-            return turn;
-        });
-        const newTurns: Turn[] = addTurn(updatedTurns, newTurn);
-
-        setIsSendingWordle(true);
-
-        const currentMatchRef = doc(db, 'matches', currentMatch.id);
-
-        await setDoc(currentMatchRef, {
-            turns: newTurns,
-        }, { merge: true });
-
-        /*
-            TODO: Set the local state so we see UI updates
-            In the long term, we might need to think of the best way to keep local state and firestore in sync
-            (something similar to, but not quite, ember data)
-        */
-        setCurrentMatch({...currentMatch, turns: newTurns});
-        setIsSendingWordle(false);
-    }
-
     const handleCloseExitModal = () => {
         console.log('leave the match');
     }
@@ -440,21 +355,38 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
             return row.every((cell) => cell.status !== 'unguessed');
         });
 
-        if (gameState === state.playing) {                    
-            if (lastFilledRow && isRowAllGreen(lastFilledRow)) {
-                setGameState(state.won);
+        if (gameState === GameState.PLAYING) {   
+            const isMatchWon: boolean = (lastFilledRow && isRowAllGreen(lastFilledRow)) as boolean;
+            const isGameLost: boolean = (currentRowIndex === 6) as boolean;
+
+            if (isMatchWon || isGameLost) {
+                console.log('FUCK', currentMatch)
+                if (!currentMatch.isMatchEnded) {
+                    const currentMatchRef = doc(db, 'matches', currentMatch.id);
+                    
+                    (async () => {
+                        await setDoc(currentMatchRef, {
+                            isMatchEnded: true,
+                        }, { merge: true });
+                    })();
+                }
+            }
+
+            if (isMatchWon) {
+                setGameState(GameState.WON);
 
                 /* 
                     TODO: It feels abrupt showing this modal with no delay.
                     In the long term, perhaps a fun victory animation? 
                 */
-                setTimeout(() => {
+                setTimeout(async () => {
                     setIsEndTurnModalOpen(true);
                 }, 500);
-            } else if (currentRowIndex === 6) {
-                setGameState(state.lost);
-                setTimeout(() => {
-                    setIsEndTurnModalOpen(false);
+            } else if (isGameLost) {
+                setGameState(GameState.LOST);
+
+                setTimeout(async () => {
+                    setIsEndTurnModalOpen(true);
                 }, 500);
             }
         }
@@ -466,9 +398,6 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
     ]);
 
     useEffect(() => {
-        // TODO: Clunky way to ensure we see the validation errors the first time the wordle input renders
-        handleValidateWordle();
-
         (async () => {
             // TODO: This runs every time there's an update to user. This could potentially lead to this running multiple times, which would not be good.
             if (user) {
@@ -554,6 +483,7 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
             >
               <Lobby />
             </button> 
+            
             <h1 className="flex-1 text-center text-xl xxs:text-2xl sm:text-4xl tracking-wide font-bold font-righteous">
               Word for Word
             </h1>
@@ -652,50 +582,26 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
                             </div>
                         </Modal>
 
-                        <Modal isOpen={isEndTurnModalOpen} onRequestClose={handleCloseEndTurnModal}>
-                            {/* TODO: Think about using a random "Word for Word" generator here */}
-                            <div className="flex flex-col gap-y-2">
-                                <h1 className="text-4xl text-center">
-                                    Turn 1
-                                </h1>
+                        <EndTurnModal 
+                            isOpen={isEndTurnModalOpen} 
+                            onRequestClose={handleCloseEndTurnModal} 
+                            nextWordle={nextWordle} 
+                            setNextWordle={setNextWordle} 
+                            gameState={gameState} 
+                            setIsOpenMatchChallenge={setIsOpenMatchChallenge} 
+                            setIsEndTurnModalOpen={setIsEndTurnModalOpen}
+                        />
 
-                                <div className="flex flex-row items-center justify-center gap-x-3">
-                                    <div className="flex flex-col gap-y-2">
-                                        <FontAwesomeIcon icon={faCircleUser} size='4x' />
-                                        <span>{opponentPlayer.email}</span>
-                                    </div>
-
-                                    <span>vs</span>
-
-                                    <div className="flex flex-col gap-y-2">
-                                        <FontAwesomeIcon icon={faCircleUser} size='4x' />
-                                        <span>{user.email}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <span className="yellow-font uppercase text-center text-[24px] md:text-[42px]">You guessed their word!</span>
-
-                            <div className="flex flex-row gap-x-2 justify-center">
-                                {renderWordleSquares(answer, 'green')}
-                            </div>
-
-                            <div className="flex flex-col gap-y-2 text-center mx-auto md:min-w-[250px]">
-                                <span className="text-[20px] md:text-[28px]">Now it's your turn!</span>
-
-                                <span className="text-[12px] md:text-[16px]">Send them a word right back!</span>
-                                <WordleInput validationErrors={wordleValidationErrors} handleValidationErrors={(e: React.ChangeEvent<HTMLInputElement>) => { handleValidateWordle(e.target.value) }} />
-                            </div>
-
-                            {/* TODO: Hook up isLoading and onClick props */}
-                            <LoadingButton copy={'Send Wordle'} isLoadingCopy={'Sending Wordle...'} color='green' isLoading={isSendingWordle} disabled={!!wordleValidationErrors.length} onClick={handleSendWordle} />
-
-                            <div className="flex flex-row gap-x-1 justify-center items-center">
-                                <span className="basis-full">Tired of this chicanery? </span>
-
-                                <Button copy="Forfeit Game" color="gray" onClick={() => { console.log('forfeit game')}} />
-                            </div>
-                        </Modal>
+                        <NewMatchModal 
+                            isOpen={isOpenMatchChallenge} 
+                            onRequestClose={() => console.log('close')} 
+                            returnAction={() => {
+                                setIsOpenMatchChallenge(false);
+                                setIsEndTurnModalOpen(true);
+                            }}
+                            returnCopy={'Return'}
+                            isLobbyReturn={true}
+                        />
                         
                         <Modal isOpen={isExitModalOpen} onRequestClose={handleCloseExitModal}>    
                             <h1 className="text-4xl text-center">
@@ -718,13 +624,13 @@ const updateCells = (word: string, rowNumber: number): Cell[][] => {
                             <Button color='yellowHollow' onClick={() => navigate('/lobby')} copy="Return to Lobby"></Button>
                         </Modal>
 
-                        <div className={`h-auto relative mt-6 ${gameState === state.playing ? '' : 'invisible'}`}>
+                        <div className={`h-auto relative mt-6 ${gameState === GameState.PLAYING ? '' : 'invisible'}`}>
                             <Keyboard
                             keyboardStatus={keyboardStatus}
                             addLetter={addLetter}
                             onEnterPress={onEnterPress}
                             onDeletePress={onDeletePress}
-                            gameDisabled={gameState !== state.playing || isLandingModalOpen || isHowToPlayModalOpen}
+                            gameDisabled={gameState !== GameState.PLAYING || isLandingModalOpen || isHowToPlayModalOpen}
                             />
                         </div>
                     </>

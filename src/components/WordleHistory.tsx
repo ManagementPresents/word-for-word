@@ -16,7 +16,6 @@ interface Props {
 const WordleHistory: FC<Props> = ({ guesses, turn, matchOpponent, }: Props) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
-    console.log({ guesses });
     let guessesAllButLast: Cell[][] = guesses.slice(0, -1) as Cell[][];
     let lastGuess: Cell[] = guesses.slice(-1)[0] as Cell[];
 
@@ -42,7 +41,7 @@ const WordleHistory: FC<Props> = ({ guesses, turn, matchOpponent, }: Props) => {
                     <span>Your Word</span>
                 </div>
 
-                <div className="flex flex-row gap-x-2" onClick={ () => setIsExpanded(!isExpanded) }>
+                <div className="flex flex-row gap-x-2 cursor-pointer" onClick={ () => setIsExpanded(!isExpanded) }>
                     {renderWordleSquaresComplete(lastGuess)}
                 </div>
 
@@ -69,12 +68,12 @@ const WordleHistory: FC<Props> = ({ guesses, turn, matchOpponent, }: Props) => {
                     {guesses.length ? `Score: ${guesses.length}` : '?'}/6
                 </div>
 
-                <div className="flex flex-row gap-x-2" onClick={ () => setIsExpanded(!isExpanded) }>
+                <div className="flex flex-row gap-x-2 cursor-pointer" onClick={ () => setIsExpanded(!isExpanded) }>
                     {renderWordleSquaresComplete(lastGuess)}
                 </div>
 
                 <div className="flex bg-[#775568] text-[12px] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
-                    <span>Your Word</span>
+                    <span>Their Word</span>
                 </div>
             </div>
         </div>

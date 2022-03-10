@@ -3,13 +3,13 @@ import { FC, useState, } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { faUserClock } from "@fortawesome/free-solid-svg-icons";
-import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
 
 import Match from '../interfaces/Match';
 import { renderWordleSquares } from '../utils/wordUtils';
 import { 
     getMatchOpponentId,
     isPlayerCurrentTurn,
+    getLastPlayedWordByPlayerId
 } from '../utils/misc';
 import useStore from '../utils/store';
 
@@ -27,8 +27,8 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
         matchOpponents,
     } = useStore();
 
-    const [isUserTurn, setIsUserTurn] = useState(isPlayerCurrentTurn(match, user.uid));
-    const [matchOpponent, setIsMatchOpponent] = useState(matchOpponents[getMatchOpponentId(user, match)]);
+    const [isUserTurn] = useState(isPlayerCurrentTurn(match, user.uid));
+    const [matchOpponent] = useState(matchOpponents[getMatchOpponentId(user, match)]);
  
     // TODO: I'm sure there's room for even more abstraction for the repetition across these functions
 
@@ -88,7 +88,6 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
         }
     }
 
-
     const handleCardClick = () => {
         setSelectedMatch(match);
         setIsLobbyMatchModalOpen(true);
@@ -101,7 +100,6 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
         if (!matchOpponent || (matchOpponent && !isUserTurn)) return 'yellow';
     }
 
-
     return (
         <div onClick={handleCardClick} className={`${handleCardColor()}-match-card ${handleCardColor()}-match-lastplay`}>
             <div className="card-label">
@@ -111,7 +109,7 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 
             {/* TODO: investigate repsonsiveness at REALLY small screen sizes ( < 360px) */}
             <div className={`${handleCardColor()}-match-playbox`}>
-                {renderWordleSquares(match.turns.find((turn) => turn.currentTurn)?.wordle as string)}
+                {renderWordleSquares(getLastPlayedWordByPlayerId(user.uid, match.turns))}
             </div>
 
             {/* 

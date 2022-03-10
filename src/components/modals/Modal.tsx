@@ -1,6 +1,8 @@
 import ReactModal from 'react-modal';
 import { FC, Fragment, } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+import { ReactComponent as Lobby } from '../../data/Lobby.svg'
 
 ReactModal.setAppElement('#root');
  
@@ -27,13 +29,28 @@ interface Props {
     isOpen: boolean, 
     onRequestClose: any,
     children: any,
+    isLobbyReturn?: boolean,
 }
 
-const Modal: FC<Props> = ({ isOpen, onRequestClose, children, }: Props) => {
+const Modal: FC<Props> = ({ 
+    isOpen, 
+    isLobbyReturn,
+    onRequestClose, 
+    children, 
+}: Props) => {
+    const navigate = useNavigate();
+
     return (
             <ReactModal isOpen={isOpen} onRequestClose={onRequestClose} style={modalStyle} className="modals-style">
                 <Fragment>
-                    <i className="modal-close" onClick={onRequestClose}>X</i>
+                    {isLobbyReturn ?
+                        <i className="fixed top-6 right-6 p-1 rounded-full cursor-pointer" onClick={() => navigate("/lobby")} >
+                            <Lobby className="h-[50px] w-[50px]" />
+                        </i> : 
+                        <i className="modal-close" onClick={onRequestClose}>
+                            'X'
+                        </i>
+                    } 
 
                     <div className="modals-style">
                         {children}
