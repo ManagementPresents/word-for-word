@@ -44,39 +44,38 @@
     @include cards.lastplay;
   }
 
-//TODO: this is where you stopped for the night
- .yellow-match-text {
+ .grey-match-text {
     @include cards.textbit;
     }
     
-  .yellow-match-playbox {
+  .grey-match-playbox {
     @include cards.playbox;
-    background-color: $darkYellow;
-    color: $lightestYellow;
+    background-color: $darkGrey;
+    color: $lightestGrey;
     }
     
-  .yellow-match-button {
+  .grey-match-button {
     @include buttonBase.base;
-    background-color: $lightestYellow;
-    color: $darkestYellow;
+    background-color: $lightestGrey;
+    color: $darkestGrey;
     }
     
-  .yellow-match-button:hover {
+  .grey-match-button:hover {
     @include buttonBase.base;
-    background-color: $lightestYellow;
-    color: $darkYellow;
+    background-color: $lightestGrey;
+    color: $darkGrey;
     }
 
-    .yellow-match-button-hollow {
+    .grey-match-button-hollow {
         @include buttonBase.base;
         background-color: transparent;
-        color: $darkestYellow;
+        color: $darkGrey;
         border-width: 2px;
-        border-color: $darkestYellow;
+        border-color: $darkGrey;
         }
         
-      .yellow-match-button-hollow:hover {
+      .grey-match-button-hollow:hover {
         @include buttonBase.base;
-        background-color: $lightestYellow;
-        color: $darkYellow;
+        background-color: $lightGrey;
+        color: $darkestGrey;
         }

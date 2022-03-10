@@ -327,11 +327,11 @@ const Lobby = ({}: Props) => {
                             <input type="text" />
                             :
                             <div className="modal-buttonzone">
-                                <button className="green-style hover:green-hover font-bold py-2 px-4 rounded w-full">Generate Link</button>
-                                <button className="yellow hover:yellow-hover text-black font-bold py-2 px-4 rounded w-full" onClick={() => {
+                                <button className="green-button">Generate Link</button>
+                                <button className="yellow-button" onClick={() => {
                                     setIsOpenMatch(false);
                                     setSpecificPlayer(false);
-                                }}>Go Back</button>
+                                }}>Back</button>
                             </div>
                         }
                     </Fragment>
