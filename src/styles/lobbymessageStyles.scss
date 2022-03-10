@@ -6,6 +6,6 @@
 @tailwind utilities;
 
 .lobby-messages {
-    @include lobbyMessages.base;
-    color: $white;
+	@include lobbyMessages.base;
+	color: $white;
 }

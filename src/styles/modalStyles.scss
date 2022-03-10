@@ -6,47 +6,61 @@
 @tailwind components;
 @tailwind utilities;
 
-/*TODO: the below style isn't as good as the last one*/
-.modals-style{
-  @include modalBase.base;
-  background-color: $darkestGrey;
-  color: $white;
-  border-width: 1;
-  border-style: solid;
-  border-color: $black;
+/*TODO: the below style isn't as good as the last one - need to replace all instances of modals-style with modal
+.modals-style {
+	@include modalBase.base;
+	background-color: $darkestGrey;
+	color: $white;
+	border-width: 1;
+	border-style: solid;
+	border-color: $black;
+	
 }
+
+I think I got them all but I'm nervous so this can hang out here for a minute
+*/
 
 .modal {
-  @include modalBase.base2;
+	@include modalBase.base2;
+	background-color: $darkestGrey;
+	color: $white;
+	border-width: 1;
+	border-style: solid;
+	border-color: $black;
 }
 
- .modal-header {
-    @include modalBase.header;
-    color: $white;
-  }
-  
-  .modal-body {
-    color: $white;
-  }
+.modal-header {
+	@include modalBase.header;
+	color: $white;
+}
 
-  .modal-label {
-    @include modalBase.label;
-  }
+.modal-body {
+	@include modalBase.body;
+	color: $white;
+}
 
-  .modal-buttonzone{
-    @include modalBase.buttonzone;
-  }
+.modal-label {
+	@include modalBase.label;
+}
 
-  .big-modal-style {
-    @include bigmodalBase.base;
-    background-color: $darkestGrey;
-    color: $white;
-    border-width: 1;
-    border-style: solid;
-    border-color: $black;
-  }
+.modal-buttonzone {
+	@include modalBase.buttonzone;
+}
 
-  /* TODO: check for redundancies. this is a little kludge because the tailwind styles for the modals differed a little so I need to check for redundancy and go with whatever looks better */
- .modal-close {
-   @apply fixed top-6 right-6 text-6xl not-italic cursor-pointer transition-all hover:text-zinc-500;
- }
+.modal-content {
+	@include modalBase.content;
+}
+
+.big-modal-style {
+	@include bigmodalBase.base;
+	background-color: $darkestGrey;
+	color: $white;
+	border-width: 1;
+	border-style: solid;
+	border-color: $black;
+}
+
+/* TODO: check for redundancies. this is a little kludge because the tailwind styles for the modals differed a little so I need to check for redundancy and go with whatever looks better */
+.modal-close {
+	@apply fixed top-6 right-6 text-6xl not-italic cursor-pointer transition-all hover:text-zinc-500;
+}

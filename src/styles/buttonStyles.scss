@@ -4,82 +4,81 @@
 @tailwind components;
 @tailwind utilities;
 
-
-.green-button{
-    @include buttonBase.base; 
-    background-color: $green;
-    color: $lightestGreen;
+.green-button {
+	@include buttonBase.base;
+	background-color: $green;
+	color: $lightestGreen;
 }
 
-.green-button:hover{
-    @include buttonBase.base;
-    background-color: $lightGreen;
-    color: $darkGreen;
+.green-button:hover {
+	@include buttonBase.base;
+	background-color: $lightGreen;
+	color: $darkGreen;
 }
 
-.green-button-hollow{
-    @include buttonBase.base;
-    background-color: transparent;
-    color: $green;
-    border: solid 2px $green;
+.green-button-hollow {
+	@include buttonBase.base;
+	background-color: transparent;
+	color: $green;
+	border: solid 2px $green;
 }
 
-.green-button-hollow:hover{
-    @include buttonBase.base;
-    background-color: $green;
-    color: $lightestGreen;
+.green-button-hollow:hover {
+	@include buttonBase.base;
+	background-color: $green;
+	color: $lightestGreen;
 }
 
-.yellow-button{
-    @include buttonBase.base;
-    background-color: $yellow;
-    color: $darkestYellow;
+.yellow-button {
+	@include buttonBase.base;
+	background-color: $yellow;
+	color: $darkestYellow;
 }
-  
+
 .yellow-button:hover {
-    @include buttonBase.base;
-    background-color: $lightestYellow;
-    color: $darkYellow;
+	@include buttonBase.base;
+	background-color: $lightestYellow;
+	color: $darkYellow;
 }
 
-.yellow-button-hollow{
-    @include buttonBase.base;
-    background-color: transparent;
-    border: solid 2px $yellow;
-    color: $yellow;
+.yellow-button-hollow {
+	@include buttonBase.base;
+	background-color: transparent;
+	border: solid 2px $yellow;
+	color: $yellow;
 }
 
-.yellow-button-hollow:hover{
-    @include buttonBase.base;
-    background-color: $yellow;
-    color: $darkestYellow;
+.yellow-button-hollow:hover {
+	@include buttonBase.base;
+	background-color: $yellow;
+	color: $darkestYellow;
 }
 
-.grey-button{
-    @include buttonBase.base;
-    background-color: $lightGrey;
-    color: $white;
+.grey-button {
+	@include buttonBase.base;
+	background-color: $lightGrey;
+	color: $white;
 }
-      
+
 .grey-button:hover {
-    @include buttonBase.base;
-    background-color: $lightestGrey;
-    color: $black;
+	@include buttonBase.base;
+	background-color: $lightestGrey;
+	color: $black;
 }
 
-.grey-button-hollow{
-    @include buttonBase.base;
-    background-color: transparent;
-    color: $lightGrey;
-    border: solid 2px $lightGrey;
+.grey-button-hollow {
+	@include buttonBase.base;
+	background-color: transparent;
+	color: $lightGrey;
+	border: solid 2px $lightGrey;
 }
 
-.grey-button-hollow:hover{
-    @include buttonBase.base;
-    background-color: $lightGrey;
-    color: $white;
+.grey-button-hollow:hover {
+	@include buttonBase.base;
+	background-color: $lightGrey;
+	color: $white;
 }
 
 .close-button {
-    @include buttonBase.close;
+	@include buttonBase.close;
 }

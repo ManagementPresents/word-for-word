@@ -3,17 +3,17 @@
 @tailwind utilities;
 
 @mixin base {
-    @apply h-full flex flex-col items-center justify-center max-w-[300px] mx-auto text-primary;
+	@apply h-full flex flex-col items-center justify-center max-w-[300px] mx-auto text-primary;
 }
 
-@mixin header{
-    @apply text-xl text-center font-bold tracking-tight md:text-2xl;
+@mixin header {
+	@apply text-xl text-center font-bold tracking-tight md:text-2xl;
 }
 
 @mixin label {
-    @apply flex justify-center flex-col;
+	@apply flex justify-center flex-col;
 }
 
-@mixin buttonzone{
-    @apply flex justify-center flex-col gap-y-2;
+@mixin buttonzone {
+	@apply flex justify-center flex-col gap-y-2;
 }

@@ -1,5 +1,5 @@
 interface ValidationError {
-    message: string,
+	message: string;
 }
 
 export default ValidationError;

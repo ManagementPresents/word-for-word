@@ -8,74 +8,73 @@
 /* TODO: ok dipshit you made these modular as fuck, now go make them pretty */
 
 .grey-match-card {
-    @include cards.base;
-    background-color: $yellow;
-    color: $darkestYellow;
-    border-color: $darkYellow;
-  }
+	@include cards.base;
+	background-color: $yellow;
+	color: $darkestYellow;
+	border-color: $darkYellow;
+}
 
 .grey-match-text {
-    @include cards.textbit;
-  }
+	@include cards.textbit;
+}
 
-  
 .grey-match-title {
-    @include cards.title;
-  }
-    
+	@include cards.title;
+}
+
 .grey-match-opponent {
-    @include cards.opponent;
-  }
-    
+	@include cards.opponent;
+}
+
 .grey-match-user {
-    @include cards.username;
-    color: $darkYellow;
-  }
-    
+	@include cards.username;
+	color: $darkYellow;
+}
+
 .grey-match-avatar {
-    @include cards.avatar;
-  }
-    
+	@include cards.avatar;
+}
+
 .grey-match-content {
-    @include cards.content;
-  }
-    
+	@include cards.content;
+}
+
 .grey-match-lastplay {
-    @include cards.lastplay;
-  }
+	@include cards.lastplay;
+}
 
- .grey-match-text {
-    @include cards.textbit;
-    }
-    
-  .grey-match-playbox {
-    @include cards.playbox;
-    background-color: $darkGrey;
-    color: $lightestGrey;
-    }
-    
-  .grey-match-button {
-    @include buttonBase.base;
-    background-color: $lightestGrey;
-    color: $darkestGrey;
-    }
-    
-  .grey-match-button:hover {
-    @include buttonBase.base;
-    background-color: $lightestGrey;
-    color: $darkGrey;
-    }
+.grey-match-text {
+	@include cards.textbit;
+}
 
-    .grey-match-button-hollow {
-        @include buttonBase.base;
-        background-color: transparent;
-        color: $darkGrey;
-        border-width: 2px;
-        border-color: $darkGrey;
-        }
-        
-      .grey-match-button-hollow:hover {
-        @include buttonBase.base;
-        background-color: $lightGrey;
-        color: $darkestGrey;
-        }
+.grey-match-playbox {
+	@include cards.playbox;
+	background-color: $darkGrey;
+	color: $lightestGrey;
+}
+
+.grey-match-button {
+	@include buttonBase.base;
+	background-color: $lightestGrey;
+	color: $darkestGrey;
+}
+
+.grey-match-button:hover {
+	@include buttonBase.base;
+	background-color: $lightestGrey;
+	color: $darkGrey;
+}
+
+.grey-match-button-hollow {
+	@include buttonBase.base;
+	background-color: transparent;
+	color: $darkGrey;
+	border-width: 2px;
+	border-color: $darkGrey;
+}
+
+.grey-match-button-hollow:hover {
+	@include buttonBase.base;
+	background-color: $lightGrey;
+	color: $darkestGrey;
+}

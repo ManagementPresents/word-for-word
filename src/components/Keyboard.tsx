@@ -1,121 +1,121 @@
 import { useEffect, useCallback } from 'react';
 
-import { letters, keyboardLetters, } from '../constants';
+import { letters, keyboardLetters } from '../constants';
 import CellStatus from '../interfaces/CellStatus';
 
 interface Props {
-  keyboardStatus: { [key: string]: string }
-  gameDisabled: boolean
-  onDeletePress: () => void
-  onEnterPress: () => void
-  addLetter: any
+	keyboardStatus: { [key: string]: string };
+	gameDisabled: boolean;
+	onDeletePress: () => void;
+	onEnterPress: () => void;
+	addLetter: any;
 }
 
 const Keyboard = ({
-  keyboardStatus,
-  addLetter,
-  onEnterPress,
-  onDeletePress,
-  gameDisabled,
+	keyboardStatus,
+	addLetter,
+	onEnterPress,
+	onDeletePress,
+	gameDisabled,
 }: Props) => {
-  const getKeyStyle = (letter: string) => {
-    switch (keyboardStatus[letter]) {
-      case 'correct':
-        return CellStatus.CORRECT;
-      case 'misplaced':
-        return CellStatus.MISPLACED;
-      case 'incorrect':
-        return CellStatus.INCORRECT;
-      default:
-        return CellStatus.UNGUESSED;
-    }
-  }
+	const getKeyStyle = (letter: string) => {
+		switch (keyboardStatus[letter]) {
+			case 'correct':
+				return CellStatus.CORRECT;
+			case 'misplaced':
+				return CellStatus.MISPLACED;
+			case 'incorrect':
+				return CellStatus.INCORRECT;
+			default:
+				return CellStatus.UNGUESSED;
+		}
+	};
 
-  const onKeyButtonPress = (letter: string) => {
-    letter = letter.toLowerCase()
-    window.dispatchEvent(
-      new KeyboardEvent('keydown', {
-        key: letter,
-      })
-    )
-  }
+	const onKeyButtonPress = (letter: string) => {
+		letter = letter.toLowerCase();
+		window.dispatchEvent(
+			new KeyboardEvent('keydown', {
+				key: letter,
+			}),
+		);
+	};
 
-  const handleKeyDown = useCallback(
-    (event) => {
-      if (gameDisabled) return
+	const handleKeyDown = useCallback(
+		(event) => {
+			if (gameDisabled) return;
 
-      const letter = event.key.toUpperCase()
+			const letter = event.key.toUpperCase();
 
-      if (letters.includes(letter)) {
-        addLetter(letter)
-      } else if (letter === 'ENTER') {
-        onEnterPress()
-        event.preventDefault()
-      } else if (letter === 'BACKSPACE') {
-        onDeletePress()
-      }
-    },
-    [addLetter, onEnterPress, onDeletePress, gameDisabled]
-  )
+			if (letters.includes(letter)) {
+				addLetter(letter);
+			} else if (letter === 'ENTER') {
+				onEnterPress();
+				event.preventDefault();
+			} else if (letter === 'BACKSPACE') {
+				onDeletePress();
+			}
+		},
+		[addLetter, onEnterPress, onDeletePress, gameDisabled],
+	);
 
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown)
+	useEffect(() => {
+		window.addEventListener('keydown', handleKeyDown);
 
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [handleKeyDown])
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [handleKeyDown]);
 
-  return (
-    <div className="w-full flex flex-col items-center mb-3 select-none h-auto justify-end">
-      {keyboardLetters.map((row, idx) => (
-        <div key={idx} className="w-full flex justify-center my-[5px]">
-          {idx === keyboardLetters.length - 1 && (
-            <button
-              onClick={onEnterPress}
-              className="h-10 xxs:h-14 w-12 px-1 text-xs font-medium mx-[3.5px] rounded keyboard-style text-primary dark:text-primary-dark"
-            >
-              ENTER
-            </button>
-          )}
-          {row.map((letter) => (
-            <button
-              onClick={() => onKeyButtonPress(letter)}
-              key={letter}
-              className="h-10 xxs:h-14 w-[2rem] sm:w-10 mx-[3.5px] text-sm font-medium rounded-[4px] keyboard-style"
-            >
-              <div
-                className={`h-full w-full rounded-[3px] flex items-center justify-center ${getKeyStyle(
-                  letter
-                )}`}
-              >
-                {letter}
-              </div>
-            </button>
-          ))}
-          {idx === keyboardLetters.length - 1 && (
-            <button
-              onClick={onDeletePress}
-              className="h-10 xxs:h-14 w-12 flex items-center justify-center keyboard-style text-primary dark:text-primary-dark mx-[3.5px] text-sm  rounded"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z"
-                />
-              </svg>
-            </button>
-          )}
-        </div>
-      ))}
-    </div>
-  )
-}
+	return (
+		<div className="w-full flex flex-col items-center mb-3 select-none h-auto justify-end">
+			{keyboardLetters.map((row, idx) => (
+				<div key={idx} className="w-full flex justify-center my-[5px]">
+					{idx === keyboardLetters.length - 1 && (
+						<button
+							onClick={onEnterPress}
+							className="h-10 xxs:h-14 w-12 px-1 text-xs font-medium mx-[3.5px] rounded keyboard-style text-primary dark:text-primary-dark"
+						>
+							ENTER
+						</button>
+					)}
+					{row.map((letter) => (
+						<button
+							onClick={() => onKeyButtonPress(letter)}
+							key={letter}
+							className="h-10 xxs:h-14 w-[2rem] sm:w-10 mx-[3.5px] text-sm font-medium rounded-[4px] keyboard-style"
+						>
+							<div
+								className={`h-full w-full rounded-[3px] flex items-center justify-center ${getKeyStyle(
+									letter,
+								)}`}
+							>
+								{letter}
+							</div>
+						</button>
+					))}
+					{idx === keyboardLetters.length - 1 && (
+						<button
+							onClick={onDeletePress}
+							className="h-10 xxs:h-14 w-12 flex items-center justify-center keyboard-style text-primary dark:text-primary-dark mx-[3.5px] text-sm  rounded"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								className="h-6 w-6"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={1.5}
+									d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z"
+								/>
+							</svg>
+						</button>
+					)}
+				</div>
+			))}
+		</div>
+	);
+};
 
-export { Keyboard }
+export { Keyboard };

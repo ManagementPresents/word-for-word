@@ -1,6 +1,5 @@
-
-import { FC, useState, } from 'react';
-import { doc, setDoc, updateDoc, arrayUnion } from "firebase/firestore"; 
+import { FC, useState } from 'react';
+import { doc, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import ReactTooltip from 'react-tooltip';
 
 import CopyInput from '../CopyInput';
@@ -16,194 +15,229 @@ import ValidationError from '../../interfaces/ValidationError';
 import { validateWordle } from '../../utils/validation';
 
 interface Props {
-    isOpen: boolean,
-    onRequestClose: any,
-    returnAction?: any,
-    returnCopy: string,
-    isLobbyReturn?: boolean,
+	isOpen: boolean;
+	onRequestClose: any;
+	returnAction?: any;
+	returnCopy: string;
+	isLobbyReturn?: boolean;
 }
 
-const NewMatchModal: FC<Props> = ({ 
-    isOpen, 
-    onRequestClose,
-    returnAction,
-    returnCopy,
-    isLobbyReturn,
- }: Props) => {
-    const [isSpecificPlayer, setIsSpecificPlayer] = useState(false);
-    const [openMatchLink, setOpenMatchLink] = useState('');
-    const [specificMatchLink, setSpecificMatchLink] = useState('');
-    const [isGeneratingLink, setIsGeneratingLink] = useState(false);
-    const [wordle, setWordle] = useState('');
-    const [isGenerateLinkReady, setIsGenerateLinkReady] = useState(false);
-    const [isOpenMatch, setIsOpenMatch] = useState(false);
-    const [wordleValidationErrors, setWordleValidationErrors] = useState([]);
+const NewMatchModal: FC<Props> = ({
+	isOpen,
+	onRequestClose,
+	returnAction,
+	returnCopy,
+	isLobbyReturn,
+}: Props) => {
+	const [isSpecificPlayer, setIsSpecificPlayer] = useState(false);
+	const [openMatchLink, setOpenMatchLink] = useState('');
+	const [specificMatchLink, setSpecificMatchLink] = useState('');
+	const [isGeneratingLink, setIsGeneratingLink] = useState(false);
+	const [wordle, setWordle] = useState('');
+	const [isGenerateLinkReady, setIsGenerateLinkReady] = useState(false);
+	const [isOpenMatch, setIsOpenMatch] = useState(false);
+	const [wordleValidationErrors, setWordleValidationErrors] = useState([]);
 
-    const { 
-        db,
-        user,
-        addMatch 
-    } = useStore();
+	const { db, user, addMatch } = useStore();
 
-    const handleGoBack = () => {
-        setOpenMatchLink('');
-        setIsGenerateLinkReady(false);
-        setIsGeneratingLink(false);
-        setWordle('');
-        setIsOpenMatch(false);
-        setIsSpecificPlayer(false);
-    }
+	const handleGoBack = () => {
+		setOpenMatchLink('');
+		setIsGenerateLinkReady(false);
+		setIsGeneratingLink(false);
+		setWordle('');
+		setIsOpenMatch(false);
+		setIsSpecificPlayer(false);
+	};
 
-    const handleGenerateLink = async () => {
-        setIsGeneratingLink(true);
+	const handleGenerateLink = async () => {
+		setIsGeneratingLink(true);
 
-        // TODO: Schemas need to be permanently stored and reused
-        const generatedUri = generateMatchUri(3);
-        const newMatch: Match = {
-            isMatchEnded: false,
-            id: generatedUri,
-            players: {
-                guestId: '',
-                hostId: user.uid
-            },
-            winner: '',
-            turns: [{
-                activePlayer: '',
-                currentTurn: true,
-                // TODO: This is an (annoying) concession to firebase, which does not support arrays of arrays at the moment
-                guesses: {},
-                turnState: 'playing',
-                keyboardStatus: {},
-                wordle,
-            }]
-        };
+		// TODO: Schemas need to be permanently stored and reused
+		const generatedUri = generateMatchUri(3);
+		const newMatch: Match = {
+			isMatchEnded: false,
+			id: generatedUri,
+			players: {
+				guestId: '',
+				hostId: user.uid,
+			},
+			winner: '',
+			turns: [
+				{
+					activePlayer: '',
+					currentTurn: true,
+					// TODO: This is an (annoying) concession to firebase, which does not support arrays of arrays at the moment
+					guesses: {},
+					turnState: 'playing',
+					keyboardStatus: {},
+					wordle,
+				},
+			],
+		};
 
-        await setDoc(doc(db, 'matches', generatedUri), newMatch);
+		await setDoc(doc(db, 'matches', generatedUri), newMatch);
 
-        const playerDocRef = doc(db, 'players', user.uid);
+		const playerDocRef = doc(db, 'players', user.uid);
 
-        await updateDoc(playerDocRef, {
-            matches: arrayUnion(generatedUri)
-        })
-        
-        addMatch(newMatch);
+		await updateDoc(playerDocRef, {
+			matches: arrayUnion(generatedUri),
+		});
 
-        setIsGeneratingLink(false);
-        // TODO: This setOpenMatchLink thing probably needs to be abstracted
-        // @ts-ignore
-        setOpenMatchLink(`${process.env.REACT_APP_URL}/match/${generatedUri}`); // TODO: Figure out if there's any danger using this ID in the match url
-    }
+		addMatch(newMatch);
 
-    const handleValidateWordle = (wordle: string  = ''): void => {
-        // TODO: this 'message' property can be refactored away when we stop using 'password-validator.js'
-        const validationErrors: ValidationError[] = validateWordle(wordle).map(error => ({ message: error } as ValidationError));
+		setIsGeneratingLink(false);
+		// TODO: This setOpenMatchLink thing probably needs to be abstracted
+		// @ts-ignore
+		setOpenMatchLink(`${process.env.REACT_APP_URL}/match/${generatedUri}`); // TODO: Figure out if there's any danger using this ID in the match url
+	};
 
-        // @ts-ignore
-        setWordleValidationErrors(validationErrors); 
-        setWordle(wordle);
+	const handleValidateWordle = (wordle: string = ''): void => {
+		// TODO: this 'message' property can be refactored away when we stop using 'password-validator.js'
+		const validationErrors: ValidationError[] = validateWordle(wordle).map(
+			(error) => ({ message: error } as ValidationError),
+		);
 
-        if (!validationErrors.length) {
-            setIsGenerateLinkReady(true);
-        } else {
-            setIsGenerateLinkReady(false);
-        }
-    }
+		// @ts-ignore
+		setWordleValidationErrors(validationErrors);
+		setWordle(wordle);
 
-    const handleModalButtonClick = (selection: string) => {
-        if (selection === 'open') {
-            setIsOpenMatch(true);
-            setIsSpecificPlayer(false);
-        } else if (selection === 'specific') {
-            setIsOpenMatch(false);
-            setIsSpecificPlayer(true);
-        }
-    }
+		if (!validationErrors.length) {
+			setIsGenerateLinkReady(true);
+		} else {
+			setIsGenerateLinkReady(false);
+		}
+	};
 
-    return (
-        <Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={isLobbyReturn}>
-            {(!isSpecificPlayer && !isOpenMatch) && 
-                <>
-                    <h2 className="modal-header">Start a New Match</h2>    
+	const handleModalButtonClick = (selection: string) => {
+		if (selection === 'open') {
+			setIsOpenMatch(true);
+			setIsSpecificPlayer(false);
+		} else if (selection === 'specific') {
+			setIsOpenMatch(false);
+			setIsSpecificPlayer(true);
+		}
+	};
 
-                    <p className="modals-body">blah blah blah basic rules/instructions.</p>
-                    
-                    <div className="modal-buttonzone">
-                        {/* TODO: Ensure data-tip works with this new component */}
-                        <Button data-tip="This mode is not yet available. Check back soon!" color="yellow" disabled={true} copy="Invite Specific Player" onClick={(e: any) => {
-                            e.preventDefault();
-                            return;
-                            //  handleModalButtonClick('specific') 
-                            }}></Button>
+	return (
+		<Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={isLobbyReturn}>
+			{!isSpecificPlayer && !isOpenMatch && (
+				<>
+					<h2 className="modal-header">Start a New Match</h2>
 
-                        <Button color="green" copy="Create Open Match" onClick={() => { handleModalButtonClick('open') }}></Button>
-                    </div>
+					<p className="modals-body">blah blah blah basic rules/instructions.</p>
 
-                    <Button color="yellow" copy={returnCopy} onClick={returnAction} />
+					<div className="modal-buttonzone">
+						{/* TODO: Ensure data-tip works with this new component */}
+						<Button
+							data-tip="This mode is not yet available. Check back soon!"
+							color="grayHollow"
+							disabled={true}
+							copy="Invite Specific Player"
+							onClick={(e: any) => {
+								e.preventDefault();
+								return;
+								//  handleModalButtonClick('specific')
+							}}
+						></Button>
 
-                    <ReactTooltip effect='solid' type='dark' />
-                </>
-            }
+						<Button
+							color="green"
+							copy="Create Open Match"
+							onClick={() => {
+								handleModalButtonClick('open');
+							}}
+						></Button>
+					
 
-            {isSpecificPlayer && 
-                <>
-                    <h2 className="modal-header">Invite Specific Player</h2>   
+					<Button color="yellowHollow" copy={returnCopy} onClick={returnAction} />
 
-                    <p className="modals-body">Get a match link only you and a specific player can use.</p>
+					<ReactTooltip effect="solid" type="dark" />
+					</div>
+				</>
+			)}
 
-                    <div className="modal-label">
-                        <span>Your Word</span>
-                        <input type="text" className="text-black"></input>
-                    </div>
+			{isSpecificPlayer && (
+				<>
+					<h2 className="modal-header">Invite Specific Player</h2>
 
-                    <div className="modal-label">
-                        <span>Enter user email</span>
-                        <input type="text" className="text-black pd-2" placeholder="User's email"></input>
-                    </div> 
+					<p className="modals-body">
+						Get a match link only you and a specific player can use.
+					</p>
 
-                    {specificMatchLink ?
-                        <input type="text" />
-                        :
-                        <div className="modal-buttonzone">
-                            <button className="green-button">Generate Link</button>
-                            <button className="yellow-button" onClick={() => {
-                                setIsOpenMatch(false);
-                                setIsSpecificPlayer(false);
-                            }}>Go Back</button>
-                        </div>
-                    }
-                </>
-            }
+					<div className="modal-label">
+						<span>Your Word</span>
+						<input type="text" className="text-black"></input>
+					</div>
 
-            {isOpenMatch && 
-                <>  
-                    <h2 className="modal-header">Create Open Match</h2>   
+					<div className="modal-label">
+						<span>Enter user email</span>
+						<input
+							type="text"
+							className="text-black pd-2"
+							placeholder="User's email"
+						></input>
+					</div>
 
-                    <p className="modals-body">Play with the first person who opens the link!</p>
+					{specificMatchLink ? (
+						<input type="text" />
+					) : (
+						<div className="modal-buttonzone">
+							<button className="green-button">Generate Link</button>
+							<button
+								className="yellow-button"
+								onClick={() => {
+									setIsOpenMatch(false);
+									setIsSpecificPlayer(false);
+								}}
+							>
+								Go Back
+							</button>
+						</div>
+					)}
+				</>
+			)}
 
-                    <div className="modal-label">
-                        <span>Your Word</span>
-                        
-                        <WordleInput 
-                            validationErrors={wordleValidationErrors} 
-                            handleInputChange={(e: any) => handleValidateWordle(e.target.value)} 
-                            value={wordle} 
-                        />
-                    </div>
+			{isOpenMatch && (
+				<>
+					<h2 className="modal-header">Create Open Match</h2>
 
-                    <div className={`flex justify-center flex-col ${openMatchLink ? 'gap-y-6' : 'gap-y-3'}`}>
-                        {openMatchLink ? 
-                            <div className="modal-buttonzone">
-                                <CopyInput copyText={openMatchLink} />
-                            </div>
-                            :                                     
-                            <LoadingButton disabled={!isGenerateLinkReady} onClick={handleGenerateLink} color="green" isLoading={isGeneratingLink} isLoadingCopy={'Generating...'} copy="Generate Link" />
-                        }
-                        <Button color="yellow" copy="Go Back" onClick={handleGoBack} />
-                    </div>
-                </>
-            }
-        </Modal>
-    );
-}
+					<p className="modal-body">Play with the first person who opens the link!</p>
+
+					<div className="modal-label">
+						<span>Your Word</span>
+
+						<WordleInput
+							validationErrors={wordleValidationErrors}
+							handleInputChange={(e: any) => handleValidateWordle(e.target.value)}
+							value={wordle}
+						/>
+					</div>
+
+					<div
+						className={`flex justify-center flex-col ${
+							openMatchLink ? 'gap-y-6' : 'gap-y-3'
+						}`}
+					>
+						{openMatchLink ? (
+							<div className="modal-buttonzone">
+								<CopyInput copyText={openMatchLink} />
+							</div>
+						) : (
+							<LoadingButton
+								disabled={!isGenerateLinkReady}
+								onClick={handleGenerateLink}
+								color="green"
+								isLoading={isGeneratingLink}
+								isLoadingCopy={'Generating...'}
+								copy="Generate Link"
+							/>
+						)}
+						<Button color="yellow" copy="Go Back" onClick={handleGoBack} />
+					</div>
+				</>
+			)}
+		</Modal>
+	);
+};
 
 export default NewMatchModal;

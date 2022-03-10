@@ -8,59 +8,58 @@
 /* TODO: ok dipshit you made these modular as fuck, now go make them pretty */
 
 .green-match-card {
-    @include cards.base;
-    background-color: $green;
-    color: $lightestGreen;
-    border-color: $darkGreen;
-  }
+	@include cards.base;
+	background-color: $green;
+	color: $lightestGreen;
+	border-color: $darkGreen;
+}
 
 .green-match-title {
-  @include cards.title;
+	@include cards.title;
 }
 
 .green-match-opponent {
-    @include cards.opponent;
+	@include cards.opponent;
 }
 
 .green-match-user {
-    @include cards.username;
-    color: $darkGreen;
+	@include cards.username;
+	color: $darkGreen;
 }
 
 .green-match-avatar {
-    @include cards.avatar;
+	@include cards.avatar;
 }
 
 .green-match-content {
-    @include cards.content;
+	@include cards.content;
 }
 
 .green-match-lastplay {
-    @include cards.lastplay;
+	@include cards.lastplay;
 }
 
 .green-match-text {
-  @include cards.textbit;
+	@include cards.textbit;
 }
 
 .green-match-playbox {
-    @include cards.playbox;
-    background-color: $darkGreen;
-    color: $lightestGreen;
+	@include cards.playbox;
+	background-color: $darkGreen;
+	color: $lightestGreen;
 }
 
 .green-match-button {
-    @include buttonBase.base;
-    background-color: $lightGreen;
-    color: $darkGreen;
+	@include buttonBase.base;
+	background-color: $lightGreen;
+	color: $darkGreen;
 }
 
 .green-match-button:hover {
-  @include buttonBase.base;
-  background-color: $lightestGreen;
-  color: $green;
+	@include buttonBase.base;
+	background-color: $lightestGreen;
+	color: $green;
 }
-
 
 /* not sure why these are here but I don't want to delete them and find out the hard way
 .green-match-card {
@@ -82,5 +81,5 @@
 */
 
 .card-label {
-  @include cards.label;
+	@include cards.label;
 }

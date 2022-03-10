@@ -1,7 +1,7 @@
-import Player from "./Player";
+import Player from './Player';
 
 interface Players {
-    [key: string]: Player;
+	[key: string]: Player;
 }
 
 export default Players;

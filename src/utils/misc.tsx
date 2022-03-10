@@ -1,40 +1,38 @@
-import Turn from "../interfaces/Turn";
-import Match from "../interfaces/Match";
+import Turn from '../interfaces/Turn';
+import Match from '../interfaces/Match';
 import ValidationError from '../interfaces/ValidationError';
 
-const {
-    REACT_APP_URL,
-} = process.env;
+const { REACT_APP_URL } = process.env;
 
 const renderErrors = (errors: ValidationError[], className: string): JSX.Element[] => {
-    let validationMessages: JSX.Element[] = [] as JSX.Element[];
+	let validationMessages: JSX.Element[] = [] as JSX.Element[];
 
-    if (errors.length) {
-        validationMessages = errors.map((error: any) => {
-            /* 
+	if (errors.length) {
+		validationMessages = errors.map((error: any) => {
+			/* 
                 TODO: This 'message' property is only necessary because of the 'password-validator' library.
                 This can be refactored now that we're also using validator.js
             */
-            // @ts-ignore
-            return <div className={className}>{error.message}</div>
-        });
-    } /* else {
+			// @ts-ignore
+			return <div className={className}>{error.message}</div>;
+		});
+	} /* else {
         // TODO: Revisit how the "no errors" case, here, is handled
         validationMessages.push(<div className={'text-[#15B097] text-sm'}>Looking good!</div>);
     }*/
 
-    return validationMessages;
+	return validationMessages;
 };
 
 /*
     TODO: This, and arrayToNumericalObj, are necessary to help get around Firestore's current inability to support arrays of arrays. Instead, we serialize nested arrays into objects where array index maps to a property in the object, and the value at that index becomes the corresponding value in the object.
 */
-const numericalObjToArray = (numericalObj: {[key: string]: any}): any[] => {
-    return Object.values(numericalObj);
+const numericalObjToArray = (numericalObj: { [key: string]: any }): any[] => {
+	return Object.values(numericalObj);
 };
 
-const arrayToNumericalObj = (array: any[]): {[key: string]: any} => {
-    return Object.assign({}, array);
+const arrayToNumericalObj = (array: any[]): { [key: string]: any } => {
+	return Object.assign({}, array);
 };
 
 /*
@@ -47,53 +45,53 @@ const arrayToNumericalObj = (array: any[]): {[key: string]: any} => {
     All this is to say: This function returns an array of /all/ the turns in this match, but /only/ the currentTurn should actually be changed
 */
 const updateCurrentTurn = (turns: Turn[], callback: (turn: Turn) => Turn): Turn[] => {
-    return turns.map((turn: Turn): Turn => {
-        if (!turn.currentTurn) return turn;
+	return turns.map((turn: Turn): Turn => {
+		if (!turn.currentTurn) return turn;
 
-        return callback(turn);
-    }) as Turn[];
+		return callback(turn);
+	}) as Turn[];
 };
 
-const getCurrentTurn = (turns: Turn[] = []): Turn => { 
-    return turns.find((turn: Turn): boolean => turn.currentTurn) as Turn;
+const getCurrentTurn = (turns: Turn[] = []): Turn => {
+	return turns.find((turn: Turn): boolean => turn.currentTurn) as Turn;
 };
 
 const addTurn = (turns: Turn[], turn: Turn): Turn[] => {
-    return turns.concat(turn) as Turn[];
+	return turns.concat(turn) as Turn[];
 };
 
 const createMatchUrl = (match: Match): string => {
-    return `${REACT_APP_URL}/match/${match.id}`;
+	return `${REACT_APP_URL}/match/${match.id}`;
 };
 
 const getMatchOpponentId = (user: any, match: Match): string => {
-    const { uid } = user;
-    const { players } = match;
+	const { uid } = user;
+	const { players } = match;
 
-    return uid === players?.guestId ? players?.hostId : players?.guestId;
+	return uid === players?.guestId ? players?.hostId : players?.guestId;
 };
 
 const isPlayerCurrentTurn = (match: Match = {} as Match, id: string): boolean => {
-    const currentTurn: Turn = getCurrentTurn(match.turns) as Turn;
-    
-    return currentTurn?.activePlayer === id;
-}
+	const currentTurn: Turn = getCurrentTurn(match.turns) as Turn;
+
+	return currentTurn?.activePlayer === id;
+};
 
 const getLastPlayedWordByPlayerId = (id: string, turns: Turn[]): string => {
-    const reversedTurns = [...turns].reverse();
+	const reversedTurns = [...turns].reverse();
 
-    return reversedTurns.find((turn) => turn.activePlayer !== id)?.wordle as string;
-}
+	return reversedTurns.find((turn) => turn.activePlayer !== id)?.wordle as string;
+};
 
 export {
-    renderErrors,
-    numericalObjToArray,
-    arrayToNumericalObj,
-    updateCurrentTurn,
-    getCurrentTurn,
-    addTurn,
-    createMatchUrl,
-    getMatchOpponentId,
-    isPlayerCurrentTurn,
-    getLastPlayedWordByPlayerId,
-}
+	renderErrors,
+	numericalObjToArray,
+	arrayToNumericalObj,
+	updateCurrentTurn,
+	getCurrentTurn,
+	addTurn,
+	createMatchUrl,
+	getMatchOpponentId,
+	isPlayerCurrentTurn,
+	getLastPlayedWordByPlayerId,
+};

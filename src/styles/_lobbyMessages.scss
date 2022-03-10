@@ -5,5 +5,5 @@
 /* FYI - this is stuff for if the player would see a message like "you have no active matches" in a lobby box. Maybe this is a little too specific, but we're here, let's party */
 
 @mixin base {
-    @apply mb-2 text-2xl font-bold tracking-tight dark:text-white;
+	@apply mb-2 text-2xl font-bold tracking-tight dark:text-white;
 }
