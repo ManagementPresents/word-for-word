@@ -168,21 +168,25 @@ const EndTurnModal: FC<Props> = ({
         } else if (gameState === GameState.LOST) {
             return (
                 <div className="flex flex-col items-center gap-y-3">
-                    <Button copy="Rematch?" color="grey" />
+                    <Button copy="Rematch?" color="grey" disabled={true} />
 
-                    <Button copy="Challenge Someone Else" color="grey" onClick={() => {
+                    <Button copy="New Open Match" color="grey" onClick={() => {
                         setIsOpenMatchChallenge(true);
                         setIsEndTurnModalOpen(false);
                     }}/>
 
                     <Button copy="Comfort Yourself, Make Up a Guy" color="grey" onClick={() => navigate('/makeupadude')} />
 
-                    <Button customStyle={'mt-4'} copy="Back to Lobby" color="yellow" onClick={() => navigate('/lobby')} />
+                    <Button customStyle={'mt-4'} copy="Back to Lobby" color="yellow" onClick={handleBackToLobby} />
                 </div>
             );
         }
 
         return <></>;
+    }
+    
+    const handleBackToLobby = () => {
+        navigate('/lobby');
     }
 
     useEffect(() => {
@@ -191,7 +195,7 @@ const EndTurnModal: FC<Props> = ({
     }, []); 
 
     return (
-        <Modal isOpen={isOpen} onRequestClose={onRequestClose}>
+        <Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={true}>
             {/* TODO: Think about using a random "Word for Word" generator here */}
             <div className="flex flex-col gap-y-2">
                 <h1 className="text-4xl text-center">

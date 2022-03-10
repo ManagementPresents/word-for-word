@@ -202,7 +202,7 @@ const Lobby = ({}: Props) => {
                 </div>
             </div>
 
-            <NewMatchModal isOpen={isNewMatchModalOpen} onRequestClose={handleNewMatchModalClose} />
+            <NewMatchModal isOpen={isNewMatchModalOpen} onRequestClose={handleNewMatchModalClose} returnCopy={'Go Back'} />
             
             <PendingModalMatch isOpen={isLobbyMatchModalOpen} onRequestClose={handleLobbyMatchModalClose} />    
         </Fragment>

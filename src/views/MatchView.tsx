@@ -293,7 +293,9 @@ function MatchView() {
     const [isExitModalOpen, setIsExitModalOpen] = useState(false);
 
     const handleCloseEndTurnModal = () => {
-        setIsEndTurnModalOpen(false);
+        // navigate('/lobby');
+        // TODO: Right now, if this modal closes, we shoot the player back to the lobby. It seems like a bad idea, if the user taps off the modal, to just close it normally and freeze them in a finished game.
+        console.log('intentionally do nothing');
     }
 
     const handleOpenHowToPlay = () => {
@@ -353,21 +355,37 @@ function MatchView() {
             return row.every((cell) => cell.status !== 'unguessed');
         });
 
-        if (gameState === GameState.PLAYING) {           
-            if (lastFilledRow && isRowAllGreen(lastFilledRow)) {
+        if (gameState === GameState.PLAYING) {   
+            const isMatchWon: boolean = (lastFilledRow && isRowAllGreen(lastFilledRow)) as boolean;
+            const isGameLost: boolean = (currentRowIndex === 6) as boolean;
+
+            if (isMatchWon || isGameLost) {
+                console.log('FUCK', currentMatch)
+                if (!currentMatch.isMatchEnded) {
+                    const currentMatchRef = doc(db, 'matches', currentMatch.id);
+                    
+                    (async () => {
+                        await setDoc(currentMatchRef, {
+                            isMatchEnded: true,
+                        }, { merge: true });
+                    })();
+                }
+            }
+
+            if (isMatchWon) {
                 setGameState(GameState.WON);
 
                 /* 
                     TODO: It feels abrupt showing this modal with no delay.
                     In the long term, perhaps a fun victory animation? 
                 */
-                setTimeout(() => {
+                setTimeout(async () => {
                     setIsEndTurnModalOpen(true);
                 }, 500);
-            } else if (currentRowIndex === 6) {
+            } else if (isGameLost) {
                 setGameState(GameState.LOST);
 
-                setTimeout(() => {
+                setTimeout(async () => {
                     setIsEndTurnModalOpen(true);
                 }, 500);
             }
@@ -465,6 +483,7 @@ function MatchView() {
             >
               <Lobby />
             </button> 
+            
             <h1 className="flex-1 text-center text-xl xxs:text-2xl sm:text-4xl tracking-wide font-bold font-righteous">
               Word for Word
             </h1>
@@ -574,13 +593,14 @@ function MatchView() {
                         />
 
                         <NewMatchModal 
-                        isOpen={isOpenMatchChallenge} 
+                            isOpen={isOpenMatchChallenge} 
                             onRequestClose={() => console.log('close')} 
                             returnAction={() => {
                                 setIsOpenMatchChallenge(false);
                                 setIsEndTurnModalOpen(true);
                             }}
                             returnCopy={'Return'}
+                            isLobbyReturn={true}
                         />
                         
                         <Modal isOpen={isExitModalOpen} onRequestClose={handleCloseExitModal}>    

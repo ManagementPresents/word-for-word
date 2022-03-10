@@ -29,6 +29,7 @@ const Button: FC<Props> = ({
     if (color === 'grayHollow') return 'grey-button-hollow';
   }
 
+  // TODO: 'disabled' states should not have a hover effect
   return <button className={`${generateClassName() } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} font-bold py-2 px-4 rounded w-full ${customStyle}`} onClick={onClick}>{copy}</button>;
 }
 

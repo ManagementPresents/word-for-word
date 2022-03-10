@@ -19,14 +19,16 @@ interface Props {
     isOpen: boolean,
     onRequestClose: any,
     returnAction?: any,
-    returnCopy?: string,
+    returnCopy: string,
+    isLobbyReturn?: boolean,
 }
 
 const NewMatchModal: FC<Props> = ({ 
     isOpen, 
     onRequestClose,
     returnAction,
-    returnCopy = '',
+    returnCopy,
+    isLobbyReturn,
  }: Props) => {
     const [isSpecificPlayer, setIsSpecificPlayer] = useState(false);
     const [openMatchLink, setOpenMatchLink] = useState('');
@@ -58,6 +60,7 @@ const NewMatchModal: FC<Props> = ({
         // TODO: Schemas need to be permanently stored and reused
         const generatedUri = generateMatchUri(3);
         const newMatch: Match = {
+            isMatchEnded: false,
             id: generatedUri,
             players: {
                 guestId: '',
@@ -117,7 +120,7 @@ const NewMatchModal: FC<Props> = ({
     }
 
     return (
-        <Modal isOpen={isOpen} onRequestClose={onRequestClose}>
+        <Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={isLobbyReturn}>
             {(!isSpecificPlayer && !isOpenMatch) && 
                 <>
                     <h2 className="text-xl text-center font-bold tracking-tight modals-header md:text-2xl">Start a New Match</h2>    
