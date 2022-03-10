@@ -3,7 +3,6 @@ import { FC, useState, } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { faUserClock } from "@fortawesome/free-solid-svg-icons";
-import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
 
 import Match from '../interfaces/Match';
 import { renderWordleSquares } from '../utils/wordUtils';
@@ -89,7 +88,6 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
         }
     }
 
-
     const handleCardClick = () => {
         setSelectedMatch(match);
         setIsLobbyMatchModalOpen(true);
@@ -102,7 +100,6 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
         if (!matchOpponent || (matchOpponent && !isUserTurn)) return 'yellow';
     }
 
-
     return (
         <div onClick={handleCardClick} className={`${handleCardColor()}-match-card ${handleCardColor()}-match-lastplay`}>
             <div className="card-label">
@@ -111,13 +108,8 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
             </div>
 
             {/* TODO: investigate repsonsiveness at REALLY small screen sizes ( < 360px) */}
-<<<<<<< HEAD
-            <div className="flex gap-x-3">
-                {renderWordleSquares(getLastPlayedWordByPlayerId(user.uid, match.turns))}
-=======
             <div className={`${handleCardColor()}-match-playbox`}>
-                {renderWordleSquares(match.turns.find((turn) => turn.currentTurn)?.wordle as string)}
->>>>>>> main
+                {renderWordleSquares(getLastPlayedWordByPlayerId(user.uid, match.turns))}
             </div>
 
             {/* 

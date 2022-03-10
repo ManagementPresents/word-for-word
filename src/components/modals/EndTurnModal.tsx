@@ -155,7 +155,7 @@ const EndTurnModal: FC<Props> = ({ isOpen, onRequestClose, nextWordle, setNextWo
                 <div className="flex flex-col items-center gap-y-3">
                     <Button copy="Rematch?" color="grey" />
                     <Button copy="Challenge Someone Else" color="grey" />
-                    <Button copy="Comfort Yourself, Make Up a Guy" color="grey" onClick={() => navigate('/makeupaguy')} />
+                    <Button copy="Comfort Yourself, Make Up a Guy" color="grey" onClick={() => navigate('/makeupadude')} />
                     <Button copy="Back to Lobby" color="yellow" onClick={() => navigate('/lobby')} />
                 </div>
             );
