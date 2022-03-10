@@ -8,7 +8,13 @@ interface Props {
   onClick?: any,
 }
 
-const Button: FC<Props> = ({ onClick, color, copy, disabled, customStyle }: Props) => {
+const Button: FC<Props> = ({ 
+  onClick, 
+  color, 
+  copy, 
+  disabled, 
+  customStyle 
+}: Props) => {
   const generateClassName = () => {
     if (color === 'green') return 'green-button';
 

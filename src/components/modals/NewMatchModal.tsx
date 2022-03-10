@@ -18,10 +18,17 @@ import { validateWordle } from '../../utils/validation';
 interface Props {
     isOpen: boolean,
     onRequestClose: any,
+    returnAction?: any,
+    returnCopy?: string,
 }
 
-const NewMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
-    const [isSpecificPlayer, setSpecificPlayer] = useState(false);
+const NewMatchModal: FC<Props> = ({ 
+    isOpen, 
+    onRequestClose,
+    returnAction,
+    returnCopy = '',
+ }: Props) => {
+    const [isSpecificPlayer, setIsSpecificPlayer] = useState(false);
     const [openMatchLink, setOpenMatchLink] = useState('');
     const [specificMatchLink, setSpecificMatchLink] = useState('');
     const [isGeneratingLink, setIsGeneratingLink] = useState(false);
@@ -36,8 +43,13 @@ const NewMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
         addMatch 
     } = useStore();
 
-    const handleStartNewMatch = () => {
-
+    const handleGoBack = () => {
+        setOpenMatchLink('');
+        setIsGenerateLinkReady(false);
+        setIsGeneratingLink(false);
+        setWordle('');
+        setIsOpenMatch(false);
+        setIsSpecificPlayer(false);
     }
 
     const handleGenerateLink = async () => {
@@ -85,9 +97,9 @@ const NewMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
 
         // @ts-ignore
         setWordleValidationErrors(validationErrors); 
+        setWordle(wordle);
 
         if (!validationErrors.length) {
-            setWordle(wordle);
             setIsGenerateLinkReady(true);
         } else {
             setIsGenerateLinkReady(false);
@@ -97,10 +109,10 @@ const NewMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
     const handleModalButtonClick = (selection: string) => {
         if (selection === 'open') {
             setIsOpenMatch(true);
-            setSpecificPlayer(false);
+            setIsSpecificPlayer(false);
         } else if (selection === 'specific') {
             setIsOpenMatch(false);
-            setSpecificPlayer(true);
+            setIsSpecificPlayer(true);
         }
     }
 
@@ -112,18 +124,23 @@ const NewMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
 
                     <p className="modals-body">blah blah blah basic rules/instructions.</p>
                     
-                    {/* TODO: Ensure data-tip works with this new component */}
-                    <Button data-tip="This mode is not yet available. Check back soon!" color="yellow" disabled={true} copy="Invite Specific Player" onClick={(e: any) => {
-                        e.preventDefault();
-                        return;
-                        //  handleModalButtonClick('specific') 
-                        }}></Button>
+                    <div className="flex flex-col gap-y-2">
+                        {/* TODO: Ensure data-tip works with this new component */}
+                        <Button data-tip="This mode is not yet available. Check back soon!" color="yellow" disabled={true} copy="Invite Specific Player" onClick={(e: any) => {
+                            e.preventDefault();
+                            return;
+                            //  handleModalButtonClick('specific') 
+                            }}></Button>
 
-                    <Button color="green" copy="Create Open Match" onClick={() => { handleModalButtonClick('open') }}></Button>
+                        <Button color="green" copy="Create Open Match" onClick={() => { handleModalButtonClick('open') }}></Button>
+                    </div>
+
+                    <Button color="yellow" copy={returnCopy} onClick={returnAction} />
 
                     <ReactTooltip effect='solid' type='dark' />
                 </>
             }
+
             {isSpecificPlayer && 
                 <>
                     <h2 className="text-xl text-center font-bold tracking-tight modals-header md:text-2xl">Invite Specific Player</h2>   
@@ -147,7 +164,7 @@ const NewMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
                             <button className="green-style hover:green-hover font-bold py-2 px-4 rounded w-full">Generate Link</button>
                             <button className="yellow hover:yellow-hover text-black font-bold py-2 px-4 rounded w-full" onClick={() => {
                                 setIsOpenMatch(false);
-                                setSpecificPlayer(false);
+                                setIsSpecificPlayer(false);
                             }}>Go Back</button>
                         </div>
                     }
@@ -163,7 +180,11 @@ const NewMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
                     <div className="flex justify-center flex-col gap-y-2">
                         <span>Your Word</span>
                         
-                        <WordleInput validationErrors={wordleValidationErrors} handleValidationErrors={(e: any) => { handleValidateWordle(e.target.value)}} />
+                        <WordleInput 
+                            validationErrors={wordleValidationErrors} 
+                            handleInputChange={(e: any) => handleValidateWordle(e.target.value)} 
+                            value={wordle} 
+                        />
                     </div>
 
                     <div className={`flex justify-center flex-col ${openMatchLink ? 'gap-y-6' : 'gap-y-3'}`}>
@@ -174,7 +195,7 @@ const NewMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
                             :                                     
                             <LoadingButton disabled={!isGenerateLinkReady} onClick={handleGenerateLink} color="green" isLoading={isGeneratingLink} isLoadingCopy={'Generating...'} copy="Generate Link" />
                         }
-                        <Button color="yellow" copy="Go Back" onClick={handleStartNewMatch} />
+                        <Button color="yellow" copy="Go Back" onClick={handleGoBack} />
                     </div>
                 </>
             }

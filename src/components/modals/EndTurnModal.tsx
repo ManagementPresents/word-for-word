@@ -29,9 +29,19 @@ interface Props {
     nextWordle: string,
     setNextWordle: any,
     gameState: string,
+    setIsOpenMatchChallenge: any,
+    setIsEndTurnModalOpen: any,
 }
 
-const EndTurnModal: FC<Props> = ({ isOpen, onRequestClose, nextWordle, setNextWordle, gameState, }: Props) => {
+const EndTurnModal: FC<Props> = ({ 
+    isOpen, 
+    onRequestClose, 
+    nextWordle, 
+    setNextWordle, 
+    gameState, 
+    setIsOpenMatchChallenge,
+    setIsEndTurnModalOpen, 
+}: Props) => {
     const { 
         opponentPlayer, 
         db,
@@ -43,7 +53,6 @@ const EndTurnModal: FC<Props> = ({ isOpen, onRequestClose, nextWordle, setNextWo
     const [answer] = useState(getCurrentTurn(currentMatch.turns)?.wordle.toUpperCase());
     const [wordleValidationErrors, setWordleValidationErrors] = useState([]);
     const [isSendingWordle, setIsSendingWordle] = useState(false);
-    const [isOpenMatchChallenge, setIsOpenMatchChallenge] = useState(false);
 
     const navigate = useNavigate();
 
@@ -138,7 +147,12 @@ const EndTurnModal: FC<Props> = ({ isOpen, onRequestClose, nextWordle, setNextWo
                         <span className="text-[20px] md:text-[28px]">Now it's your turn!</span>
             
                         <span className="text-[12px] md:text-[16px]">Send them a word right back!</span>
-                        <WordleInput validationErrors={wordleValidationErrors} handleValidationErrors={(e: React.ChangeEvent<HTMLInputElement>) => { handleValidateWordle(e.target.value) }} />
+
+                        <WordleInput 
+                            validationErrors={wordleValidationErrors} 
+                            handleInputChange={(e: React.ChangeEvent<HTMLInputElement>) => handleValidateWordle(e.target.value)}
+                            value={nextWordle}
+                        />
                     </div>
             
                     {/* TODO: Hook up isLoading and onClick props */}
@@ -156,11 +170,14 @@ const EndTurnModal: FC<Props> = ({ isOpen, onRequestClose, nextWordle, setNextWo
                 <div className="flex flex-col items-center gap-y-3">
                     <Button copy="Rematch?" color="grey" />
 
-                    <Button copy="Challenge Someone Else" color="grey" onClick={() => setIsOpenMatchChallenge(true)}/>
+                    <Button copy="Challenge Someone Else" color="grey" onClick={() => {
+                        setIsOpenMatchChallenge(true);
+                        setIsEndTurnModalOpen(false);
+                    }}/>
 
                     <Button copy="Comfort Yourself, Make Up a Guy" color="grey" onClick={() => navigate('/makeupadude')} />
 
-                    <Button copy="Back to Lobby" color="yellow" onClick={() => navigate('/lobby')} />
+                    <Button customStyle={'mt-4'} copy="Back to Lobby" color="yellow" onClick={() => navigate('/lobby')} />
                 </div>
             );
         }

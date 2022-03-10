@@ -12,6 +12,7 @@ import Loading from '../components/Loading';
 import Button from '../components/buttons/Button';
 import CopyInput from "../components/CopyInput";
 import EndTurnModal from '../components/modals/EndTurnModal';
+import NewMatchModal from "../components/modals/NewMatchModal";
 
 import useStore from '../utils/store';
 import { 
@@ -83,6 +84,7 @@ function MatchView() {
     const [submittedInvalidWord, setSubmittedInvalidWord] = useState(initialStates.submittedInvalidWord);
     const [nextWordle, setNextWordle] = useState('');
     const [matchLink, setMatchLink] = useState('');
+    const [isOpenMatchChallenge, setIsOpenMatchChallenge] = useState(false);
 
     const navigate = useNavigate();
 
@@ -561,7 +563,25 @@ function MatchView() {
                             </div>
                         </Modal>
 
-                        <EndTurnModal isOpen={isEndTurnModalOpen} onRequestClose={handleCloseEndTurnModal} nextWordle={nextWordle} setNextWordle={setNextWordle} gameState={gameState} />
+                        <EndTurnModal 
+                            isOpen={isEndTurnModalOpen} 
+                            onRequestClose={handleCloseEndTurnModal} 
+                            nextWordle={nextWordle} 
+                            setNextWordle={setNextWordle} 
+                            gameState={gameState} 
+                            setIsOpenMatchChallenge={setIsOpenMatchChallenge} 
+                            setIsEndTurnModalOpen={setIsEndTurnModalOpen}
+                        />
+
+                        <NewMatchModal 
+                        isOpen={isOpenMatchChallenge} 
+                            onRequestClose={() => console.log('close')} 
+                            returnAction={() => {
+                                setIsOpenMatchChallenge(false);
+                                setIsEndTurnModalOpen(true);
+                            }}
+                            returnCopy={'Return'}
+                        />
                         
                         <Modal isOpen={isExitModalOpen} onRequestClose={handleCloseExitModal}>    
                             <h1 className="text-4xl text-center">
