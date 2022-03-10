@@ -1,6 +1,7 @@
 import Turn from './Turn';
 
 interface Match {
+    isMatchEnded: boolean,
     id: string,
     players: {
         guestId: string,

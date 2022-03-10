@@ -12,14 +12,12 @@ import Player from '../../interfaces/Player';
 import Turn from '../../interfaces/Turn';
 import Cell from '../../interfaces/match/Cell';
 import useStore from '../../utils/store';
-import { renderWordleSquaresComplete } from '../../utils/wordUtils';
 import {  
     createMatchUrl,
     getMatchOpponentId,
     isPlayerCurrentTurn,
     numericalObjToArray,
 } from "../../utils/misc";
-import { convertToObject } from 'typescript';
 
 interface Props {
     isOpen: boolean,
@@ -36,6 +34,10 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
     const [matchOpponent, setIsMatchOpponent] = useState({} as Player);
     const [isUserTurn, setIsUserTurn] = useState(isPlayerCurrentTurn(selectedMatch, user.uid));
     const [isOpponentTurn, setIsOpponentTurn] = useState(isPlayerCurrentTurn(selectedMatch, matchOpponent?.id as string));
+
+    useEffect(() => {
+        setIsMatchOpponent(matchOpponents[getMatchOpponentId(user, selectedMatch)]);
+    }, [matchOpponents, selectedMatch]);
 
     useEffect(() => {
         setIsMatchOpponent(matchOpponents[getMatchOpponentId(user, selectedMatch)]);
@@ -78,7 +80,6 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, }: Props) => {
     const renderTurns = () => {
         const isSelectedMatch = Object.keys(selectedMatch).length;
 
-        // TODO: This needs abstraction
         if (isSelectedMatch) {
              const renderedTurns = selectedMatch?.turns.map((turn: Turn) => {
                 const guessesArray: Cell[][] = numericalObjToArray(turn.guesses) as Cell[][];

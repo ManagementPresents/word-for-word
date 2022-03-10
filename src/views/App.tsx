@@ -15,6 +15,7 @@ import Login from './Login';
 import Register from './Register';
 import Lobby from './Lobby';
 import Logout from './Logout';
+import MakeUpADude from "./MakeUpADude";
 
 import useStore from '../utils/store';
 
@@ -69,6 +70,8 @@ const App = ({}: Props) => {
                 <Route path="/register" element={<Register />} />
 
                 <Route path="/logout" element={<Logout />} />
+
+                <Route path='/makeupadude' element={<MakeUpADude />} />
             </Routes>
         </BrowserRouter>
 	)
