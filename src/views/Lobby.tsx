@@ -4,7 +4,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import MatchCard from '../components/MatchCard';
 import Loading from '../components/Loading';
 import Button from '../components/buttons/Button';
-import PendingModalMatch from '../components/modals/LobbyMatchModal';
+import LobbyMatchModal from '../components/modals/LobbyMatchModal';
 import NewMatchModal from '../components/modals/NewMatchModal';
 
 import { getMatchOpponentId } from '../utils/misc';
@@ -231,7 +231,7 @@ const Lobby = ({}: Props) => {
 				returnCopy={'Go Back'}
 			/>
 
-			<PendingModalMatch
+			<LobbyMatchModal
 				isOpen={isLobbyMatchModalOpen}
 				onRequestClose={handleLobbyMatchModalClose}
 			/>
