@@ -8,7 +8,7 @@ interface Props {
 	onClick?: any;
 }
 
-const Button: FC<Props> = ({ onClick, color, copy, disabled, customStyle }: Props) => {
+const Button: FC<Props> = ({ onClick, color, copy, disabled, customStyle = '' }: Props) => {
 	const generateClassName = () => {
 		if (color === 'green') return 'green-button';
 
@@ -28,7 +28,7 @@ const Button: FC<Props> = ({ onClick, color, copy, disabled, customStyle }: Prop
 		<button
 			className={`${generateClassName()} ${
 				disabled ? 'opacity-50 cursor-not-allowed' : ''
-			} font-bold py-2 px-4 rounded w-full ${customStyle}`}
+			}font-bold py-2 px-4 rounded w-full ${customStyle}`}
 			onClick={onClick}
 		>
 			{copy}

@@ -124,8 +124,6 @@ const NewMatchModal: FC<Props> = ({
 				<>
 					<h2 className="modal-header">Start a New Match</h2>
 
-					<p className="modals-body">blah blah blah basic rules/instructions.</p>
-
 					<div className="modal-buttonzone">
 						{/* TODO: Ensure data-tip works with this new component */}
 						<Button
@@ -137,22 +135,21 @@ const NewMatchModal: FC<Props> = ({
 								e.preventDefault();
 								return;
 								//  handleModalButtonClick('specific')
-							}}
-						></Button>
+							}} 
+						/>
 
 						<Button
 							color="green"
 							copy="Create Open Match"
 							onClick={() => {
 								handleModalButtonClick('open');
-							}}
-						></Button>
-					
+							}} 
+						/>
+					</div>
 
 					<Button color="yellowHollow" copy={returnCopy} onClick={returnAction} />
 
 					<ReactTooltip effect="solid" type="dark" />
-					</div>
 				</>
 			)}
 
@@ -199,9 +196,13 @@ const NewMatchModal: FC<Props> = ({
 
 			{isOpenMatch && (
 				<>
-					<h2 className="modal-header">Create Open Match</h2>
+					<section className="modal-header">
+						<h2>
+							Create Open Match
+						</h2>
 
-					<p className="modal-body">Play with the first person who opens the link!</p>
+						<p className="modal-body">Play with the first person who opens the link!</p>
+					</section>
 
 					<div className="modal-label">
 						<span>Your Word</span>
@@ -210,14 +211,9 @@ const NewMatchModal: FC<Props> = ({
 							validationErrors={wordleValidationErrors}
 							handleInputChange={(e: any) => handleValidateWordle(e.target.value)}
 							value={wordle}
+							isReadOnly={!!openMatchLink}
 						/>
-					</div>
 
-					<div
-						className={`flex justify-center flex-col ${
-							openMatchLink ? 'gap-y-6' : 'gap-y-3'
-						}`}
-					>
 						{openMatchLink ? (
 							<div className="modal-buttonzone">
 								<CopyInput copyText={openMatchLink} />
@@ -232,7 +228,8 @@ const NewMatchModal: FC<Props> = ({
 								copy="Generate Link"
 							/>
 						)}
-						<Button color="yellow" copy="Go Back" onClick={handleGoBack} />
+
+						<Button customStyle={'mt-4'} color="yellow" copy="Go Back" onClick={handleGoBack} />
 					</div>
 				</>
 			)}

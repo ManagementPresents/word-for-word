@@ -23,7 +23,7 @@ const CopyInput: FC<Props> = ({ copyText }: Props) => {
 					type="text"
 					readOnly
 					value={copyText}
-					className="text-black cursor-pointer py-1 px-1 text-[12px] sm:py-2 sm:px-2 sm:text-[16px]"
+					className="text-black cursor-pointer py-1 px-1 text-[12px] w-full sm:py-2 sm:px-2 sm:text-[16px]"
 					data-tip="Copied!"
 					data-place="right"
 				/>
