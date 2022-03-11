@@ -73,7 +73,7 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 
 		return (
 			<Button
-				customStyle="mt-4"
+				customStyle="w-full"
 				copy="Cancel Invite"
 				color="grayHollow"
 				onClick={() => {
@@ -146,10 +146,8 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 			<div className="modal-label">
 				<h3 className="text-[16px]">Match Link</h3>
 
-				<div className="modal-buttonzone">
-					<CopyInput copyText={createMatchUrl(selectedMatch)} />
-				</div>
-
+				<CopyInput copyText={createMatchUrl(selectedMatch)} />
+				
 				{renderMatchButtons()}
 			</div>
 		</Modal>

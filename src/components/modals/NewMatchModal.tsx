@@ -147,7 +147,7 @@ const NewMatchModal: FC<Props> = ({
 						/>
 					</div>
 
-					<Button customStyle={'mt-6'} color="yellowHollow" copy={returnCopy} onClick={returnAction} />
+					<Button color="yellowHollow" copy={returnCopy} onClick={returnAction} />
 
 					<ReactTooltip effect="solid" type="dark" />
 				</>
@@ -211,14 +211,9 @@ const NewMatchModal: FC<Props> = ({
 							validationErrors={wordleValidationErrors}
 							handleInputChange={(e: any) => handleValidateWordle(e.target.value)}
 							value={wordle}
+							isReadOnly={!!openMatchLink}
 						/>
-					</div>
 
-					<div
-						className={`flex justify-center flex-col ${
-							openMatchLink ? 'gap-y-6' : 'gap-y-3'
-						}`}
-					>
 						{openMatchLink ? (
 							<div className="modal-buttonzone">
 								<CopyInput copyText={openMatchLink} />

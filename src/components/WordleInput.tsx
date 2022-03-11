@@ -7,9 +7,10 @@ interface Props {
 	validationErrors: ValidationError[];
 	handleInputChange: any;
 	value: string;
+	isReadOnly?: boolean;
 }
 
-const WordleInput: FC<Props> = ({ validationErrors, handleInputChange, value }: Props) => {
+const WordleInput: FC<Props> = ({ validationErrors, handleInputChange, value, isReadOnly }: Props) => {
 	return (
 		<>
 			<input
@@ -22,6 +23,7 @@ const WordleInput: FC<Props> = ({ validationErrors, handleInputChange, value }: 
 				placeholder="Choose your Wordle carefully ..."
 				onChange={handleInputChange}
 				value={value}
+				readOnly={isReadOnly}
 			/>
 			{renderErrors(validationErrors, 'text-[#F8E797] text-[12px] md:text-sm')}
 		</>

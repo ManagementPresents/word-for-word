@@ -147,7 +147,7 @@ const Lobby = ({}: Props) => {
 		return matches.length ? (
 			<Fragment>{renderMatches(matches)}</Fragment>
 		) : (
-			<div className="mx-auto max-w-lg">
+			<div className="flex flex-col gap-y-2 mx-auto max-w-lg">
 				<h2 className="lobby-messages">You have no currently active matches.</h2>
 
 				<Button
@@ -229,6 +229,7 @@ const Lobby = ({}: Props) => {
 				isOpen={isNewMatchModalOpen}
 				onRequestClose={handleNewMatchModalClose}
 				returnCopy={'Go Back'}
+				returnAction={handleNewMatchModalClose}
 			/>
 
 			<LobbyMatchModal
