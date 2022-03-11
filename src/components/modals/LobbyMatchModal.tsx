@@ -1,6 +1,4 @@
 import { FC, useState, useEffect, ReactElement } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
 
 import CopyInput from '../CopyInput';
 import Button from '../buttons/Button';
@@ -27,18 +25,18 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 	const { selectedMatch, matchOpponents, user } = useStore();
 
 	const [matchOpponent, setIsMatchOpponent] = useState({} as Player);
-	const [isUserTurn, setIsUserTurn] = useState(isPlayerCurrentTurn(selectedMatch, user.uid));
-	const [isOpponentTurn, setIsOpponentTurn] = useState(
+	const [isUserTurn] = useState(isPlayerCurrentTurn(selectedMatch, user.uid));
+	const [isOpponentTurn] = useState(
 		isPlayerCurrentTurn(selectedMatch, matchOpponent?.id as string),
 	);
 
 	useEffect(() => {
 		setIsMatchOpponent(matchOpponents[getMatchOpponentId(user, selectedMatch)]);
-	}, [matchOpponents, selectedMatch]);
+	}, [user, matchOpponents, selectedMatch]);
 
 	useEffect(() => {
 		setIsMatchOpponent(matchOpponents[getMatchOpponentId(user, selectedMatch)]);
-	}, [matchOpponents, selectedMatch]);
+	}, [user, matchOpponents, selectedMatch]);
 
 	const renderTitle = () => {
 		if (matchOpponent || isUserTurn) {
@@ -67,9 +65,7 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 					<Button
 						copy="Return to Lobby"
 						color="yellowHollow"
-						onClick={() => {
-							console.log('return to lobby');
-						}}
+						onClick={onRequestClose}
 					/>
 				</div>
 			);
