@@ -1,4 +1,5 @@
-import { FC, useState, useEffect, ReactElement } from 'react';
+import { FC, useState, useEffect} from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import CopyInput from '../CopyInput';
 import Button from '../buttons/Button';
@@ -30,6 +31,8 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 		isPlayerCurrentTurn(selectedMatch, matchOpponent?.id as string),
 	);
 
+	const navigate = useNavigate();
+
 	useEffect(() => {
 		setIsMatchOpponent(matchOpponents[getMatchOpponentId(user, selectedMatch)]);
 	}, [user, matchOpponents, selectedMatch]);
@@ -55,6 +58,16 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 		if (matchOpponent) {
 			return (
 				<div className="flex flex-col gap-y-2 mt-4">
+					{isUserTurn &&
+						<Button 
+							copy="Go to Match" 
+							color="green"
+							onClick={() => {
+								navigate(`/match/${selectedMatch.id}`);
+							}}
+						/>
+					}
+
 					<Button
 						copy="Forfeit Match"
 						color="grayHollow"
@@ -66,6 +79,7 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 						copy="Return to Lobby"
 						color="yellowHollow"
 						onClick={onRequestClose}
+						customStyle={'mt-4'}
 					/>
 				</div>
 			);

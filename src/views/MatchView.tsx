@@ -386,7 +386,7 @@ function MatchView() {
 			const isMatchWon: boolean = (lastFilledRow && isRowAllGreen(lastFilledRow)) as boolean;
 			const isGameLost: boolean = (currentRowIndex === 6) as boolean;
 
-			if (isMatchWon || isGameLost) {
+			if (isGameLost) {
 				console.log('FUCK', currentMatch);
 				if (!currentMatch.isMatchEnded) {
 					const currentMatchRef = doc(db, 'matches', currentMatch.id);

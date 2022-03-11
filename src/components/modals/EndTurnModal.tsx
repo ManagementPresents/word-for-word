@@ -52,14 +52,7 @@ const EndTurnModal: FC<Props> = ({
 
 		// @ts-ignore
 		setWordleValidationErrors(validationErrors);
-
-		if (!validationErrors.length) {
-			setNextWordle(wordle);
-			// setIsNextWordleReady(true);
-		} else {
-			// setIsNextWordleReady(false);
-			setNextWordle('');
-		}
+		setNextWordle(wordle);
 	};
 
 	const handleSendWordle = async () => {
