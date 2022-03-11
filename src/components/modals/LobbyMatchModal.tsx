@@ -25,7 +25,7 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 	const { selectedMatch, matchOpponents, user } = useStore();
 
 	const [matchOpponent, setIsMatchOpponent] = useState({} as Player);
-	const [isUserTurn] = useState(isPlayerCurrentTurn(selectedMatch, user.uid));
+	const [isUserTurn, setIsUserTurn] = useState(isPlayerCurrentTurn(selectedMatch, user.uid));
 	const [isOpponentTurn] = useState(
 		isPlayerCurrentTurn(selectedMatch, matchOpponent?.id as string),
 	);
@@ -35,8 +35,8 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 	}, [user, matchOpponents, selectedMatch]);
 
 	useEffect(() => {
-		setIsMatchOpponent(matchOpponents[getMatchOpponentId(user, selectedMatch)]);
-	}, [user, matchOpponents, selectedMatch]);
+		setIsUserTurn(isPlayerCurrentTurn(selectedMatch, user.uid));
+	}, [user, selectedMatch]);
 
 	const renderTitle = () => {
 		if (matchOpponent || isUserTurn) {
@@ -110,7 +110,7 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 			return (
 				<div className="modal-content">
 					<p className="modal-header">It's your turn!</p>
-					<p className="modal-body">Get your game on. Go play!</p>
+					<p className="modal-body mt-0">Get your game on. Go play!</p>
 				</div>
 			);
 		}
