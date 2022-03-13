@@ -1,6 +1,7 @@
 import Turn from '../interfaces/Turn';
 import Match from '../interfaces/Match';
 import ValidationError from '../interfaces/ValidationError';
+import Cell from '../interfaces/match/Cell';
 
 const { REACT_APP_URL } = process.env;
 
@@ -83,6 +84,24 @@ const getLastPlayedWordByPlayerId = (id: string, turns: Turn[]): string => {
 	return reversedTurns.find((turn) => turn.activePlayer !== id)?.wordle as string;
 };
 
+const hasPlayerWonCurrentTurn = (match: Match = {} as Match, playerId: string): boolean => {
+	if (isPlayerCurrentTurn(match, playerId)) {
+		const currentTurn = getCurrentTurn(match.turns);
+
+		const guessesArray: Cell[][] = numericalObjToArray(currentTurn.guesses);
+		// TODO: i'll be the first to admit this could be hard to read
+		const isTurnWon: boolean = guessesArray.every((singleGuess: Cell[]) => {
+			return singleGuess.every((guessLetter: Cell) => {
+				return guessLetter.status === 'correct';
+			});
+		});
+
+		return isTurnWon;
+	}
+
+	return false;
+}
+
 export {
 	renderErrors,
 	numericalObjToArray,
@@ -94,4 +113,5 @@ export {
 	getMatchOpponentId,
 	isPlayerCurrentTurn,
 	getLastPlayedWordByPlayerId,
+	hasPlayerWonCurrentTurn,
 };

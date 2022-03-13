@@ -23,8 +23,8 @@ interface Props {
 	nextWordle: string;
 	setNextWordle: any;
 	gameState: string;
-	setIsOpenMatchChallenge: any;
-	setIsEndTurnModalOpen: any;
+	setIsOpenMatchChallenge?: any;
+	setIsEndTurnModalOpen?: any;
 }
 
 const EndTurnModal: FC<Props> = ({
@@ -36,6 +36,7 @@ const EndTurnModal: FC<Props> = ({
 	setIsOpenMatchChallenge,
 	setIsEndTurnModalOpen,
 }: Props) => {
+	console.log('ye', { gameState })
 	const { opponentPlayer, db, user, currentMatch, setCurrentMatch } = useStore();
 
 	const [answer] = useState(getCurrentTurn(currentMatch.turns)?.wordle.toUpperCase());
@@ -218,7 +219,7 @@ const EndTurnModal: FC<Props> = ({
 		<Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={true}>
 			{/* TODO: Think about using a random "Word for Word" generator here */}
 			<div className="flex flex-col gap-y-2">
-				<h1 className="text-4xl text-center">Turn {currentMatch.turns.length}</h1>
+				<h1 className="text-4xl text-center">Turn {currentMatch?.turns?.length}</h1>
 
 				<div className="flex flex-row items-center justify-center gap-x-3">
 					<div className="flex flex-col gap-y-2">

@@ -6,14 +6,12 @@ import { faUserClock } from '@fortawesome/free-solid-svg-icons';
 import Button from './buttons/Button';
 
 import Match from '../interfaces/Match';
-import Cell from '../interfaces/match/Cell';
 import { renderWordleSquares } from '../utils/wordUtils';
 import {
 	getMatchOpponentId,
 	isPlayerCurrentTurn,
-	getCurrentTurn,
 	getLastPlayedWordByPlayerId,
-	numericalObjToArray,
+	hasPlayerWonCurrentTurn,
 } from '../utils/misc';
 import useStore from '../utils/store';
 
@@ -21,9 +19,14 @@ interface Props {
 	match: Match;
 	isLobbyMatchModalOpen: boolean;
 	setIsLobbyMatchModalOpen: any;
+	setIsEndTurnModalOpen?: any;
 }
 
-const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
+const MatchCard: FC<Props> = ({ 
+	match, 
+	setIsLobbyMatchModalOpen,
+	setIsEndTurnModalOpen, 
+}: Props) => {
 	const { setSelectedMatch, user, matchOpponents } = useStore();
 
 	const [isUserTurn] = useState(isPlayerCurrentTurn(match, user.uid));
@@ -71,19 +74,7 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 			return <Button copy="See Results" customStyle="grey-match-button" />;
 		}
 
-		if (isPlayerCurrentTurn(match, user.uid)) {
-			const currentTurn = getCurrentTurn(match.turns);
-
-			const guessesArray: Cell[][] = numericalObjToArray(currentTurn.guesses);
-			// TODO: i'll be the first to admit this could be hard to read
-			const isTurnWon: boolean = guessesArray.every((singleGuess: Cell[]) => {
-				return singleGuess.every((guessLetter: Cell) => {
-					return guessLetter.status === 'correct';
-				});
-			});
-
-			if (isTurnWon) return <Button copy="Send Back a Wordle!" customStyle="yellow-match-button" />;
-		}
+		if (hasPlayerWonCurrentTurn(match, user.uid)) return <Button copy="Send Back a Wordle!" customStyle="yellow-match-button" />;
 		
 		if (isUserTurn) {
 			return <Button copy="The results are in ..." customStyle="yellow-match-button" />;
@@ -100,7 +91,12 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 
 	const handleCardClick = () => {
 		setSelectedMatch(match);
-		setIsLobbyMatchModalOpen(true);
+		
+		if (hasPlayerWonCurrentTurn(match, user.uid)) {
+			setIsEndTurnModalOpen(true);
+		} else {
+			setIsLobbyMatchModalOpen(true);
+		}
 	};
 
 	/* Hello Gabriel. It's me again. The sleepy dipshit. I changed stuff below here to return just the color instead of the full "[color]-match-style" it was before, and in the section after that, I copied over the handleCardColor use I saw in the next class name, but for all the other now super modular class names in lieu of bugging you to write a whole thing about it. I think this works for now, but I am a sleepy sweaty dumb dumb who lost the ability to read when I gained massive boobies. So. Yknow. Grain of salt.*/

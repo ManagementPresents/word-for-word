@@ -6,22 +6,39 @@ import Loading from '../components/Loading';
 import Button from '../components/buttons/Button';
 import LobbyMatchModal from '../components/modals/LobbyMatchModal';
 import NewMatchModal from '../components/modals/NewMatchModal';
+import EndTurnModal from '../components/modals/EndTurnModal';
 
-import { getMatchOpponentId } from '../utils/misc';
+import { 
+	getMatchOpponentId, 
+	hasPlayerWonCurrentTurn,
+} from '../utils/misc';
 import useStore from '../utils/store';
 import { TIMEOUT_DURATION } from '../utils/constants';
 import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
 import Players from '../interfaces/Players';
+import GameState from '../interfaces/GameState';
 
-interface Props {}
-
-const Lobby = ({}: Props) => {
-	const { user, db, matches, setMatches, setMatchOpponents } = useStore();
+const Lobby = () => {
+	const { 
+		user, 
+		db, 
+		matches, 
+		setMatches, 
+		setMatchOpponents, 
+		selectedMatch 
+	} = useStore();
 
 	const [isNewMatchModalOpen, setIsNewMatchModalOpen] = useState(false);
 	const [isLoadingMatches, setIsLoadingMatches] = useState(true);
 	const [isLobbyMatchModalOpen, setIsLobbyMatchModalOpen] = useState(false);
+	const [isEndTurnModalOpen, setIsEndTurnModalOpen] = useState(false);
+	const [nextWordle, setNextWordle] = useState('');
+
+	const determineGameState = () => {
+		console.log({ selectedMatch}, 'fuck', user.uid)
+		return hasPlayerWonCurrentTurn(selectedMatch, user.uid) ? GameState.WON : '';
+	};
 
 	useEffect(() => {
 		if (user) {
@@ -136,6 +153,7 @@ const Lobby = ({}: Props) => {
 				match={match}
 				isLobbyMatchModalOpen={isLobbyMatchModalOpen}
 				setIsLobbyMatchModalOpen={setIsLobbyMatchModalOpen}
+				setIsEndTurnModalOpen={setIsEndTurnModalOpen}
 			/>
 		));
 	};
@@ -195,6 +213,14 @@ const Lobby = ({}: Props) => {
 			<LobbyMatchModal
 				isOpen={isLobbyMatchModalOpen}
 				onRequestClose={handleLobbyMatchModalClose}
+			/>
+
+			<EndTurnModal
+				isOpen={isEndTurnModalOpen}
+				onRequestClose={() => setIsEndTurnModalOpen(false)}
+				nextWordle={nextWordle}
+				setNextWordle={setNextWordle}
+				gameState={determineGameState()}
 			/>
 		</Fragment>
 	);
