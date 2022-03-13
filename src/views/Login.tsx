@@ -120,10 +120,10 @@ const Login = () => {
 					</div>
 
 					{
-						serverErrors.length ? 
+						serverErrors.length ?
 							<div className="flex flex-col">
 								{renderErrors(serverErrors, 'text-blue-600 text-sm')}
-							</div> : 
+							</div> :
 							<></>
 					}
 
@@ -136,12 +136,12 @@ const Login = () => {
 				{/* TODO: Need to make sure this works when hitting 'Enter' */}
 				<div className="flex flex-col gap-y-4 w-[inherit] items-center">
 					{/* TODO: Should be a LoadingButton */}
-					<Button onClick={handleSignIn} customStyle="green-match-button" copy="Sign In" />
+					<Button onClick={handleSignIn} customStyle="green-button" copy="Sign In" />
 					<Button
 						onClick={() => {
 							navigate('/register');
 						}}
-						customStyle="yellow-match-button"
+						customStyle="yellow-button"
 						copy="Register (It's Free!)"
 					/>
 				</div>

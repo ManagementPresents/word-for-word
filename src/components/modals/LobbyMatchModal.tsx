@@ -61,7 +61,7 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 					{isUserTurn &&
 						<Button 
 							copy="Go to Match" 
-							customStyle="green-match-button"
+							customStyle="green-button"
 							onClick={() => {
 								navigate(`/match/${selectedMatch.id}`);
 							}}
@@ -69,16 +69,17 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 					}
 
 					<Button
+						copy="Return to Lobby"
+						customStyle="yellow-button-hollow"
+						onClick={onRequestClose}
+					/>
+
+					<Button
 						copy="Forfeit Match"
-						customStyle="grey-match-button-hollow"
+						customStyle="grey-match-button-hollow mt-4 "
 						onClick={() => {
 							console.log('cancel and delete match');
 						}}
-					/>
-					<Button
-						copy="Return to Lobby"
-						customStyle="mt-4 yellow-match-button-hollow"
-						onClick={onRequestClose}
 					/>
 				</div>
 			);
