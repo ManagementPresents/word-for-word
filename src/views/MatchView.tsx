@@ -384,9 +384,9 @@ function MatchView() {
 
 		if (gameState === GameState.PLAYING) {
 			const isMatchWon: boolean = (lastFilledRow && isRowAllGreen(lastFilledRow)) as boolean;
-			const isGameLost: boolean = (currentRowIndex === 6) as boolean;
+			const isGameLost: boolean = ((currentRowIndex === 6) && !isMatchWon) as boolean;
 
-			if (isGameLost || isMatchWon) {
+			if (isGameLost) {
 				if (!currentMatch.outcome) {
 					const currentMatchRef = doc(db, 'matches', currentMatch.id);
 
@@ -618,7 +618,7 @@ function MatchView() {
 										onClick={handleAcceptMatch}
 									/>
 									<Button
-										customStyle="yellow-match-button"
+										customStyle="yellow-button"
 										copy="Go Back"
 										onClick={handleGoBackFromHowToPlay}
 									/>
@@ -644,7 +644,7 @@ function MatchView() {
 									<Button
 										onClick={handleAcceptMatch}
 										copy="Accept"
-										customStyle="green-match-button"
+										customStyle="green-button"
 									/>
 
 									<Button
@@ -652,7 +652,7 @@ function MatchView() {
 											setIsLandingModalOpen(false);
 										}}
 										copy="Rudely Decline"
-										customStyle="grey-match-button"
+										customStyle="grey-button"
 									/>
 
 									<Button
@@ -660,7 +660,7 @@ function MatchView() {
 											setIsLandingModalOpen(false);
 										}}
 										copy="Politely Decline"
-										customStyle="yellow-match-button-hollow"
+										customStyle="grey-button"
 									/>
 								</div>
 

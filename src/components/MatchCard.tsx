@@ -6,14 +6,16 @@ import { faUserClock } from '@fortawesome/free-solid-svg-icons';
 import Button from './buttons/Button';
 
 import Match from '../interfaces/Match';
+import Cell from '../interfaces/match/Cell';
 import { renderWordleSquares } from '../utils/wordUtils';
 import {
 	getMatchOpponentId,
 	isPlayerCurrentTurn,
+	getCurrentTurn,
 	getLastPlayedWordByPlayerId,
+	numericalObjToArray,
 } from '../utils/misc';
 import useStore from '../utils/store';
-import { captureRejections } from 'events';
 
 interface Props {
 	match: Match;
@@ -38,9 +40,9 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 		if (match.outcome) {
 			cardDetailsColor = 'grey';
 		} else if (isUserTurn) {
-			cardDetailsColor = 'green';
-		} else if (matchOpponent) {
 			cardDetailsColor = 'yellow';
+		} else if (matchOpponent) {
+			cardDetailsColor = 'green';
 		} 
 		
 		if (!players.guestId) {
@@ -66,19 +68,33 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 		const { players } = match;
 
 		if (match.outcome) {
-			return 	<Button copy="See Results" customStyle="grey-match-button" />
+			return <Button copy="See Results" customStyle="grey-match-button" />;
 		}
 
+		if (isPlayerCurrentTurn(match, user.uid)) {
+			const currentTurn = getCurrentTurn(match.turns);
+
+			const guessesArray: Cell[][] = numericalObjToArray(currentTurn.guesses);
+			// TODO: i'll be the first to admit this could be hard to read
+			const isTurnWon: boolean = guessesArray.every((singleGuess: Cell[]) => {
+				return singleGuess.every((guessLetter: Cell) => {
+					return guessLetter.status === 'correct';
+				});
+			});
+
+			if (isTurnWon) return <Button copy="Send Back a Wordle!" customStyle="yellow-match-button" />;
+		}
+		
 		if (isUserTurn) {
-			return <Button copy="The results are in ..." customStyle="green-match-button" />;
+			return <Button copy="The results are in ..." customStyle="yellow-match-button" />;
 		}
 
 		if (!players.guestId) {
-			return <Button copy="Waiting for an Opponent" customStyle="yellow-match-button" />;
+			return <Button copy="Waiting for an Opponent" customStyle="green-match-button" />;
 		}
 
 		if (matchOpponent) {
-			return <Button copy="Opponent is taking their turn" customStyle="yellow-match-button" />;
+			return <Button copy="Opponent is taking their turn" customStyle="green-match-button" />;
 		}
 	};
 
@@ -91,8 +107,8 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 
 	const handleCardColor = () => {
 		if (match.outcome) return 'grey';
-		if (isUserTurn) return 'green';
-		if (!matchOpponent || (matchOpponent && !isUserTurn)) return 'yellow';
+		if (isUserTurn) return 'yellow';
+		if (!matchOpponent || (matchOpponent && !isUserTurn)) return 'green';
 	};
 
 	return (

@@ -151,7 +151,7 @@ const Lobby = ({}: Props) => {
 				<h2 className="lobby-messages">You have no currently active matches.</h2>
 
 				<Button
-					customStyle="green-match-button"
+					customStyle="green-button"
 					copy="Start a New Match"
 					onClick={handleStartNewMatch}
 				></Button>

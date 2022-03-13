@@ -154,7 +154,7 @@ const EndTurnModal: FC<Props> = ({
 					<LoadingButton
 						copy={'Send Wordle'}
 						isLoadingCopy={'Sending Wordle...'}
-						customStyle="green-match-button"
+						customStyle="green-button"
 						isLoading={isSendingWordle}
 						disabled={!!wordleValidationErrors.length}
 						onClick={handleSendWordle}

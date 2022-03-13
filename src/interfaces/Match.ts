@@ -8,7 +8,7 @@ interface Match {
 		hostId: string;
 	};
 	turns: Turn[];
-	winner: string;
+	isWinnerNotified: boolean;
 }
 
 export default Match;

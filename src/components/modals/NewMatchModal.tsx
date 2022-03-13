@@ -61,7 +61,7 @@ const NewMatchModal: FC<Props> = ({
 				guestId: '',
 				hostId: user.uid,
 			},
-			winner: '',
+			isWinnerNotified: false,
 			turns: [
 				{
 					activePlayer: '',
@@ -127,19 +127,7 @@ const NewMatchModal: FC<Props> = ({
 					<div className="modal-buttonzone">
 						{/* TODO: Ensure data-tip works with this new component */}
 						<Button
-							data-tip="This mode is not yet available. Check back soon!"
-							customStyle="grey-match-button-hollow"
-							disabled={true}
-							copy="Invite Specific Player"
-							onClick={(e: any) => {
-								e.preventDefault();
-								return;
-								//  handleModalButtonClick('specific')
-							}} 
-						/>
-
-						<Button
-							customStyle="green-match-button"
+							customStyle="green-button"
 							copy="Create Open Match"
 							onClick={() => {
 								handleModalButtonClick('open');
@@ -147,7 +135,7 @@ const NewMatchModal: FC<Props> = ({
 						/>
 					</div>
 
-					<Button customStyle="yellow-match-button-hollow" copy={returnCopy} onClick={returnAction} />
+					<Button customStyle="yellow-button-hollow" copy={returnCopy} onClick={returnAction} />
 
 					<ReactTooltip effect="solid" type="dark" />
 				</>
@@ -222,14 +210,14 @@ const NewMatchModal: FC<Props> = ({
 							<LoadingButton
 								disabled={!isGenerateLinkReady}
 								onClick={handleGenerateLink}
-								customStyle="green-match-button"
+								customStyle="green-button"
 								isLoading={isGeneratingLink}
 								isLoadingCopy={'Generating...'}
 								copy="Generate Link"
 							/>
 						)}
 
-						<Button customStyle={'yellow-match-button" mt-4'} copy="Go Back" onClick={handleGoBack} />
+						<Button customStyle={'yellow-button-hollow mt-4'} copy="Go Back" onClick={handleGoBack} />
 					</div>
 				</>
 			)}
