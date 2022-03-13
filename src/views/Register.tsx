@@ -1,10 +1,11 @@
-import { Fragment, useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 // TODO: Should probably replace this with the other 'validator.js' library
 import passwordValidator from 'password-validator';
 import * as EmailValidator from 'email-validator';
 import { useNavigate } from 'react-router-dom';
+import useEventListener from '@use-it/event-listener';
 
 import LoadingButton from '../components/buttons/LoadingButton';
 import Button from '../components/buttons/Button';
@@ -25,13 +26,6 @@ passwordRequirements
 	.not('', 'Password cannot have spaces')
 	.spaces();
 
-interface Props {
-	//   keyboardStatus: { [key: string]: string }
-	//   gameDisabled: boolean
-	//   onDeletePress: () => void
-	//   onEnterPress: () => void
-	//   addLetter: any
-}
 
 interface EmailError {
 	message: string;
@@ -39,7 +33,7 @@ interface EmailError {
 }
 
 // TODO: Need to add logic for if the email already exists
-const Register = ({}: Props) => {
+const Register = () => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [verifyPassword, setVerifyPassword] = useState('');
@@ -51,6 +45,11 @@ const Register = ({}: Props) => {
 	const { db, setUser } = useStore();
 
 	const navigate = useNavigate();
+
+	// https://atomizedobjects.com/blog/react/how-to-use-useref-with-typescript/
+	const emailInputRef = useRef<null | HTMLInputElement>(null);
+	const passwordInputRef = useRef<null | HTMLInputElement>(null);
+	const verifyPasswordInputRef = useRef<null | HTMLInputElement>(null);
 
 	const handleRegistration = async () => {
 		// TODO: Should probably be some kind of server validation for this, at some point, and not just front end
@@ -164,6 +163,19 @@ const Register = ({}: Props) => {
 		}
 	}, [password, verifyPassword, email, isValidRegistration]);
 
+
+	useEventListener('keydown', (e: KeyboardEvent) => {
+		if (e.code === 'Enter') {
+			if (
+				document.activeElement === emailInputRef.current ||
+				document.activeElement === passwordInputRef.current ||
+				document.activeElement === verifyPasswordInputRef.current
+			) {
+				handleRegistration();
+			}
+		}
+	});
+
 	return (
 		<div className="min-h-full flex flex-col gap-y-4 items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
 			<div className="flex flex-col gap-y-4 w-80">
@@ -173,6 +185,7 @@ const Register = ({}: Props) => {
 					</label>
 
 					<input
+						ref={emailInputRef}
 						id="email-address"
 						name="email"
 						type="email"
@@ -195,6 +208,7 @@ const Register = ({}: Props) => {
 					</label>
 
 					<input
+						ref={passwordInputRef}
 						id="password"
 						name="password"
 						type="password"
@@ -217,6 +231,7 @@ const Register = ({}: Props) => {
 					</label>
 
 					<input
+						ref={verifyPasswordInputRef}
 						id="password"
 						name="password"
 						type="password"
