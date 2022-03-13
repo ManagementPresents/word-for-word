@@ -1,45 +1,71 @@
 @use 'colors';
+@use 'decoStyles';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+
+
 .green {
+	@include decoStyles.cell;
+	background-color: $green;
+	color: $lightestGreen;
+}
+
+
+.green-keyboard {
 	background-color: $green;
 	color: $lightestGreen;
 }
 
 .yellow {
+	@include decoStyles.cell;
 	background-color: $yellow;
 	color: $darkestYellow;
 }
 
-.gray {
+.yellow-keyboard {
+	background-color: $yellow;
+	color: $darkestYellow;
+}
+
+.grey {
+	@include decoStyles.cell;
 	background-color: $lightestGrey;
 	color: $black;
 }
 
-.dark-gray {
+.grey-keyboard {
+	background-color: $lightestGrey;
+	color: $black;
+}
+
+.dark-grey {
+	@include decoStyles.cell;
+	background-color: $darkestGrey;
+	color: $white;
+}
+
+.dark-grey-keyboard {
 	background-color: $darkestGrey;
 	color: $white;
 }
 
 .transparent {
+	@include decoStyles.cell;
 	background-color: transparent;
 	color: $white;
 }
 
 .keyboard-style {
-	background-color: $darkestGrey;
+	background-color: $darkGrey;
 	color: $white;
 }
 
 .guesses-style-default {
-	background-color: $white;
-	color: $black;
-	box-sizing: border-box;
-	border-width: 1;
-	border-style: solid;
-	border-color: $darkestGrey;
+	@include decoStyles.emptycell;
+	background-color: transparent;
+	color: $white;
 }
 
 .guesses-border-wrong {

@@ -128,7 +128,7 @@ const NewMatchModal: FC<Props> = ({
 						{/* TODO: Ensure data-tip works with this new component */}
 						<Button
 							data-tip="This mode is not yet available. Check back soon!"
-							color="grayHollow"
+							color="greyHollow"
 							disabled={true}
 							copy="Invite Specific Player"
 							onClick={(e: any) => {

@@ -58,7 +58,7 @@ const makeUpADude = (): string => {
  * @param {string | []} color
  * @returns {JSX.Element[]}
  */
-// TODO: Need to change this to be able to render green, yellow, and gray squares
+// TODO: Need to change this to be able to render green, yellow, and grey squares
 const renderWordleSquares = (wordle: string, color?: string | []): JSX.Element[] => {
 	if (!wordle) return [] as JSX.Element[];
 

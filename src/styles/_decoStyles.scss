@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@mixin cell {
+    @apply bg-cover;
+    background-image: url(../data/Darkdecocell2.png);
+}
+
+@mixin emptycell {
+    @apply bg-cover;
+    background-image: url(../data/Whitedecocell.png);
+}

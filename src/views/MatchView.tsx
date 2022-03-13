@@ -107,12 +107,12 @@ function MatchView() {
 	const getCellStyles = (rowNumber: number, colNumber: number, status: string) => {
 		if (rowNumber === currentRowIndex) {
 			if (status === 'unguessed') {
-				return `guesses-style-default border ${
-					submittedInvalidWord ? 'border guesses-border-wrong' : ''
+				return `guesses-style-default ${
+					submittedInvalidWord ? 'guesses-border-wrong' : ''
 				}`;
 			}
 
-			return 'guesses-style-default border';
+			return 'guesses-style-default';
 		}
 
 		const currentCell: Cell = board[rowNumber][colNumber] as Cell;
@@ -124,9 +124,9 @@ function MatchView() {
 			case 'misplaced':
 				return 'yellow animate__flipInY';
 			case 'incorrect':
-				return 'dark-gray animate__flipInY';
+				return 'dark-grey animate__flipInY';
 			default:
-				return 'animate__flipInY border guesses-style-default';
+				return 'animate__flipInY guesses-style-default';
 		}
 	};
 
@@ -243,7 +243,7 @@ function MatchView() {
 		const wordLength = word.length;
 		const answerLetters: string[] = answer.split('');
 
-		// Set all to gray
+		// Set all to grey
 		for (let i = 0; i < wordLength; i++) {
 			newBoard[rowNumber][i].status = 'incorrect';
 		}
@@ -572,12 +572,12 @@ function MatchView() {
 
 										<li className="mb-2">
 											After each guess, each letter will turn green, yellow,
-											or gray.
+											or grey.
 										</li>
 									</ul>
 
 									<div className="mb-3 flex flex-row items-center gap-x-2">
-										<span className="bg-[#15B097] text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10">
+										<span className="bg-[#15B097] text-grey-50 inline-flex items-center justify-center text-3x w-10 h-10">
 											W
 										</span>
 
@@ -585,7 +585,7 @@ function MatchView() {
 									</div>
 
 									<div className="mb-3 flex flex-row items-center gap-x-2">
-										<span className="bg-[#FFCE47] text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10">
+										<span className="bg-[#FFCE47] text-grey-50 inline-flex items-center justify-center text-3x w-10 h-10">
 											W
 										</span>
 
@@ -593,7 +593,7 @@ function MatchView() {
 									</div>
 
 									<div className="mb-3 flex flex-row items-center gap-x-2">
-										<span className="bg-[#A0939A] text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10">
+										<span className="bg-[#A0939A] text-grey-50 inline-flex items-center justify-center text-3x w-10 h-10">
 											W
 										</span>
 
@@ -647,7 +647,7 @@ function MatchView() {
 											setIsLandingModalOpen(false);
 										}}
 										copy="Rudely Decline"
-										color="gray"
+										color="grey"
 									/>
 
 									<Button
