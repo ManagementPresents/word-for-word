@@ -18,8 +18,6 @@ interface State {
 	currentTurn: Turn;
 	// All the people you are currently involved in matches with
 	matchOpponents: Players;
-	selectedMatch: Match;
-	setSelectedMatch: any;
 	setMatchOpponents: any;
 	setOpponentPlayer: any;
 	setCurrentMatch: any;
@@ -41,8 +39,6 @@ const useStore = create<State>((set, get) => ({
 	matches: [] as Match[],
 	opponentPlayer: {} as Player,
 	hasCheckedUser: false,
-	// Match selected as the result of clicking a match card
-	selectedMatch: {} as Match,
 	setHasCheckedUser: (hasCheckedUser: boolean) => set({ hasCheckedUser }),
 	setOpponentPlayer: (opponentPlayer: Player) => set({ opponentPlayer }),
 	addMatch: (match: Match) => set({ matches: get().matches.concat(match) }),
@@ -53,7 +49,6 @@ const useStore = create<State>((set, get) => ({
 	setCurrentMatch: (currentMatch: Match) => set({ currentMatch }),
 	setCurrentTurn: (currentTurn: Turn) => set({ currentTurn }),
 	setMatchOpponents: (matchOpponents: Players) => set({ matchOpponents }),
-	setSelectedMatch: (selectedMatch: Match) => set({ selectedMatch }),
 }));
 
 export default useStore;

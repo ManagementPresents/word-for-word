@@ -71,6 +71,7 @@ const NewMatchModal: FC<Props> = ({
 					turnState: 'playing',
 					keyboardStatus: {},
 					wordle,
+					hasActivePlayerStartedTurn: false,
 				},
 			],
 		};

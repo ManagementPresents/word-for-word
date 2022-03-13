@@ -1,5 +1,6 @@
 import { FC, useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 import CopyInput from '../CopyInput';
 import Button from '../buttons/Button';
@@ -15,6 +16,7 @@ import {
 	getMatchOpponentId,
 	isPlayerCurrentTurn,
 	numericalObjToArray,
+	updateCurrentTurn,
 } from '../../utils/misc';
 
 interface Props {
@@ -23,23 +25,45 @@ interface Props {
 }
 
 const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
-	const { selectedMatch, matchOpponents, user } = useStore();
+	const { 
+		currentMatch, 
+		matchOpponents, 
+		user,
+		setCurrentMatch,
+		db,
+	} = useStore();
 
-	const [matchOpponent, setIsMatchOpponent] = useState({} as Player);
-	const [isUserTurn, setIsUserTurn] = useState(isPlayerCurrentTurn(selectedMatch, user.uid));
-	const [isOpponentTurn] = useState(
-		isPlayerCurrentTurn(selectedMatch, matchOpponent?.id as string),
-	);
+	const [matchOpponent, setMatchOpponent] = useState({} as Player);
+	const [isUserTurn, setIsUserTurn] = useState(isPlayerCurrentTurn(currentMatch, user.uid));
+	const [isOpponentTurn, setIsOpponentTurn] = useState(false);
 
 	const navigate = useNavigate();
 
-	useEffect(() => {
-		setIsMatchOpponent(matchOpponents[getMatchOpponentId(user, selectedMatch)]);
-	}, [user, matchOpponents, selectedMatch]);
+	const handleGoToMatch = async () => {
+		// TODO: Need a loading throbber
+		const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
+			turn.hasActivePlayerStartedTurn = true;
+			return turn;
+		});
 
-	useEffect(() => {
-		setIsUserTurn(isPlayerCurrentTurn(selectedMatch, user.uid));
-	}, [user, selectedMatch]);
+		const currentMatchRef = doc(db, 'matches', currentMatch.id);
+
+		await setDoc(
+			currentMatchRef,
+			{
+				turns: updatedTurns,
+			},
+			{ merge: true },
+		);
+
+		/*
+            TODO: Set the local state so we see UI updates
+            In the long term, we might need to think of the best way to keep local state and firestore in sync
+            (something similar to, but not quite, ember data)
+        */
+		setCurrentMatch({ ...currentMatch, turns: updatedTurns });
+		navigate(`/match/${currentMatch.id}`);
+	}
 
 	const renderTitle = () => {
 		if (matchOpponent || isUserTurn) {
@@ -62,9 +86,7 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 						<Button 
 							copy="Go to Match" 
 							customStyle="green-button"
-							onClick={() => {
-								navigate(`/match/${selectedMatch.id}`);
-							}}
+							onClick={handleGoToMatch}
 						/>
 					}
 
@@ -97,10 +119,10 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 	};
 
 	const renderTurns = () => {
-		const isSelectedMatch = Object.keys(selectedMatch).length;
+		const isSelectedMatch = Object.keys(currentMatch).length;
 
 		if (isSelectedMatch) {
-			const renderedTurns = selectedMatch?.turns.map((turn: Turn) => {
+			const renderedTurns = currentMatch?.turns.map((turn: Turn) => {
 				const guessesArray: Cell[][] = numericalObjToArray(turn.guesses) as Cell[][];
 
 				return (
@@ -146,6 +168,18 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 		);
 	};
 
+	useEffect(() => {
+		setMatchOpponent(matchOpponents[getMatchOpponentId(user, currentMatch)]);
+	}, [user, matchOpponents, currentMatch]);
+
+	useEffect(() => {
+		setIsUserTurn(isPlayerCurrentTurn(currentMatch, user.uid));
+	}, [user, currentMatch]);
+
+	useEffect(() => {
+		setIsOpponentTurn(isPlayerCurrentTurn(currentMatch, matchOpponent?.id as string),);
+	}, [currentMatch, matchOpponent]);
+
 	return (
 		<Modal isOpen={isOpen} onRequestClose={onRequestClose}>
 			<h1 className="modal-header">{renderTitle()}</h1>
@@ -159,7 +193,7 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 			<div className="modal-label">
 				<h3 className="text-[16px]">Match Link</h3>
 
-				<CopyInput copyText={createMatchUrl(selectedMatch)} />
+				<CopyInput copyText={createMatchUrl(currentMatch)} />
 				
 				{renderMatchButtons()}
 			</div>

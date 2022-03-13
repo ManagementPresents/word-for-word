@@ -1,42 +1,29 @@
-import { FC, useState, useEffect} from 'react';
+import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import CopyInput from '../CopyInput';
 import Button from '../buttons/Button';
 import Modal from './Modal';
-import WordleHistory from '../WordleHistory';
 
-import Player from '../../interfaces/Player';
-import Turn from '../../interfaces/Turn';
-import Cell from '../../interfaces/match/Cell';
-import useStore from '../../utils/store';
-import {
-	createMatchUrl,
-	getMatchOpponentId,
-	isPlayerCurrentTurn,
-	numericalObjToArray,
-} from '../../utils/misc';
 import { renderWordleSquares } from '../../utils/wordUtils';
 
 interface Props {
     nextWordle: string;
-    isWordleSentModalOpen: boolean;
 	isOpen: boolean;
 	onRequestClose: any;
-    handleCloseWordleSentModal: any;
     matchLink: string;
 }
 
 const WordleSentModal: FC<Props> = ({
-    isWordleSentModalOpen,
-    handleCloseWordleSentModal,
+    isOpen,
+    onRequestClose,
     nextWordle,
     matchLink,
 }: Props) => {
     const navigate = useNavigate();
-    
+
     return (
-        <Modal isOpen={isWordleSentModalOpen} onRequestClose={handleCloseWordleSentModal}>
+        <Modal isOpen={isOpen} onRequestClose={onRequestClose}>
             <h1 className="text-4xl text-center">Your Wordle Has Been Sent!</h1>
 
             <div className="flex flex-row gap-x-2 justify-center">
@@ -55,7 +42,7 @@ const WordleSentModal: FC<Props> = ({
             </div>
 
             <Button
-                customStyle="yellow-match-button-hollow"
+                customStyle="yellow-button-hollow"
                 onClick={() => navigate('/lobby')}
                 copy="Return to Lobby"
             ></Button>

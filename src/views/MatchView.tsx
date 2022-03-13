@@ -10,7 +10,6 @@ import { Keyboard } from '../components/Keyboard';
 import Modal from '../components/modals/Modal';
 import Loading from '../components/Loading';
 import Button from '../components/buttons/Button';
-import CopyInput from '../components/CopyInput';
 import EndTurnModal from '../components/modals/EndTurnModal';
 import NewMatchModal from '../components/modals/NewMatchModal';
 import WordleSentModal from '../components/modals/WordleSentModal';
@@ -24,7 +23,6 @@ import {
 	getMatchOpponentId,
 } from '../utils/misc';
 import { letters } from '../constants';
-import { renderWordleSquares } from '../utils/wordUtils';
 import Turn from '../interfaces/Turn';
 import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
@@ -313,7 +311,7 @@ function MatchView() {
 	const [board, setBoard] = useState(initialStates.board);
 	const [isEndTurnModalOpen, setIsEndTurnModalOpen] = useState(false);
 	const [isLoadingMatch, setIsLoadingMatch] = useState(true);
-	const [isExitModalOpen, setIsExitModalOpen] = useState(false);
+	const [isWordleSentModalOpen, setIsWordleSentModalOpen] = useState(false);
 
 	const handleCloseEndTurnModal = () => {
 		// navigate('/lobby');
@@ -417,13 +415,13 @@ function MatchView() {
                     TODO: It feels abrupt showing this modal with no delay.
                     In the long term, perhaps a fun victory animation? 
                 */
-				setTimeout(async () => {
+				setTimeout(() => {
 					setIsEndTurnModalOpen(true);
 				}, 500);
 			} else if (isGameLost) {
 				setGameState(GameState.LOST);
 
-				setTimeout(async () => {
+				setTimeout(() => {
 					setIsEndTurnModalOpen(true);
 				}, 500);
 			}
@@ -508,13 +506,13 @@ function MatchView() {
 				currentTurn.activePlayer !== user.uid
 			) {
 				setIsEndTurnModalOpen(false);
-				setIsExitModalOpen(true);
+				setIsWordleSentModalOpen(true);
 				// TODO: This setOpenMatchLink thing probably needs to be abstracted
 				// @ts-ignore
 				setMatchLink(`${process.env.REACT_APP_URL}/match/${currentMatch.id}`);
 			}
 		}
-	}, [currentMatch]);
+	}, [currentMatch, user]);
 
 	return (
 		<div>
@@ -695,7 +693,12 @@ function MatchView() {
 								isLobbyReturn={true}
 							/>
 
-							<WordleSentModal />
+							<WordleSentModal 
+								nextWordle={nextWordle}
+								isOpen={isWordleSentModalOpen}
+								matchLink={matchLink}
+								onRequestClose={() => console.log('close')}
+							/>
 
 							<div
 								className={`h-auto relative mt-6 ${

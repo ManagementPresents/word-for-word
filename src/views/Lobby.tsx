@@ -11,6 +11,7 @@ import EndTurnModal from '../components/modals/EndTurnModal';
 import { 
 	getMatchOpponentId, 
 	hasPlayerWonCurrentTurn,
+	getCurrentTurn,
 } from '../utils/misc';
 import useStore from '../utils/store';
 import { TIMEOUT_DURATION } from '../utils/constants';
@@ -18,6 +19,8 @@ import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
 import Players from '../interfaces/Players';
 import GameState from '../interfaces/GameState';
+import WordleSentModal from '../components/modals/WordleSentModal';
+import Turn from '../interfaces/Turn';
 
 const Lobby = () => {
 	const { 
@@ -26,17 +29,18 @@ const Lobby = () => {
 		matches, 
 		setMatches, 
 		setMatchOpponents, 
-		selectedMatch 
+		currentMatch 
 	} = useStore();
 
 	const [isNewMatchModalOpen, setIsNewMatchModalOpen] = useState(false);
 	const [isLoadingMatches, setIsLoadingMatches] = useState(true);
 	const [isLobbyMatchModalOpen, setIsLobbyMatchModalOpen] = useState(false);
 	const [isEndTurnModalOpen, setIsEndTurnModalOpen] = useState(false);
+	const [isWordleSentModalOpen, setIsWordleSentModalOpen] = useState(false);
 	const [nextWordle, setNextWordle] = useState('');
 
 	const determineGameState = () => {
-		return hasPlayerWonCurrentTurn(selectedMatch, user.uid) ? GameState.WON : '';
+		return hasPlayerWonCurrentTurn(currentMatch, user.uid) ? GameState.WON : '';
 	};
 
 	useEffect(() => {
@@ -127,7 +131,28 @@ const Lobby = () => {
 				}
 			})();
 		}
-	}, [user]);
+	}, [user, db, setMatchOpponents, setMatches]);
+
+	// For handling end game state changes and showing the correct 'game over' modals
+	useEffect(() => {
+		const hasCurrentMatch = Object.keys(currentMatch).length;
+
+		if (hasCurrentMatch && currentMatch?.turns?.length && user) {
+			const currentTurn: Turn = getCurrentTurn(currentMatch.turns);
+
+			// TODO: This many conditions may not be necessary
+			if (
+				currentTurn &&
+				currentTurn.activePlayer &&
+				currentTurn.turnState === 'playing' &&
+				currentTurn.activePlayer !== user.uid &&
+				isEndTurnModalOpen
+			) {
+				setIsEndTurnModalOpen(false);
+				setIsWordleSentModalOpen(true);
+			}
+		}
+	}, [currentMatch, user, isEndTurnModalOpen]);
 
 	const handleStartNewMatch = () => {
 		// TODO: The idea here is totally reset the game creation modal whenever it is closed. There may be a more elegant way to handle this.
@@ -221,6 +246,13 @@ const Lobby = () => {
 				setNextWordle={setNextWordle}
 				gameState={determineGameState()}
 				lazyLoadOpponentPlayer={true}
+			/>
+
+			<WordleSentModal 
+				nextWordle={nextWordle}
+				isOpen={isWordleSentModalOpen}
+				onRequestClose={() => setIsWordleSentModalOpen(false)}
+				matchLink={`${process.env.REACT_APP_URL}/match/${currentMatch.id}`}
 			/>
 		</Fragment>
 	);

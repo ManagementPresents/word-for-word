@@ -17,7 +17,6 @@ import ValidationError from '../../interfaces/ValidationError';
 import Turn from '../../interfaces/Turn';
 import GameState from '../../interfaces/GameState';
 import Player from '../../interfaces/Player';
-import Match from '../../interfaces/Match';
 
 interface Props {
 	isOpen: boolean;
@@ -47,9 +46,12 @@ const EndTurnModal: FC<Props> = ({
 		currentMatch, 
 		setCurrentMatch,
 		setOpponentPlayer,
-		selectedMatch,
 	} = useStore();
 
+	/* 
+		TODO: This bullshit is because EndTurnModal can now be accessed in places where currentMatch isn't guaranteed to be present.
+		Consolidation would eventually be good.
+	*/
 	const [answer] = useState(getCurrentTurn(currentMatch.turns)?.wordle.toUpperCase());
 	const [wordleValidationErrors, setWordleValidationErrors] = useState([]);
 	const [isSendingWordle, setIsSendingWordle] = useState(false);
@@ -68,12 +70,7 @@ const EndTurnModal: FC<Props> = ({
 	};
 
 	const handleSendWordle = async () => {
-		/* 
-			TODO: This bullshit is because EndTurnModal can now be accessed in places where currentMatch isn't guaranteed to be present.
-			Consolidation would eventually be good.
-		*/
-		const match = Object.keys(currentMatch).length ? currentMatch : selectedMatch;
-		const opponentId: string = getMatchOpponentId(user, match);
+		const opponentId: string = getMatchOpponentId(user, currentMatch);
 
 		const newTurn: Turn = {
 			activePlayer: opponentId,
@@ -82,8 +79,9 @@ const EndTurnModal: FC<Props> = ({
 			keyboardStatus: {},
 			turnState: 'playing',
 			wordle: nextWordle,
+			hasActivePlayerStartedTurn: false,
 		};
-		const updatedTurns: Turn[] = updateCurrentTurn(match.turns, (turn: Turn) => {
+		const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
 			turn.currentTurn = false;
 			// TODO: This state obviously needs to depend on whether they won or lost
 			turn.turnState = 'won';
@@ -94,7 +92,7 @@ const EndTurnModal: FC<Props> = ({
 
 		setIsSendingWordle(true);
 
-		const currentMatchRef = doc(db, 'matches', match.id);
+		const currentMatchRef = doc(db, 'matches', currentMatch.id);
 
 		await setDoc(
 			currentMatchRef,
@@ -211,7 +209,7 @@ const EndTurnModal: FC<Props> = ({
 					/>
 
 					<Button
-						customStyle={'yellow-match-button mt-4'}
+						customStyle={'yellow-button-hollow mt-4'}
 						copy="Back to Lobby"
 						onClick={handleBackToLobby}
 					/>
@@ -234,14 +232,8 @@ const EndTurnModal: FC<Props> = ({
 	useEffect(() => {
 		if (!Object.keys(opponentPlayer).length && lazyLoadOpponentPlayer) {
 			(async () => {
-				/* 
-					TODO: This weirdness is because we also load EndTurnModal in places where currentMatch isn't guaranted to be present. Perhaps consider consolidating currentMatch and selectedMatch into one value.
-				*/
-				
-				const match: Match = Object.keys(currentMatch).length ? currentMatch : selectedMatch;
-
 				// TODO: Need a loading throbber here
-				const opponentPlayerDocRef = doc(db, 'players', getMatchOpponentId(user, match));
+				const opponentPlayerDocRef = doc(db, 'players', getMatchOpponentId(user, currentMatch));
 				const opponentPlayerSnap = await getDoc(opponentPlayerDocRef);
 
 				if (opponentPlayerSnap.exists()) {
@@ -251,7 +243,7 @@ const EndTurnModal: FC<Props> = ({
 				}
 			})();
 		}
-	}, [opponentPlayer, lazyLoadOpponentPlayer, currentMatch, db, selectedMatch, setOpponentPlayer, user]);
+	}, [opponentPlayer, lazyLoadOpponentPlayer, currentMatch, db, setOpponentPlayer, user]);
 
 	return (
 		<Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={true}>

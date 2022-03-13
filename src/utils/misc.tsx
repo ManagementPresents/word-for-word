@@ -68,6 +68,8 @@ const createMatchUrl = (match: Match): string => {
 const getMatchOpponentId = (user: any, match: Match): string => {
 	const { uid } = user;
 	const { players } = match;
+	
+	if (!players?.guestId && uid !== players?.hostId) return uid;
 
 	return uid === players?.guestId ? players?.hostId : players?.guestId;
 };

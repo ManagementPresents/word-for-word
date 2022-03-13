@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
 import { faUserClock } from '@fortawesome/free-solid-svg-icons';
@@ -12,6 +12,7 @@ import {
 	isPlayerCurrentTurn,
 	getLastPlayedWordByPlayerId,
 	hasPlayerWonCurrentTurn,
+	getCurrentTurn,
 } from '../utils/misc';
 import useStore from '../utils/store';
 
@@ -27,9 +28,9 @@ const MatchCard: FC<Props> = ({
 	setIsLobbyMatchModalOpen,
 	setIsEndTurnModalOpen, 
 }: Props) => {
-	const { setSelectedMatch, user, matchOpponents } = useStore();
+	const { setCurrentMatch, user, matchOpponents } = useStore();
 
-	const [isUserTurn] = useState(isPlayerCurrentTurn(match, user.uid));
+	const [isUserTurn, setIsUserTurn] = useState(false);
 	const [matchOpponent] = useState(matchOpponents[getMatchOpponentId(user, match)]);
 
 	// TODO: I'm sure there's room for even more abstraction for the repetition across these functions
@@ -69,30 +70,36 @@ const MatchCard: FC<Props> = ({
 
 	const renderMatchButton = () => {
 		const { players } = match;
+		const currentTurn = getCurrentTurn(match.turns);
 
 		if (match.outcome) {
 			return <Button copy="See Results" customStyle="grey-match-button" />;
 		}
 
-		if (hasPlayerWonCurrentTurn(match, user.uid)) return <Button copy="Send Back a Wordle!" customStyle="yellow-match-button" />;
+		if (isUserTurn && hasPlayerWonCurrentTurn(match, user.uid)) {
+			return <Button copy="Send Back a Wordle!" customStyle="yellow-match-button" />;
+		}
 		
-		if (isUserTurn) {
+		if (!isUserTurn) {
+			return <Button copy="Opponent is taking their turn" customStyle="green-match-button" />;
+		}
+
+		if (isUserTurn && !currentTurn?.hasActivePlayerStartedTurn) {
 			return <Button copy="The results are in ..." customStyle="yellow-match-button" />;
+		}
+
+		if (isUserTurn) {
+			return <Button copy="It's your turn!" customStyle="yellow-match-button" />;
 		}
 
 		if (!players.guestId) {
 			return <Button copy="Waiting for an Opponent" customStyle="green-match-button" />;
 		}
-
-		if (matchOpponent) {
-			return <Button copy="Opponent is taking their turn" customStyle="green-match-button" />;
-		}
 	};
 
 	const handleCardClick = () => {
-		setSelectedMatch(match);
+		setCurrentMatch(match);
 
-		console.log('match', { match }, 'won?', hasPlayerWonCurrentTurn(match, user.uid))
 		if (hasPlayerWonCurrentTurn(match, user.uid)) {
 		setIsEndTurnModalOpen(true);
 		} else {
@@ -107,6 +114,10 @@ const MatchCard: FC<Props> = ({
 		if (isUserTurn) return 'yellow';
 		if (!matchOpponent || (matchOpponent && !isUserTurn)) return 'green';
 	};
+
+	useEffect(() => {
+		setIsUserTurn(isPlayerCurrentTurn(match, user.uid));
+	}, [match, user.uid]);
 
 	return (
 		<div
