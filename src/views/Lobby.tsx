@@ -188,7 +188,7 @@ const Lobby = ({}: Props) => {
 						</h2>
 					</div>
 
-					<div className="flex flex-col justify-conter font-normal text-gray-700 dark:text-gray-400">
+					<div className="flex flex-col justify-conter font-normal text-grey-700 dark:text-grey-400">
 						<div className="flex flex-row gap-x-6 md:flex-col">
 							<div>
 								<h3 className="text-base font-bold text-[#F1F3F9] dark:text-grey-400">
@@ -198,14 +198,14 @@ const Lobby = ({}: Props) => {
 							</div>
 
 							<div>
-								<h3 className="text-base font-bold text-[#F1F1F9] dark:text-gray-400">
+								<h3 className="text-base font-bold text-[#F1F1F9] dark:text-grey-400">
 									Wins
 								</h3>
 								<span className="text-[#F1F1F9]">69</span>
 							</div>
 
 							<div>
-								<h3 className="text-base font-bold text-[#F1F1F9] dark:text-gray-400">
+								<h3 className="text-base font-bold text-[#F1F1F9] dark:text-grey-400">
 									Losses
 								</h3>
 								<span className="text-[#F1F1F9]">420</span>

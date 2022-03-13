@@ -70,7 +70,7 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 
 					<Button
 						copy="Forfeit Match"
-						color="grayHollow"
+						color="greyHollow"
 						onClick={() => {
 							console.log('cancel and delete match');
 						}}
@@ -89,7 +89,7 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 			<Button
 				customStyle="w-full"
 				copy="Cancel Invite"
-				color="grayHollow"
+				color="greyHollow"
 				onClick={() => {
 					console.log('cancel and delete match');
 				}}
