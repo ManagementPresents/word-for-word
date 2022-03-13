@@ -89,8 +89,9 @@ const hasPlayerWonCurrentTurn = (match: Match = {} as Match, playerId: string): 
 		const currentTurn = getCurrentTurn(match.turns);
 
 		const guessesArray: Cell[][] = numericalObjToArray(currentTurn.guesses);
+
 		// TODO: i'll be the first to admit this could be hard to read
-		const isTurnWon: boolean = guessesArray.every((singleGuess: Cell[]) => {
+		const isTurnWon: boolean = !!guessesArray.length && guessesArray.every((singleGuess: Cell[]) => {
 			return singleGuess.every((guessLetter: Cell) => {
 				return guessLetter.status === 'correct';
 			});

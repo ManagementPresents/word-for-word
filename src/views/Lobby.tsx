@@ -36,7 +36,6 @@ const Lobby = () => {
 	const [nextWordle, setNextWordle] = useState('');
 
 	const determineGameState = () => {
-		console.log({ selectedMatch}, 'fuck', user.uid)
 		return hasPlayerWonCurrentTurn(selectedMatch, user.uid) ? GameState.WON : '';
 	};
 
@@ -221,6 +220,7 @@ const Lobby = () => {
 				nextWordle={nextWordle}
 				setNextWordle={setNextWordle}
 				gameState={determineGameState()}
+				lazyLoadOpponentPlayer={true}
 			/>
 		</Fragment>
 	);

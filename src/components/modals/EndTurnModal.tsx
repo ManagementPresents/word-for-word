@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from 'react';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +16,8 @@ import { validateWordle } from '../../utils/validation';
 import ValidationError from '../../interfaces/ValidationError';
 import Turn from '../../interfaces/Turn';
 import GameState from '../../interfaces/GameState';
+import Player from '../../interfaces/Player';
+import Match from '../../interfaces/Match';
 
 interface Props {
 	isOpen: boolean;
@@ -23,6 +25,7 @@ interface Props {
 	nextWordle: string;
 	setNextWordle: any;
 	gameState: string;
+	lazyLoadOpponentPlayer?: boolean;
 	setIsOpenMatchChallenge?: any;
 	setIsEndTurnModalOpen?: any;
 }
@@ -35,9 +38,17 @@ const EndTurnModal: FC<Props> = ({
 	gameState,
 	setIsOpenMatchChallenge,
 	setIsEndTurnModalOpen,
+	lazyLoadOpponentPlayer,
 }: Props) => {
-	console.log('ye', { gameState })
-	const { opponentPlayer, db, user, currentMatch, setCurrentMatch } = useStore();
+	const { 
+		opponentPlayer, 
+		db, 
+		user, 
+		currentMatch, 
+		setCurrentMatch,
+		setOpponentPlayer,
+		selectedMatch,
+	} = useStore();
 
 	const [answer] = useState(getCurrentTurn(currentMatch.turns)?.wordle.toUpperCase());
 	const [wordleValidationErrors, setWordleValidationErrors] = useState([]);
@@ -57,7 +68,12 @@ const EndTurnModal: FC<Props> = ({
 	};
 
 	const handleSendWordle = async () => {
-		const opponentId: string = getMatchOpponentId(user, currentMatch);
+		/* 
+			TODO: This bullshit is because EndTurnModal can now be accessed in places where currentMatch isn't guaranteed to be present.
+			Consolidation would eventually be good.
+		*/
+		const match = Object.keys(currentMatch).length ? currentMatch : selectedMatch;
+		const opponentId: string = getMatchOpponentId(user, match);
 
 		const newTurn: Turn = {
 			activePlayer: opponentId,
@@ -67,7 +83,7 @@ const EndTurnModal: FC<Props> = ({
 			turnState: 'playing',
 			wordle: nextWordle,
 		};
-		const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
+		const updatedTurns: Turn[] = updateCurrentTurn(match.turns, (turn: Turn) => {
 			turn.currentTurn = false;
 			// TODO: This state obviously needs to depend on whether they won or lost
 			turn.turnState = 'won';
@@ -78,7 +94,7 @@ const EndTurnModal: FC<Props> = ({
 
 		setIsSendingWordle(true);
 
-		const currentMatchRef = doc(db, 'matches', currentMatch.id);
+		const currentMatchRef = doc(db, 'matches', match.id);
 
 		await setDoc(
 			currentMatchRef,
@@ -101,7 +117,7 @@ const EndTurnModal: FC<Props> = ({
 		if (gameState === GameState.WON) {
 			return (
 				<>
-					<span className="yellow-font uppercase text-center text-[24px] md:text-[42px]">
+					<span className="yellow-font uppercase text-center text-[24px] md:text-[38px]">
 						You guessed their word!
 					</span>
 
@@ -214,6 +230,28 @@ const EndTurnModal: FC<Props> = ({
 		// TODO: Clunky way to ensure we see the validation errors the first time the wordle input renders
 		handleValidateWordle();
 	}, []);
+
+	useEffect(() => {
+		if (!Object.keys(opponentPlayer).length && lazyLoadOpponentPlayer) {
+			(async () => {
+				/* 
+					TODO: This weirdness is because we also load EndTurnModal in places where currentMatch isn't guaranted to be present. Perhaps consider consolidating currentMatch and selectedMatch into one value.
+				*/
+				
+				const match: Match = Object.keys(currentMatch).length ? currentMatch : selectedMatch;
+
+				// TODO: Need a loading throbber here
+				const opponentPlayerDocRef = doc(db, 'players', getMatchOpponentId(user, match));
+				const opponentPlayerSnap = await getDoc(opponentPlayerDocRef);
+
+				if (opponentPlayerSnap.exists()) {
+					const opponentPlayerData: Player = opponentPlayerSnap.data() as Player;
+
+					setOpponentPlayer(opponentPlayerData);
+				}
+			})();
+		}
+	}, [opponentPlayer, lazyLoadOpponentPlayer, currentMatch, db, selectedMatch, setOpponentPlayer, user]);
 
 	return (
 		<Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={true}>

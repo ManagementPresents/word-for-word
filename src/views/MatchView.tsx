@@ -13,6 +13,7 @@ import Button from '../components/buttons/Button';
 import CopyInput from '../components/CopyInput';
 import EndTurnModal from '../components/modals/EndTurnModal';
 import NewMatchModal from '../components/modals/NewMatchModal';
+import WordleSentModal from '../components/modals/WordleSentModal';
 
 import useStore from '../utils/store';
 import {
@@ -20,6 +21,7 @@ import {
 	numericalObjToArray,
 	updateCurrentTurn,
 	getCurrentTurn,
+	getMatchOpponentId,
 } from '../utils/misc';
 import { letters } from '../constants';
 import { renderWordleSquares } from '../utils/wordUtils';
@@ -451,7 +453,7 @@ function MatchView() {
 						// TODO: The capitalization for the wordle needs to be standardized universally, at some point
 						setAnswer(currentTurn.wordle.toUpperCase());
 
-						const opponentPlayerDocRef = doc(db, 'players', matchData.players.hostId);
+						const opponentPlayerDocRef = doc(db, 'players', getMatchOpponentId(user, matchData));
 						const opponentPlayerSnap = await getDoc(opponentPlayerDocRef);
 
 						if (opponentPlayerSnap.exists()) {
@@ -479,8 +481,8 @@ function MatchView() {
 									currentTurn.keyboardStatus,
 								).length;
 
-								if (hasKeyboardStatus)
-									setKeyboardStatus(currentTurn.keyboardStatus);
+								if (hasKeyboardStatus) setKeyboardStatus(currentTurn.keyboardStatus);
+								
 								setCurrentRowIndex(guessArray.length);
 								setBoard(newBoard);
 							}
@@ -693,30 +695,7 @@ function MatchView() {
 								isLobbyReturn={true}
 							/>
 
-							<Modal isOpen={isExitModalOpen} onRequestClose={handleCloseExitModal}>
-								<h1 className="text-4xl text-center">Your Wordle Has Been Sent!</h1>
-
-								<div className="flex flex-row gap-x-2 justify-center">
-									{renderWordleSquares(nextWordle, 'green')}
-								</div>
-
-								<div className="flex flex-col text-center">
-									<p>Your opponent has been notified that it's their turn.</p>
-									<p>
-										If you're antsy, you can always send them this match's link.
-									</p>
-								</div>
-
-								<div className="flex flex-col gap-y-2">
-									<CopyInput copyText={matchLink} />
-								</div>
-
-								<Button
-									customStyle="yellow-match-button-hollow"
-									onClick={() => navigate('/lobby')}
-									copy="Return to Lobby"
-								></Button>
-							</Modal>
+							<WordleSentModal />
 
 							<div
 								className={`h-auto relative mt-6 ${

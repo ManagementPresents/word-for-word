@@ -91,9 +91,10 @@ const MatchCard: FC<Props> = ({
 
 	const handleCardClick = () => {
 		setSelectedMatch(match);
-		
+
+		console.log('match', { match }, 'won?', hasPlayerWonCurrentTurn(match, user.uid))
 		if (hasPlayerWonCurrentTurn(match, user.uid)) {
-			setIsEndTurnModalOpen(true);
+		setIsEndTurnModalOpen(true);
 		} else {
 			setIsLobbyMatchModalOpen(true);
 		}
