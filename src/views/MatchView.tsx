@@ -124,7 +124,7 @@ function MatchView() {
 			case 'misplaced':
 				return 'yellow animate__flipInY';
 			case 'incorrect':
-				return 'dark-gray animate__flipInY';
+				return 'dark-grey animate__flipInY';
 			default:
 				return 'animate__flipInY border guesses-style-default';
 		}
@@ -243,7 +243,7 @@ function MatchView() {
 		const wordLength = word.length;
 		const answerLetters: string[] = answer.split('');
 
-		// Set all to gray
+		// Set all to grey
 		for (let i = 0; i < wordLength; i++) {
 			newBoard[rowNumber][i].status = 'incorrect';
 		}
@@ -572,7 +572,7 @@ function MatchView() {
 
 										<li className="mb-2">
 											After each guess, each letter will turn green, yellow,
-											or gray.
+											or grey.
 										</li>
 									</ul>
 
@@ -647,7 +647,7 @@ function MatchView() {
 											setIsLandingModalOpen(false);
 										}}
 										copy="Rudely Decline"
-										color="gray"
+										color="grey"
 									/>
 
 									<Button

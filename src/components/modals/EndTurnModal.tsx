@@ -165,7 +165,7 @@ const EndTurnModal: FC<Props> = ({
 
 						<Button
 							copy="Forfeit Game"
-							color="gray"
+							color="grey"
 							onClick={() => {
 								console.log('forfeit game');
 							}}

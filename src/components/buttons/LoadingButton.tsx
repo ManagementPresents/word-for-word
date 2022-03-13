@@ -21,7 +21,7 @@ const LoadingButton: FC<Props> = ({
 	const generateClassName = () => {
 		if (color === 'green') return 'green-button';
 
-		if (color === 'gray') return 'grey-button';
+		if (color === 'grey') return 'grey-button';
 
 		if (color === 'yellow') return 'yellow-button';
 
@@ -29,7 +29,7 @@ const LoadingButton: FC<Props> = ({
 
 		if (color === 'greenHollow') return 'green-button-hollow';
 
-		if (color === 'grayHollow') return 'grey-button-hollow';
+		if (color === 'greyHollow') return 'grey-button-hollow';
 	};
 
 	// TODO: Should not have a hover state when disabled

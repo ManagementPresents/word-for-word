@@ -3,6 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
 import { faUserClock } from '@fortawesome/free-solid-svg-icons';
 
+import Button from './buttons/Button';
+
 import Match from '../interfaces/Match';
 import { renderWordleSquares } from '../utils/wordUtils';
 import {
@@ -69,26 +71,20 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 	const renderMatchButton = () => {
 		const { players } = match;
 
+		if (match.isMatchEnded) {
+			return 	<Button copy="See Results" color="grey" />
+		}
+
 		if (isUserTurn) {
-			return <button className="green-match-button">The results are in...</button>;
+			return <Button copy="The results are in ..." color="green" />;
 		}
 
 		if (!players.guestId) {
-			// TODO: is this language "fun" enough to justify being both twee and potentially a touch unclear?
-			// took another pass at it
-			return (
-				<button className="yellow-match-button">{`Waiting for an Opponent to Accept`}</button>
-			);
+			return <Button copy="Waiting for an Opponent" color="yellow" />;
 		}
 
 		if (matchOpponent) {
-			// TODO: Copy?
-			// hey, here's another bad version of it!
-			return (
-				<button className="yellow-match-button-hollow">
-					Your opponent is taking their turn.
-				</button>
-			);
+			return <Button copy="Opponent is taking their turn" color="yellow" />;
 		}
 	};
 
@@ -100,6 +96,7 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 	/* Hello Gabriel. It's me again. The sleepy dipshit. I changed stuff below here to return just the color instead of the full "[color]-match-style" it was before, and in the section after that, I copied over the handleCardColor use I saw in the next class name, but for all the other now super modular class names in lieu of bugging you to write a whole thing about it. I think this works for now, but I am a sleepy sweaty dumb dumb who lost the ability to read when I gained massive boobies. So. Yknow. Grain of salt.*/
 
 	const handleCardColor = () => {
+		if (match.isMatchEnded) return 'grey';
 		if (isUserTurn) return 'green';
 		if (!matchOpponent || (matchOpponent && !isUserTurn)) return 'yellow';
 	};

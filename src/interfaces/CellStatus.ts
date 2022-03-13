@@ -2,7 +2,7 @@
 enum CellStyle {
 	CORRECT = 'green',
 	MISPLACED = 'yellow',
-	INCORRECT = 'dark-gray',
+	INCORRECT = 'dark-grey',
 	UNGUESSED = 'neutral',
 }
 

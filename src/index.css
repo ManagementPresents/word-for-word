@@ -76,7 +76,7 @@ html {
 	color: #609b94;
 }
 
-.gray-font {
+.grey-font {
 	color: #c7c7cd;
 }
 
@@ -90,12 +90,12 @@ html {
 	color: #443f38;
 }
 
-.gray {
+.grey {
 	background-color: #c7c7cd;
 	color: #2a272a;
 }
 
-.dark-gray {
+.dark-grey {
 	background-color: #353135;
 	color: #f1f3f9;
 }
@@ -106,12 +106,12 @@ html {
 }
 
 /* Buttons */
-.gray-button-style {
+.grey-button-style {
 	background-color: #9d9ba1;
 	color: #f1f3f9;
 }
 
-.gray-button-style:hover {
+.grey-button-style:hover {
 	background-color: #c7c7cd;
 	color: #2a272a;
 }

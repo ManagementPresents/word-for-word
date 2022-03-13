@@ -20,7 +20,7 @@ const Button: FC<Props> = ({ onClick, color, copy, disabled, customStyle = '' }:
 
 		if (color === 'greenHollow') return 'green-button-hollow';
 
-		if (color === 'grayHollow') return 'grey-button-hollow';
+		if (color === 'greyHollow') return 'grey-button-hollow';
 	};
 
 	// TODO: 'disabled' states should not have a hover effect

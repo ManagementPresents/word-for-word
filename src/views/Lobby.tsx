@@ -49,7 +49,7 @@ const Lobby = ({}: Props) => {
                         Perhaps this could, eventually, be abstracted to a cloud function end point, where it would be safe to pull/cache all the matches/players, filter on the server, and bring them back here. Need to test and see if that would actually be more performant.
                     */
 					const playerMatches: Match[] = await Promise.all(
-						matchIds.map(async (matchId: string): Promise<Match> => {
+						matchIds?.map(async (matchId: string): Promise<Match> => {
 							const matchRef = doc(db, 'matches', matchId);
 							const matchSnap = await getDoc(matchRef);
 
@@ -191,7 +191,7 @@ const Lobby = ({}: Props) => {
 					<div className="flex flex-col justify-conter font-normal text-gray-700 dark:text-gray-400">
 						<div className="flex flex-row gap-x-6 md:flex-col">
 							<div>
-								<h3 className="text-base font-bold text-[#F1F3F9] dark:text-grey-400">
+								<h3 className="text-base font-bold text-[#F1F3F9] dark:text-gray-400">
 									Matches Played
 								</h3>
 								<span className="text-[#F1F3F9]">489</span>
