@@ -386,16 +386,21 @@ function MatchView() {
 			const isMatchWon: boolean = (lastFilledRow && isRowAllGreen(lastFilledRow)) as boolean;
 			const isGameLost: boolean = (currentRowIndex === 6) as boolean;
 
-			if (isGameLost) {
-				console.log('FUCK', currentMatch);
-				if (!currentMatch.isMatchEnded) {
+			if (isGameLost || isMatchWon) {
+				if (!currentMatch.outcome) {
 					const currentMatchRef = doc(db, 'matches', currentMatch.id);
+
+					// TODO: Update local state AND firestore. this feels ... fragile, to say the least
+					setCurrentMatch({
+						...currentMatch,
+						outcome: isGameLost ? opponentPlayer.id : user.uid
+					});
 
 					(async () => {
 						await setDoc(
 							currentMatchRef,
 							{
-								isMatchEnded: true,
+								outcome: isGameLost ? opponentPlayer.id : user.uid
 							},
 							{ merge: true },
 						);

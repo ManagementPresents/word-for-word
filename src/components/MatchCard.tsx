@@ -35,7 +35,7 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 		const { players } = match;
 		let cardDetailsColor = '';
 
-		if (match.isMatchEnded) {
+		if (match.outcome) {
 			cardDetailsColor = 'grey';
 		} else if (isUserTurn) {
 			cardDetailsColor = 'green';
@@ -65,7 +65,7 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 	const renderMatchButton = () => {
 		const { players } = match;
 
-		if (match.isMatchEnded) {
+		if (match.outcome) {
 			return 	<Button copy="See Results" color="grey" />
 		}
 
@@ -90,7 +90,7 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 	/* Hello Gabriel. It's me again. The sleepy dipshit. I changed stuff below here to return just the color instead of the full "[color]-match-style" it was before, and in the section after that, I copied over the handleCardColor use I saw in the next class name, but for all the other now super modular class names in lieu of bugging you to write a whole thing about it. I think this works for now, but I am a sleepy sweaty dumb dumb who lost the ability to read when I gained massive boobies. So. Yknow. Grain of salt.*/
 
 	const handleCardColor = () => {
-		if (match.isMatchEnded) return 'grey';
+		if (match.outcome) return 'grey';
 		if (isUserTurn) return 'green';
 		if (!matchOpponent || (matchOpponent && !isUserTurn)) return 'yellow';
 	};
@@ -102,7 +102,7 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 		>
 			<div className="card-label">
 				{renderCardDetails()}
-				<span className={`${handleCardColor()}-match-text`}>You entered the word:</span>
+				<span className={`${handleCardColor()}-match-text`}>{match.outcome ? 'Final Word' : 'You last played'}</span>
 			</div>
 
 			{/* TODO: investigate repsonsiveness at REALLY small screen sizes ( < 360px) */}

@@ -176,46 +176,6 @@ const Lobby = ({}: Props) => {
 	return (
 		<Fragment>
 			<div className="max-w-7xl flex flex-col gap-y-3 h-full md:gap-x-6 md:flex-row mx-auto py-6 px-4 sm:px-6 lg:px-8">
-				{/* TODO: Hi it's me zoe again, I know we're probably ganking this part sooner rather than later but just to make it a little easier on the eyes in the meantime I'm having it pull some minor non-functional aesthetics from the matchbox style, feel free to do whatever with it. I changed the font colors below manually */}
-				<div className="flex flex-col gap-y-2 h-max p-4 rounded-lg border shadow-md lobby-matchbox-style md:basis-2/12">
-					<div>
-						<h3 className="text-1xl font-bold tracking-tight text-[#F1F3F9]">
-							Welcome back,
-						</h3>
-						{/* TODO: If email is super long, it'll stretch the page */}
-						<h2 className="text-2xl font-bold tracking-tight text-[#609B94]">
-							{user?.email}
-						</h2>
-					</div>
-
-					<div className="flex flex-col justify-conter font-normal text-gray-700 dark:text-gray-400">
-						<div className="flex flex-row gap-x-6 md:flex-col">
-							<div>
-								<h3 className="text-base font-bold text-[#F1F3F9] dark:text-gray-400">
-									Matches Played
-								</h3>
-								<span className="text-[#F1F3F9]">489</span>
-							</div>
-
-							<div>
-								<h3 className="text-base font-bold text-[#F1F1F9] dark:text-gray-400">
-									Wins
-								</h3>
-								<span className="text-[#F1F1F9]">69</span>
-							</div>
-
-							<div>
-								<h3 className="text-base font-bold text-[#F1F1F9] dark:text-gray-400">
-									Losses
-								</h3>
-								<span className="text-[#F1F1F9]">420</span>
-							</div>
-						</div>
-					</div>
-
-					<Button color="green" copy="Start a New Match" onClick={handleStartNewMatch} />
-				</div>
-
 				{/* TODO: This basis-[46rem] business is a kludge fix to ensure the layout looks right on moble */}
 				{/* Hi gabriel, I added "lobby-matchbox-style here to control some colors and such from index.css in case you're wondering wtf this is. Also, you lookin fine as hell over there just fyi. ;) */}
 				<div

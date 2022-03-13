@@ -55,8 +55,8 @@ const NewMatchModal: FC<Props> = ({
 		// TODO: Schemas need to be permanently stored and reused
 		const generatedUri = generateMatchUri(3);
 		const newMatch: Match = {
-			isMatchEnded: false,
 			id: generatedUri,
+			outcome: '',
 			players: {
 				guestId: '',
 				hostId: user.uid,
