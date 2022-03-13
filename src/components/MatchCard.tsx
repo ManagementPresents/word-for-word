@@ -13,6 +13,7 @@ import {
 	getLastPlayedWordByPlayerId,
 } from '../utils/misc';
 import useStore from '../utils/store';
+import { captureRejections } from 'events';
 
 interface Props {
 	match: Match;
@@ -32,7 +33,16 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 
 	const renderCardDetails = () => {
 		const { players } = match;
+		let cardDetailsColor = '';
 
+		if (match.isMatchEnded) {
+			cardDetailsColor = 'grey';
+		} else if (isUserTurn) {
+			cardDetailsColor = 'green';
+		} else if (matchOpponent) {
+			cardDetailsColor = 'yellow';
+		} 
+		
 		if (!players.guestId) {
 			return (
 				<div className="yellow-match-opponent">
@@ -43,29 +53,13 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 			);
 		}
 
-		if (isUserTurn) {
-			return (
-				<div className="green-match-opponent">
-					<span className="green-match-title">Match With</span>
-					<FontAwesomeIcon icon={faCircleUser} size="4x" className="green-match-avatar" />
-					<span className="green-match-user">{matchOpponent?.email}</span>
-				</div>
-			);
-		}
-
-		if (matchOpponent) {
-			return (
-				<div className="yellow-match-opponent">
-					<span className="yellow-match-title">Match With</span>
-					<FontAwesomeIcon
-						icon={faCircleUser}
-						size="4x"
-						className="yellow-match-avatar"
-					/>
-					<span className="yellow-match-user">{matchOpponent?.email}</span>
-				</div>
-			);
-		}
+		return (
+			<div className={`${cardDetailsColor}-match-opponent`}>
+				<span className={`${cardDetailsColor}-match-title`}>Match With</span>
+				<FontAwesomeIcon icon={faCircleUser} size="4x" className={`${cardDetailsColor}-match-avatar`} />
+				<span className={`${cardDetailsColor}-match-user`}>{matchOpponent?.email}</span>
+			</div>
+		);
 	};
 
 	const renderMatchButton = () => {
