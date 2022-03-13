@@ -258,14 +258,14 @@ const Register = () => {
 					isLoadingCopy={'Registering...'}
 					disabled={!isRegistrationReady}
 					isLoading={isRegistering}
-					color={'green'}
+					customStyle={'green-button-style'}
 				/>
 				<Button
 					onClick={() => {
 						navigate('/');
 					}}
 					copy={'Return'}
-					color={'yellow'}
+					customStyle={'yellow-button-style'}
 				/>
 
 				<div className="flex flex-col">

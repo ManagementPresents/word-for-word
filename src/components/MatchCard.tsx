@@ -66,19 +66,19 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 		const { players } = match;
 
 		if (match.outcome) {
-			return 	<Button copy="See Results" color="grey" />
+			return 	<Button copy="See Results" customStyle="grey-match-button" />
 		}
 
 		if (isUserTurn) {
-			return <Button copy="The results are in ..." color="green" />;
+			return <Button copy="The results are in ..." customStyle="green-match-button" />;
 		}
 
 		if (!players.guestId) {
-			return <Button copy="Waiting for an Opponent" color="yellow" />;
+			return <Button copy="Waiting for an Opponent" customStyle="yellow-match-button" />;
 		}
 
 		if (matchOpponent) {
-			return <Button copy="Opponent is taking their turn" color="yellow" />;
+			return <Button copy="Opponent is taking their turn" customStyle="yellow-match-button" />;
 		}
 	};
 

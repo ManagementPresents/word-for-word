@@ -613,12 +613,12 @@ function MatchView() {
 
 									{/* TODO: Should be a LoadingButton */}
 									<Button
-										color="green"
+										customStyle="green-match-button"
 										copy="Let's Play!"
 										onClick={handleAcceptMatch}
 									/>
 									<Button
-										color="yellow"
+										customStyle="yellow-match-button"
 										copy="Go Back"
 										onClick={handleGoBackFromHowToPlay}
 									/>
@@ -644,7 +644,7 @@ function MatchView() {
 									<Button
 										onClick={handleAcceptMatch}
 										copy="Accept"
-										color="green"
+										customStyle="green-match-button"
 									/>
 
 									<Button
@@ -652,7 +652,7 @@ function MatchView() {
 											setIsLandingModalOpen(false);
 										}}
 										copy="Rudely Decline"
-										color="grey"
+										customStyle="grey-match-button"
 									/>
 
 									<Button
@@ -660,7 +660,7 @@ function MatchView() {
 											setIsLandingModalOpen(false);
 										}}
 										copy="Politely Decline"
-										color="yellowHollow"
+										customStyle="yellow-match-button-hollow"
 									/>
 								</div>
 
@@ -712,7 +712,7 @@ function MatchView() {
 								</div>
 
 								<Button
-									color="yellowHollow"
+									customStyle="yellow-match-button-hollow"
 									onClick={() => navigate('/lobby')}
 									copy="Return to Lobby"
 								></Button>

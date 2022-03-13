@@ -136,12 +136,12 @@ const Login = () => {
 				{/* TODO: Need to make sure this works when hitting 'Enter' */}
 				<div className="flex flex-col gap-y-4 w-[inherit] items-center">
 					{/* TODO: Should be a LoadingButton */}
-					<Button onClick={handleSignIn} color="green" copy="Sign In" />
+					<Button onClick={handleSignIn} customStyle="green-match-button" copy="Sign In" />
 					<Button
 						onClick={() => {
 							navigate('/register');
 						}}
-						color="yellow"
+						customStyle="yellow-match-button"
 						copy="Register (It's Free!)"
 					/>
 				</div>

@@ -154,7 +154,7 @@ const EndTurnModal: FC<Props> = ({
 					<LoadingButton
 						copy={'Send Wordle'}
 						isLoadingCopy={'Sending Wordle...'}
-						color="green"
+						customStyle="green-match-button"
 						isLoading={isSendingWordle}
 						disabled={!!wordleValidationErrors.length}
 						onClick={handleSendWordle}
@@ -165,7 +165,7 @@ const EndTurnModal: FC<Props> = ({
 
 						<Button
 							copy="Forfeit Game"
-							color="grey"
+							customStyle="grey-match-button"
 							onClick={() => {
 								console.log('forfeit game');
 							}}
@@ -176,11 +176,11 @@ const EndTurnModal: FC<Props> = ({
 		} else if (gameState === GameState.LOST) {
 			return (
 				<div className="flex flex-col items-center gap-y-3">
-					<Button copy="Rematch?" color="grey" disabled={true} />
+					<Button copy="Rematch?" customStyle="grey-match-button" disabled={true} />
 
 					<Button
 						copy="New Open Match"
-						color="grey"
+						customStyle="grey-match-button"
 						onClick={() => {
 							setIsOpenMatchChallenge(true);
 							setIsEndTurnModalOpen(false);
@@ -189,14 +189,13 @@ const EndTurnModal: FC<Props> = ({
 
 					<Button
 						copy="Comfort Yourself, Make Up a Guy"
-						color="grey"
+						customStyle="grey-match-button"
 						onClick={() => navigate('/makeupadude')}
 					/>
 
 					<Button
-						customStyle={'mt-4'}
+						customStyle={'yellow-match-button mt-4'}
 						copy="Back to Lobby"
-						color="yellow"
 						onClick={handleBackToLobby}
 					/>
 				</div>

@@ -31,7 +31,7 @@ const CopyInput: FC<Props> = ({ copyText }: Props) => {
 
 			<CopyToClipboard text={createMatchUrl(selectedMatch)}>
 				{/* TODO: Figure out how to get data-tip working both in a component, AND with CopyToClipboard (they seem to clash with each other) */}
-				<Button color="green" copy="Copy Link" data-tip="Copied!" />
+				<Button customStyle="green-match-button" copy="Copy Link" data-tip="Copied!" />
 			</CopyToClipboard>
 		</>
 	);
