@@ -128,7 +128,7 @@ const NewMatchModal: FC<Props> = ({
 					<div className="modal-buttonzone">
 						{/* TODO: Ensure data-tip works with this new component */}
 						<Button
-							customStyle="green-button"
+							customStyle="grey-button-hollow"
 							copy="Create Open Match"
 							onClick={() => {
 								handleModalButtonClick('open');

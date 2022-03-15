@@ -218,7 +218,6 @@ const Lobby = () => {
 	return (
 		<Fragment>
 			<div className="max-w-7xl flex flex-col gap-y-3 h-full md:gap-x-6 md:flex-row mx-auto py-6 px-4 sm:px-6 lg:px-8">
-				{/* TODO: This basis-[46rem] business is a kludge fix to ensure the layout looks right on moble */}
 				{/* Hi gabriel, I added "lobby-matchbox-style here to control some colors and such from index.css in case you're wondering wtf this is. Also, you lookin fine as hell over there just fyi. ;) */}
 				<div
 					className={`lobby-matchbox-style ${matches.length ? '' : 'grid grid-cols-1'} `}

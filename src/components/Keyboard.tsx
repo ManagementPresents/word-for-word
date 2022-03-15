@@ -21,13 +21,13 @@ const Keyboard = ({
 	const getKeyStyle = (letter: string) => {
 		switch (keyboardStatus[letter]) {
 			case 'correct':
-				return CellStatus.CORRECT;
+				return `${CellStatus.CORRECT}-keyboard`;
 			case 'misplaced':
-				return CellStatus.MISPLACED;
+				return `${CellStatus.MISPLACED}-keyboard`;
 			case 'incorrect':
-				return CellStatus.INCORRECT;
+				return `${CellStatus.INCORRECT}-keyboard`;
 			default:
-				return CellStatus.UNGUESSED;
+				return `${CellStatus.UNGUESSED}-keyboard`;
 		}
 	};
 
@@ -71,7 +71,7 @@ const Keyboard = ({
 					{idx === keyboardLetters.length - 1 && (
 						<button
 							onClick={onEnterPress}
-							className="h-10 xxs:h-14 w-12 px-1 text-xs font-medium mx-[3.5px] rounded keyboard-style text-primary dark:text-primary-dark"
+							className="h-10 xxs:h-14 w-12 px-1 text-xs font-medium mx-[3.5px] rounded keyboard-style"
 						>
 							ENTER
 						</button>

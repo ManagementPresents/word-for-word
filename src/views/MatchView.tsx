@@ -107,12 +107,12 @@ function MatchView() {
 	const getCellStyles = (rowNumber: number, colNumber: number, status: string) => {
 		if (rowNumber === currentRowIndex) {
 			if (status === 'unguessed') {
-				return `guesses-style-default border ${
-					submittedInvalidWord ? 'border guesses-border-wrong' : ''
+				return `guesses-style-default ${
+					submittedInvalidWord ? 'guesses-border-wrong' : ''
 				}`;
 			}
 
-			return 'guesses-style-default border';
+			return 'guesses-style-default';
 		}
 
 		const currentCell: Cell = board[rowNumber][colNumber] as Cell;
@@ -126,7 +126,7 @@ function MatchView() {
 			case 'incorrect':
 				return 'dark-grey animate__flipInY';
 			default:
-				return 'animate__flipInY border guesses-style-default';
+				return 'animate__flipInY guesses-style-default';
 		}
 	};
 
@@ -652,7 +652,11 @@ function MatchView() {
 											setIsLandingModalOpen(false);
 										}}
 										copy="Rudely Decline"
+<<<<<<< HEAD
 										customStyle="grey-button"
+=======
+										color="grey"
+>>>>>>> main
 									/>
 
 									<Button

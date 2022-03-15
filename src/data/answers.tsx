@@ -753,6 +753,7 @@ const answers = [
 	'float',
 	'flock',
 	'flood',
+	'floof',
 	'floor',
 	'flops',
 	'flora',
