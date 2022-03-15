@@ -652,11 +652,7 @@ function MatchView() {
 											setIsLandingModalOpen(false);
 										}}
 										copy="Rudely Decline"
-<<<<<<< HEAD
 										customStyle="grey-button"
-=======
-										color="grey"
->>>>>>> main
 									/>
 
 									<Button
