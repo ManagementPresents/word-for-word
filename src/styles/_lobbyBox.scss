@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 @mixin base {
-	@apply grid grid-cols-1 overflow-y-scroll auto-rows-max p-6 basis-[46rem] rounded-lg shadow-md gap-y-4 md:basis-10/12 md:grid-cols-1 md:gap-x-4 md:grid-flow-row lg:grid-cols-2;
+	@apply grid grid-cols-1 overflow-y-scroll auto-rows-max p-6 rounded-lg shadow-md gap-y-4 md:basis-10/12 md:grid-cols-1 md:gap-x-4 md:grid-flow-row lg:grid-cols-2;
 	border-width: 1;
 	border-style: solid;
+	flex-basis: 46rem;
 }

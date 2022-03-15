@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 @mixin base {
-	@apply flex rounded-[3rem];
+	@apply flex;
+	border-radius: 3rem;
 }
 
 @mixin header {
@@ -11,15 +12,25 @@
 }
 
 @mixin body {
-	@apply text-[14px] sm:text-[18px];
+	font-size: 14px;
+
+	@media (min-width: 640px) { 
+		font-size: 18px;
+	}
 }
 
 @mixin label {
-	@apply flex flex-col items-center max-w-[275px] gap-y-2 w-full mx-auto;
+	@apply flex flex-col items-center gap-y-2 w-full mx-auto;
+	max-width: 275px;
 }
 
 @mixin content {
-	@apply flex flex-col text-center max-w-[270px] mx-auto sm:max-w-[370px] gap-y-4;
+	@apply flex flex-col text-center mx-auto gap-y-4;
+	max-width: 270px;
+
+	@media (min-width: 640px) { 
+		max-width: 370px;
+	}
 }
 
 @mixin buttonzone {
@@ -27,5 +38,8 @@
 }
 
 @mixin base2 {
-	@apply flex justify-center flex-col text-xs mx-auto gap-y-4 p-[2.5rem] md:text-base md:gap-y-8 md:p-12 md:max-w-lg rounded-[3rem];
+	@apply flex justify-center flex-col text-xs mx-auto gap-y-4 md:text-base md:gap-y-8 md:p-12 md:max-w-lg;
+
+	padding: 2.5rem;
+	border-radius: 3rem;
 }
