@@ -21,6 +21,7 @@ import {
 	updateCurrentTurn,
 	getCurrentTurn,
 	getMatchOpponentId,
+	determineOutcome,
 } from '../utils/misc';
 import { letters } from '../constants';
 import Turn from '../interfaces/Turn';
@@ -389,18 +390,23 @@ function MatchView() {
 			if (isGameLost) {
 				if (!currentMatch.outcome) {
 					const currentMatchRef = doc(db, 'matches', currentMatch.id);
+					const outcome = determineOutcome(currentMatch);
 
 					// TODO: Update local state AND firestore. this feels ... fragile, to say the least
 					setCurrentMatch({
 						...currentMatch,
-						outcome: isGameLost ? opponentPlayer.id : user.uid
+						outcome,
 					});
+
+					/*
+						TODO: In a perfect world, anything that has to do with determining fundamental game logic should probably not be present in the client. This should be abstracted out to an end point
+					*/
 
 					(async () => {
 						await setDoc(
 							currentMatchRef,
 							{
-								outcome: isGameLost ? opponentPlayer.id : user.uid
+								outcome,
 							},
 							{ merge: true },
 						);

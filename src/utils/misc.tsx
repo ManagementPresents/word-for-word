@@ -2,6 +2,7 @@ import Turn from '../interfaces/Turn';
 import Match from '../interfaces/Match';
 import ValidationError from '../interfaces/ValidationError';
 import Cell from '../interfaces/match/Cell';
+import MatchOutcome from '../interfaces/MatchOutcome';
 
 const { REACT_APP_URL } = process.env;
 
@@ -105,6 +106,25 @@ const hasPlayerWonCurrentTurn = (match: Match = {} as Match, playerId: string): 
 	return false;
 }
 
+const determineOutcome = (match: Match): string => {
+	const currentTurn = getCurrentTurn(match.turns);
+	const guessesAsArray = numericalObjToArray(currentTurn.guesses);
+	const lastGuess = guessesAsArray.slice(-1);
+	const isLastGuessIncorrect = lastGuess.every((cell: Cell) => cell.status !== 'correct');
+
+	if (isLastGuessIncorrect && guessesAsArray.length === 6) {
+		const { players } = match;
+
+		if (currentTurn.activePlayer === players.hostId) {
+			return MatchOutcome.GUEST_WIN;
+		} else if (currentTurn.activePlayer === players.guestId) {
+			return MatchOutcome.HOST_WIN;
+		}
+	}
+
+	return '';
+};
+
 export {
 	renderErrors,
 	numericalObjToArray,
@@ -117,4 +137,5 @@ export {
 	isPlayerCurrentTurn,
 	getLastPlayedWordByPlayerId,
 	hasPlayerWonCurrentTurn,
+	determineOutcome
 };
