@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 @mixin base {
-	@apply h-full flex flex-col items-center justify-center max-w-[300px] mx-auto text-primary;
+	@apply h-full flex flex-col items-center justify-center mx-auto text-primary;
+	max-width: 300px;
 }
 
 @mixin header {

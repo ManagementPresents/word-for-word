@@ -3,9 +3,10 @@
 @tailwind utilities;
 
 @mixin base {
-	@apply flex rounded-[3rem];
+	@apply flex;
 	border-width: 2px;
 	border-style: solid;
+	border-radius: 3rem;
 }
 
 @mixin title {
@@ -13,7 +14,8 @@
 }
 
 @mixin opponent {
-	@apply flex flex-col justify-center text-center mb-3 px-8 py-4 rounded-[3rem];
+	@apply flex flex-col justify-center text-center mb-3 px-8 py-4;
+	border-radius: 3rem;
 }
 
 @mixin username {
@@ -25,7 +27,8 @@
 }
 
 @mixin content {
-	@apply flex flex-col justify-center text-center mb-3 px-8 py-4 rounded-[3rem];
+	@apply flex flex-col justify-center text-center mb-3 px-8 py-4;
+	border-radius: 3rem;
 }
 
 @mixin lastplay {
@@ -33,7 +36,7 @@
 }
 
 @mixin textbit {
-	@apply text-[20px];
+	font-size: 20px;
 }
 
 @mixin playbox {
