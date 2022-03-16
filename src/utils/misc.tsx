@@ -2,6 +2,7 @@ import Turn from '../interfaces/Turn';
 import Match from '../interfaces/Match';
 import ValidationError from '../interfaces/ValidationError';
 import Cell from '../interfaces/match/Cell';
+import MatchOutcome from '../interfaces/MatchOutcome';
 
 const { REACT_APP_URL } = process.env;
 
@@ -91,15 +92,49 @@ const hasPlayerWonCurrentTurn = (match: Match = {} as Match, playerId: string): 
 		const currentTurn = getCurrentTurn(match.turns);
 
 		const guessesArray: Cell[][] = numericalObjToArray(currentTurn.guesses);
+		const lastGuess = guessesArray.slice(-1);
 
 		// TODO: i'll be the first to admit this could be hard to read
-		const isTurnWon: boolean = !!guessesArray.length && guessesArray.every((singleGuess: Cell[]) => {
+		const isTurnWon: boolean = !!guessesArray.length && lastGuess.every((singleGuess: Cell[]) => {
 			return singleGuess.every((guessLetter: Cell) => {
 				return guessLetter.status === 'correct';
 			});
 		});
 
 		return isTurnWon;
+	}
+
+	return false;
+}
+
+const determineMatchOutcome = (match: Match): string => {
+	if (Object.keys(match).length) {
+		const currentTurn = getCurrentTurn(match.turns);
+		const guessesAsArray = numericalObjToArray(currentTurn.guesses);
+		const lastGuess = guessesAsArray.slice(-1);
+		const isLastGuessIncorrect = lastGuess.every((cell: Cell) => cell.status !== 'correct');
+
+		if (isLastGuessIncorrect) {
+			const { players } = match;
+
+			if (currentTurn.activePlayer === players.hostId) {
+				return MatchOutcome.GUEST_WIN;
+			} else if (currentTurn.activePlayer === players.guestId) {
+				return MatchOutcome.HOST_WIN;
+			}
+		}
+	}
+
+	return '';
+};
+
+const hasUserWonMatch = (match: Match, id: string): boolean => {
+	if (Object.keys(match).length) {
+		const matchOutcome = determineMatchOutcome(match);
+		const isUserHost = match.players.hostId === id;
+		const hasUserWon = (isUserHost && matchOutcome === MatchOutcome.HOST_WIN) || (!isUserHost && matchOutcome === MatchOutcome.GUEST_WIN);
+	
+		return hasUserWon;
 	}
 
 	return false;
@@ -117,4 +152,6 @@ export {
 	isPlayerCurrentTurn,
 	getLastPlayedWordByPlayerId,
 	hasPlayerWonCurrentTurn,
+	determineMatchOutcome,
+	hasUserWonMatch,
 };

@@ -1,5 +1,6 @@
 import { useState, useEffect, Fragment } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
+import useEventListener from '@use-it/event-listener';
 
 import MatchCard from '../components/MatchCard';
 import Loading from '../components/Loading';
@@ -38,6 +39,31 @@ const Lobby = () => {
 	const [isEndTurnModalOpen, setIsEndTurnModalOpen] = useState(false);
 	const [isWordleSentModalOpen, setIsWordleSentModalOpen] = useState(false);
 	const [nextWordle, setNextWordle] = useState('');
+
+	const keyMap = {};
+	
+	// TODO: Kludgy way to create new matches, while still developing
+	useEventListener('keydown', (e: KeyboardEvent) => {
+		// @ts-ignore
+		if (keyMap['ControlLeft'] && keyMap['KeyN']) return;
+
+		if ((e.code === 'ControlLeft' || e.code === 'KeyN')) {
+			// @ts-ignore
+			keyMap[e.code] = true;
+		}
+
+		if (e.code === "KeyN") {
+			// @ts-ignore
+			if (keyMap['ControlLeft'] && keyMap['KeyN']) {
+				if (!isNewMatchModalOpen) handleStartNewMatch();
+			}
+		}	
+	});
+
+	useEventListener('keyup', (e: KeyboardEvent) => {
+		// @ts-ignore
+		keyMap[e.code] = false;
+	});
 
 	const determineGameState = () => {
 		return hasPlayerWonCurrentTurn(currentMatch, user.uid) ? GameState.WON : '';
@@ -162,6 +188,7 @@ const Lobby = () => {
 		// setIsGeneratingLink(false);
 		// setWordleValidationErrors([]);
 		// setWordle('');
+		handleLobbyMatchModalClose();
 		setIsNewMatchModalOpen(true);
 		// handleValidateWordle();
 	};
@@ -236,6 +263,7 @@ const Lobby = () => {
 			<LobbyMatchModal
 				isOpen={isLobbyMatchModalOpen}
 				onRequestClose={handleLobbyMatchModalClose}
+				handleStartNewMatch={handleStartNewMatch}
 			/>
 
 			<EndTurnModal

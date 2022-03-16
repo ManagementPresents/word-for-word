@@ -23,10 +23,7 @@ const AuthRoute = ({ children, redirectTo, predicate }: any) => {
 			setIsLoading(false);
 
 			if (!useStore.getState().user) {
-				console.log('redirect is triggering');
 				navigate(redirectTo);
-			} else {
-				console.log('there was a user, and a miracle!', useStore.getState().user);
 			}
 		}, TIMEOUT_DURATION);
 		// eslint-disable-next-line
@@ -50,17 +47,13 @@ const AuthRoute = ({ children, redirectTo, predicate }: any) => {
 					setHasMatchId(true);
 
 					if (outcome) {
-						console.log('this match is over and cannot be entered');
 						navigate('/');
 					} else if (isUserTurn || (user.uid !== players.hostId && !players.guestId)) {
-						console.log('whoever you are, it is your turn, and your time to enter');
 						setCurrentMatch(matchData);
 					} else {
-						console.log('for some reason, you cannot enter this match');
 						navigate('/');
 					}
 				} else {
-					console.log('no such match');
 					navigate(redirectTo);
 				}
 			}

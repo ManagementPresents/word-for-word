@@ -35,8 +35,9 @@ const WordleHistory: FC<Props> = ({ guesses, turn, matchOpponent }: Props) => {
 				</div>
 			)}
 
+			{/* TODO: Need a more robust solution for the font size/width of these tiny score copy boxes */}
 			<div className="flex flex-row max-h-[30px] sm:max-h-[40px]">
-				<div className="flex bg-[#775568] text-[12px] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
+				<div className="flex bg-[#775568] text-[11px] p-2.5 items-center justify-center w-[76px]">
 					<span>Your Word</span>
 				</div>
 
@@ -47,7 +48,7 @@ const WordleHistory: FC<Props> = ({ guesses, turn, matchOpponent }: Props) => {
 					{renderWordleSquaresComplete(lastGuess)}
 				</div>
 
-				<div className="flex bg-[#775568] text-[12px] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
+				<div className="flex bg-[#775568] text-[11px] p-2.5 items-center justify-center w-[76px]">
 					{guesses.length ? `Score: ${guesses.length}` : '?'}/6
 				</div>
 			</div>
@@ -67,7 +68,7 @@ const WordleHistory: FC<Props> = ({ guesses, turn, matchOpponent }: Props) => {
 			)}
 
 			<div className="flex flex-row max-h-[30px] sm:max-h-[40px]">
-				<div className="flex bg-[#775568] text-[12px] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
+				<div className="flex bg-[#775568] text-[11px] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
 					{guesses.length ? `Score: ${guesses.length}` : '?'}/6
 				</div>
 
@@ -78,7 +79,7 @@ const WordleHistory: FC<Props> = ({ guesses, turn, matchOpponent }: Props) => {
 					{renderWordleSquaresComplete(lastGuess)}
 				</div>
 
-				<div className="flex bg-[#775568] text-[12px] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
+				<div className="flex bg-[#775568] text-[11px] p-2.5 items-center justify-center w-[76px] sm:w-[86px]">
 					<span>Their Word</span>
 				</div>
 			</div>
