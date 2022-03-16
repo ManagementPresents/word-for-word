@@ -4,10 +4,10 @@
 
 @mixin cell {
     @apply bg-cover;
-    background-image: url(../data/Darkdecocell2.png);
+    background-image: url(../assets/Darkdecocell2.png);
 }
 
 @mixin emptycell {
     @apply bg-cover;
-    background-image: url(../data/Whitedecocell.png);
+    background-image: url(../assets/Whitedecocell.png);
 }

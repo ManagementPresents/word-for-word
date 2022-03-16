@@ -1,6 +1,6 @@
 @use 'colors';
-@use 'modalBase';
-@use 'bigmodalBase';
+@use 'partials/modalBase';
+@use 'partials/bigmodalBase';
 
 @tailwind base;
 @tailwind components;

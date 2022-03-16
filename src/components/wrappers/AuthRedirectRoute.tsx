@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { TIMEOUT_DURATION } from '../../utils/constants';
+import { TIMEOUT_DURATION } from '../../data/constants';
 import useStore from '../../utils/store';
 import Loading from '../Loading';
 

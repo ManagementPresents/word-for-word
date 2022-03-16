@@ -2,7 +2,7 @@ import ReactModal from 'react-modal';
 import { FC, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { ReactComponent as Lobby } from '../../data/Lobby.svg';
+import { ReactComponent as Lobby } from '../../assets/Lobby.svg';
 
 ReactModal.setAppElement('#root');
 

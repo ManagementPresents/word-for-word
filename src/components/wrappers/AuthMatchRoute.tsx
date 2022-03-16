@@ -10,7 +10,7 @@ import useStore from '../../utils/store';
 import Match from '../../interfaces/Match';
 import { isPlayerCurrentTurn } from '../../utils/misc';
 
-const AuthRoute = ({ children, redirectTo, predicate }: any) => {
+const AuthRoute = ({ children, redirectTo }: any) => {
 	const { isLoading, setIsLoading, user, db, setCurrentMatch } = useStore();
 
 	const navigate = useNavigate();

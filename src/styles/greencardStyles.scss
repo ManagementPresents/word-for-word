@@ -1,6 +1,6 @@
 @use 'colors';
-@use 'cards';
-@use 'buttonBase';
+@use 'partials/cards';
+@use 'partials/buttonBase';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

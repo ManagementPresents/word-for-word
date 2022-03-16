@@ -1,6 +1,6 @@
 import answers from '../data/answers';
 import words from '../data/answers';
-import Cell from '../interfaces/match/Cell';
+import Cell from '../interfaces/Cell';
 
 /**
  *
