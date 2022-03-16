@@ -23,14 +23,14 @@ import {
 	getMatchOpponentId,
 	determineMatchOutcome,
 } from '../utils/misc';
-import { letters } from '../constants';
+import { LETTERS } from '../data/constants';
 import Turn from '../interfaces/Turn';
 import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
-import Cell from '../interfaces/match/Cell';
-import GameState from '../interfaces/GameState';
+import Cell from '../interfaces/Cell';
+import GameState from '../enums/GameState';
 
-import { ReactComponent as Lobby } from '../data/Lobby.svg';
+import { ReactComponent as Lobby } from '../assets/Lobby.svg';
 
 const words = require('../data/words').default as { [key: string]: boolean };
 
@@ -83,7 +83,7 @@ function MatchView() {
 		keyboardStatus: () => {
 			const keyboardStatus: { [key: string]: string } = {};
 
-			letters.forEach((letter) => {
+			LETTERS.forEach((letter) => {
 				keyboardStatus[letter] = 'unguessed';
 			});
 

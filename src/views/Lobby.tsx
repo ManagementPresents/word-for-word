@@ -15,11 +15,11 @@ import {
 	getCurrentTurn,
 } from '../utils/misc';
 import useStore from '../utils/store';
-import { TIMEOUT_DURATION } from '../utils/constants';
+import { TIMEOUT_DURATION } from '../data/constants';
 import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
 import Players from '../interfaces/Players';
-import GameState from '../interfaces/GameState';
+import GameState from '../enums/GameState';
 import WordleSentModal from '../components/modals/WordleSentModal';
 import Turn from '../interfaces/Turn';
 

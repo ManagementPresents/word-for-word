@@ -15,7 +15,7 @@ import { renderWordleSquares } from '../../utils/wordUtils';
 import { validateWordle } from '../../utils/validation';
 import ValidationError from '../../interfaces/ValidationError';
 import Turn from '../../interfaces/Turn';
-import GameState from '../../interfaces/GameState';
+import GameState from '../../enums/GameState';
 import Player from '../../interfaces/Player';
 
 interface Props {

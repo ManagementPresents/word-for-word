@@ -9,7 +9,7 @@ import WordleHistory from '../WordleHistory';
 
 import Player from '../../interfaces/Player';
 import Turn from '../../interfaces/Turn';
-import Cell from '../../interfaces/match/Cell';
+import Cell from '../../interfaces/Cell';
 import useStore from '../../utils/store';
 import {
 	createMatchUrl,

@@ -2,7 +2,7 @@ import { FC, useState } from 'react';
 
 import { renderWordleSquaresComplete } from '../utils/wordUtils';
 import Turn from '../interfaces/Turn';
-import Cell from '../interfaces/match/Cell';
+import Cell from '../interfaces/Cell';
 import Player from '../interfaces/Player';
 
 interface Props {
