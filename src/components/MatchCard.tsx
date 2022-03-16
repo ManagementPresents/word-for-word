@@ -1,5 +1,6 @@
 import { FC, useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { doc, setDoc } from 'firebase/firestore';
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
 import { faUserClock } from '@fortawesome/free-solid-svg-icons';
 
@@ -13,8 +14,10 @@ import {
 	getLastPlayedWordByPlayerId,
 	hasPlayerWonCurrentTurn,
 	getCurrentTurn,
+	hasUserWonMatch,
 } from '../utils/misc';
 import useStore from '../utils/store';
+import Turn from '../interfaces/Turn';
 
 interface Props {
 	match: Match;
@@ -28,10 +31,19 @@ const MatchCard: FC<Props> = ({
 	setIsLobbyMatchModalOpen,
 	setIsEndTurnModalOpen, 
 }: Props) => {
-	const { setCurrentMatch, user, matchOpponents } = useStore();
+	const { 
+		setCurrentMatch, 
+		user, 
+		matchOpponents,
+		db 
+	} = useStore();
 
 	const [isUserTurn, setIsUserTurn] = useState(false);
 	const [matchOpponent] = useState(matchOpponents[getMatchOpponentId(user, match)]);
+	const [isArchived, setIsArchived] = useState(false);
+	const [isPending, setIsPending] = useState(false);
+	// TODO: This name feels unclear
+	const [isWaiting, setIsWaiting] = useState(false);
 
 	// TODO: I'm sure there's room for even more abstraction for the repetition across these functions
 
@@ -41,11 +53,11 @@ const MatchCard: FC<Props> = ({
 		const { players } = match;
 		let cardDetailsColor = '';
 
-		if (match.outcome) {
+		if (isArchived) {
 			cardDetailsColor = 'grey';
-		} else if (isUserTurn) {
+		} else if (isPending) {
 			cardDetailsColor = 'yellow';
-		} else if (matchOpponent) {
+		} else if (isWaiting) {
 			cardDetailsColor = 'green';
 		} 
 		
@@ -70,26 +82,31 @@ const MatchCard: FC<Props> = ({
 
 	const renderMatchButton = () => {
 		const { players } = match;
-		const currentTurn = getCurrentTurn(match.turns);
+		const currentTurn: Turn = getCurrentTurn(match.turns) as Turn;
 
-		if (match.outcome) {
+		// TODO: These states can probably be simplified
+		if (isArchived) {
 			return <Button copy="See Results" customStyle="grey-match-button" />;
 		}
-
-		if (isUserTurn && hasPlayerWonCurrentTurn(match, user.uid)) {
-			return <Button copy="Send Back a Wordle!" customStyle="yellow-match-button" />;
-		}
 		
-		if (!isUserTurn) {
-			return <Button copy="Opponent is taking their turn" customStyle="green-match-button" />;
-		}
+		if (isUserTurn || match.outcome) {
+			if (hasPlayerWonCurrentTurn(match, user.uid)) {
+				return <Button copy="Send Back a Wordle!" customStyle="yellow-match-button" />;
+			}	
 
-		if (isUserTurn && !currentTurn?.hasActivePlayerStartedTurn) {
+			if (currentTurn.hasActivePlayerStartedTurn) {
+				return <Button copy="It's your turn!" customStyle="yellow-match-button" />;
+			}
+
 			return <Button copy="The results are in ..." customStyle="yellow-match-button" />;
 		}
+		
+		// if ((isUserTurn && !currentTurn?.hasActivePlayerStartedTurn) || (!!match.outcome && !match.isWinnerNotified)) {
+		// 	return <Button copy="The results are in ..." customStyle="yellow-match-button" />;
+		// }
 
-		if (isUserTurn) {
-			return <Button copy="It's your turn!" customStyle="yellow-match-button" />;
+		if (!isUserTurn) {
+			return <Button copy="Opponent is taking their turn" customStyle="green-match-button" />;
 		}
 
 		if (!players.guestId) {
@@ -97,12 +114,25 @@ const MatchCard: FC<Props> = ({
 		}
 	};
 
-	const handleCardClick = () => {
+	const handleCardClick = async () => {
 		setCurrentMatch(match);
 
 		if (hasPlayerWonCurrentTurn(match, user.uid)) {
-		setIsEndTurnModalOpen(true);
+			setIsEndTurnModalOpen(true);
 		} else {
+			if (match.outcome && hasUserWonMatch(match, user.uid) && !match.isWinnerNotified) {
+				// TODO: Some kind of throbber will be necessary here
+				const currentMatchRef = doc(db, 'matches', match.id);
+
+				await setDoc(
+					currentMatchRef,
+					{
+						isWinnerNotified: true,
+					},
+					{ merge: true },
+				);
+			}
+
 			setIsLobbyMatchModalOpen(true);
 		}
 	};
@@ -110,14 +140,26 @@ const MatchCard: FC<Props> = ({
 	/* Hello Gabriel. It's me again. The sleepy dipshit. I changed stuff below here to return just the color instead of the full "[color]-match-style" it was before, and in the section after that, I copied over the handleCardColor use I saw in the next class name, but for all the other now super modular class names in lieu of bugging you to write a whole thing about it. I think this works for now, but I am a sleepy sweaty dumb dumb who lost the ability to read when I gained massive boobies. So. Yknow. Grain of salt.*/
 
 	const handleCardColor = () => {
-		if (match.outcome) return 'grey';
-		if (isUserTurn) return 'yellow';
-		if (!matchOpponent || (matchOpponent && !isUserTurn)) return 'green';
+		if (isArchived) return 'grey';
+		if (isPending) return 'yellow';
+		if (isWaiting) return 'green';
 	};
 
 	useEffect(() => {
 		setIsUserTurn(isPlayerCurrentTurn(match, user.uid));
 	}, [match, user.uid]);
+
+	useEffect(() => {
+		setIsArchived(!!match.outcome && match.isWinnerNotified);
+	}, [match.outcome, match.isWinnerNotified]);
+
+	useEffect(() => {
+		setIsPending(isUserTurn || (!!match.outcome && !match.isWinnerNotified));
+	}, [isUserTurn, match.outcome, match.isWinnerNotified]);
+
+	useEffect(() => {
+		setIsWaiting(!matchOpponent || (matchOpponent && !isUserTurn));
+	}, [matchOpponent, isUserTurn]);
 
 	return (
 		<div

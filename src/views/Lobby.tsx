@@ -162,6 +162,7 @@ const Lobby = () => {
 		// setIsGeneratingLink(false);
 		// setWordleValidationErrors([]);
 		// setWordle('');
+		handleLobbyMatchModalClose();
 		setIsNewMatchModalOpen(true);
 		// handleValidateWordle();
 	};
@@ -236,6 +237,7 @@ const Lobby = () => {
 			<LobbyMatchModal
 				isOpen={isLobbyMatchModalOpen}
 				onRequestClose={handleLobbyMatchModalClose}
+				handleStartNewMatch={handleStartNewMatch}
 			/>
 
 			<EndTurnModal

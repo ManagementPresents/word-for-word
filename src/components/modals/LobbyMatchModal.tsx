@@ -1,6 +1,6 @@
 import { FC, useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 
 import CopyInput from '../CopyInput';
 import Button from '../buttons/Button';
@@ -17,14 +17,17 @@ import {
 	isPlayerCurrentTurn,
 	numericalObjToArray,
 	updateCurrentTurn,
+	hasUserWonMatch,
 } from '../../utils/misc';
+import { match } from 'assert';
 
 interface Props {
 	isOpen: boolean;
 	onRequestClose: any;
+	handleStartNewMatch: any;
 }
 
-const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
+const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, handleStartNewMatch }: Props) => {
 	const { 
 		currentMatch, 
 		matchOpponents, 
@@ -36,6 +39,7 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 	const [matchOpponent, setMatchOpponent] = useState({} as Player);
 	const [isUserTurn, setIsUserTurn] = useState(isPlayerCurrentTurn(currentMatch, user.uid));
 	const [isOpponentTurn, setIsOpponentTurn] = useState(false);
+	const [hasUserWon, setHasUserWon] = useState(false);
 
 	const navigate = useNavigate();
 
@@ -82,12 +86,20 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 		if (matchOpponent) {
 			return (
 				<div className="flex flex-col gap-y-2 mt-4">
-					{isUserTurn &&
+					{(isUserTurn && !currentMatch.outcome) &&
 						<Button 
 							copy="Go to Match" 
 							customStyle="green-button"
 							onClick={handleGoToMatch}
 						/>
+					}
+
+					{currentMatch.outcome &&
+						<Button
+							customStyle="green-button"
+							copy="Start a New Match"
+							onClick={handleStartNewMatch}
+						></Button>
 					}
 
 					<Button
@@ -96,13 +108,15 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 						onClick={onRequestClose}
 					/>
 
-					<Button
-						copy="Forfeit Match"
-						customStyle="grey-button-hollow mt-4 "
-						onClick={() => {
-							console.log('cancel and delete match');
-						}}
-					/>
+					{!currentMatch.outcome &&
+						<Button
+							copy="Forfeit Match"
+							customStyle="grey-button-hollow mt-4 "
+							onClick={() => {
+								console.log('cancel and delete match');
+							}}
+						/>
+					}
 				</div>
 			);
 		}
@@ -140,7 +154,25 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 		return [<></>];
 	};
 
-	const renderMatchCopy = () => {
+	const renderMatchCopy = () => { 
+		if (currentMatch.outcome) {
+			if (hasUserWon) {
+				return (
+					<div className="modal-content">
+						<p className="modal-header">You Won!</p>
+					</div>
+				);
+			}
+	
+			if (!hasUserWon) {
+				return (
+					<div className="modal-content">
+						<p className="modal-header">You Lost!</p>
+					</div>
+				);
+			}
+		}
+
 		if (isUserTurn) {
 			return (
 				<div className="modal-content">
@@ -180,20 +212,26 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose }: Props) => {
 		setIsOpponentTurn(isPlayerCurrentTurn(currentMatch, matchOpponent?.id as string),);
 	}, [currentMatch, matchOpponent]);
 
+	useEffect(() => {
+		setHasUserWon(hasUserWonMatch(currentMatch, user.uid));
+	}, [currentMatch, user.uid]);
+
 	return (
 		<Modal isOpen={isOpen} onRequestClose={onRequestClose}>
 			<h1 className="modal-header">{renderTitle()}</h1>
-
-			
 
 			<div className="flex flex-col justify-center gap-y-2 ">{renderTurns()}</div>
 
 			{renderMatchCopy()}
 
 			<div className="modal-label">
-				<h3 className="text-[16px]">Match Link</h3>
+				{!currentMatch.outcome &&
+					<>
+						<h3 className="text-[16px]">Match Link</h3>
 
-				<CopyInput copyText={createMatchUrl(currentMatch)} />
+						<CopyInput copyText={createMatchUrl(currentMatch)} />
+					</>
+				}
 				
 				{renderMatchButtons()}
 			</div>
