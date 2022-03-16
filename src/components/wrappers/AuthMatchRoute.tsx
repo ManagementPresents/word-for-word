@@ -43,13 +43,13 @@ const AuthRoute = ({ children, redirectTo, predicate }: any) => {
 				if (match.exists()) {
 					const matchData: Match = match.data() as Match;
 					const isUserTurn: boolean = isPlayerCurrentTurn(matchData, user.uid);
-					const { players, isMatchEnded } = matchData;
+					const { players, outcome } = matchData;
 
 					setIsLoading(false);
 					// @ts-ignore
 					setHasMatchId(true);
 
-					if (isMatchEnded) {
+					if (outcome) {
 						console.log('this match is over and cannot be entered');
 						navigate('/');
 					} else if (isUserTurn || (user.uid !== players.hostId && !players.guestId)) {

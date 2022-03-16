@@ -3,40 +3,26 @@ import { Default } from 'react-spinners-css';
 
 interface Props {
 	onClick: any;
-	color: string;
 	copy: string;
-	disabled?: boolean;
 	isLoading: boolean;
 	isLoadingCopy: string;
+	customStyle?: string;
+	disabled?: boolean;
 }
 
 const LoadingButton: FC<Props> = ({
 	onClick,
-	color,
+	customStyle,
 	copy,
 	disabled,
 	isLoading,
 	isLoadingCopy,
 }: Props) => {
-	const generateClassName = () => {
-		if (color === 'green') return 'green-button';
-
-		if (color === 'grey') return 'grey-button';
-
-		if (color === 'yellow') return 'yellow-button';
-
-		if (color === 'yellowHollow') return 'yellow-button-hollow';
-
-		if (color === 'greenHollow') return 'green-button-hollow';
-
-		if (color === 'greyHollow') return 'grey-button-hollow';
-	};
-
 	// TODO: Should not have a hover state when disabled
 	return (
 		<button
 			onClick={onClick}
-			className={`${generateClassName()} py-2 px-4 rounded flex items-center justify-center gap-x-1.5 ${
+			className={`${customStyle} py-2 px-4 rounded flex items-center justify-center gap-x-1.5 ${
 				disabled || isLoading ? 'opacity-50 cursor-not-allowed' : ''
 			}`}
 		>

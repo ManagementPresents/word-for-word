@@ -10,9 +10,9 @@ import { Keyboard } from '../components/Keyboard';
 import Modal from '../components/modals/Modal';
 import Loading from '../components/Loading';
 import Button from '../components/buttons/Button';
-import CopyInput from '../components/CopyInput';
 import EndTurnModal from '../components/modals/EndTurnModal';
 import NewMatchModal from '../components/modals/NewMatchModal';
+import WordleSentModal from '../components/modals/WordleSentModal';
 
 import useStore from '../utils/store';
 import {
@@ -20,9 +20,9 @@ import {
 	numericalObjToArray,
 	updateCurrentTurn,
 	getCurrentTurn,
+	getMatchOpponentId,
 } from '../utils/misc';
 import { letters } from '../constants';
-import { renderWordleSquares } from '../utils/wordUtils';
 import Turn from '../interfaces/Turn';
 import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
@@ -311,7 +311,7 @@ function MatchView() {
 	const [board, setBoard] = useState(initialStates.board);
 	const [isEndTurnModalOpen, setIsEndTurnModalOpen] = useState(false);
 	const [isLoadingMatch, setIsLoadingMatch] = useState(true);
-	const [isExitModalOpen, setIsExitModalOpen] = useState(false);
+	const [isWordleSentModalOpen, setIsWordleSentModalOpen] = useState(false);
 
 	const handleCloseEndTurnModal = () => {
 		// navigate('/lobby');
@@ -384,18 +384,23 @@ function MatchView() {
 
 		if (gameState === GameState.PLAYING) {
 			const isMatchWon: boolean = (lastFilledRow && isRowAllGreen(lastFilledRow)) as boolean;
-			const isGameLost: boolean = (currentRowIndex === 6) as boolean;
+			const isGameLost: boolean = ((currentRowIndex === 6) && !isMatchWon) as boolean;
 
 			if (isGameLost) {
-				console.log('FUCK', currentMatch);
-				if (!currentMatch.isMatchEnded) {
+				if (!currentMatch.outcome) {
 					const currentMatchRef = doc(db, 'matches', currentMatch.id);
+
+					// TODO: Update local state AND firestore. this feels ... fragile, to say the least
+					setCurrentMatch({
+						...currentMatch,
+						outcome: isGameLost ? opponentPlayer.id : user.uid
+					});
 
 					(async () => {
 						await setDoc(
 							currentMatchRef,
 							{
-								isMatchEnded: true,
+								outcome: isGameLost ? opponentPlayer.id : user.uid
 							},
 							{ merge: true },
 						);
@@ -410,13 +415,13 @@ function MatchView() {
                     TODO: It feels abrupt showing this modal with no delay.
                     In the long term, perhaps a fun victory animation? 
                 */
-				setTimeout(async () => {
+				setTimeout(() => {
 					setIsEndTurnModalOpen(true);
 				}, 500);
 			} else if (isGameLost) {
 				setGameState(GameState.LOST);
 
-				setTimeout(async () => {
+				setTimeout(() => {
 					setIsEndTurnModalOpen(true);
 				}, 500);
 			}
@@ -446,7 +451,7 @@ function MatchView() {
 						// TODO: The capitalization for the wordle needs to be standardized universally, at some point
 						setAnswer(currentTurn.wordle.toUpperCase());
 
-						const opponentPlayerDocRef = doc(db, 'players', matchData.players.hostId);
+						const opponentPlayerDocRef = doc(db, 'players', getMatchOpponentId(user, matchData));
 						const opponentPlayerSnap = await getDoc(opponentPlayerDocRef);
 
 						if (opponentPlayerSnap.exists()) {
@@ -474,8 +479,8 @@ function MatchView() {
 									currentTurn.keyboardStatus,
 								).length;
 
-								if (hasKeyboardStatus)
-									setKeyboardStatus(currentTurn.keyboardStatus);
+								if (hasKeyboardStatus) setKeyboardStatus(currentTurn.keyboardStatus);
+								
 								setCurrentRowIndex(guessArray.length);
 								setBoard(newBoard);
 							}
@@ -501,13 +506,13 @@ function MatchView() {
 				currentTurn.activePlayer !== user.uid
 			) {
 				setIsEndTurnModalOpen(false);
-				setIsExitModalOpen(true);
+				setIsWordleSentModalOpen(true);
 				// TODO: This setOpenMatchLink thing probably needs to be abstracted
 				// @ts-ignore
 				setMatchLink(`${process.env.REACT_APP_URL}/match/${currentMatch.id}`);
 			}
 		}
-	}, [currentMatch]);
+	}, [currentMatch, user]);
 
 	return (
 		<div>
@@ -577,7 +582,7 @@ function MatchView() {
 									</ul>
 
 									<div className="mb-3 flex flex-row items-center gap-x-2">
-										<span className="bg-[#15B097] text-grey-50 inline-flex items-center justify-center text-3x w-10 h-10">
+										<span className="bg-[#15B097] text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10">
 											W
 										</span>
 
@@ -585,7 +590,7 @@ function MatchView() {
 									</div>
 
 									<div className="mb-3 flex flex-row items-center gap-x-2">
-										<span className="bg-[#FFCE47] text-grey-50 inline-flex items-center justify-center text-3x w-10 h-10">
+										<span className="bg-[#FFCE47] text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10">
 											W
 										</span>
 
@@ -593,7 +598,7 @@ function MatchView() {
 									</div>
 
 									<div className="mb-3 flex flex-row items-center gap-x-2">
-										<span className="bg-[#A0939A] text-grey-50 inline-flex items-center justify-center text-3x w-10 h-10">
+										<span className="bg-[#A0939A] text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10">
 											W
 										</span>
 
@@ -608,12 +613,12 @@ function MatchView() {
 
 									{/* TODO: Should be a LoadingButton */}
 									<Button
-										color="green"
+										customStyle="green-match-button"
 										copy="Let's Play!"
 										onClick={handleAcceptMatch}
 									/>
 									<Button
-										color="yellow"
+										customStyle="yellow-button"
 										copy="Go Back"
 										onClick={handleGoBackFromHowToPlay}
 									/>
@@ -639,7 +644,7 @@ function MatchView() {
 									<Button
 										onClick={handleAcceptMatch}
 										copy="Accept"
-										color="green"
+										customStyle="green-button"
 									/>
 
 									<Button
@@ -647,7 +652,7 @@ function MatchView() {
 											setIsLandingModalOpen(false);
 										}}
 										copy="Rudely Decline"
-										color="grey"
+										customStyle="grey-button"
 									/>
 
 									<Button
@@ -655,7 +660,7 @@ function MatchView() {
 											setIsLandingModalOpen(false);
 										}}
 										copy="Politely Decline"
-										color="yellowHollow"
+										customStyle="grey-button"
 									/>
 								</div>
 
@@ -688,30 +693,12 @@ function MatchView() {
 								isLobbyReturn={true}
 							/>
 
-							<Modal isOpen={isExitModalOpen} onRequestClose={handleCloseExitModal}>
-								<h1 className="text-4xl text-center">Your Wordle Has Been Sent!</h1>
-
-								<div className="flex flex-row gap-x-2 justify-center">
-									{renderWordleSquares(nextWordle, 'green')}
-								</div>
-
-								<div className="flex flex-col text-center">
-									<p>Your opponent has been notified that it's their turn.</p>
-									<p>
-										If you're antsy, you can always send them this match's link.
-									</p>
-								</div>
-
-								<div className="flex flex-col gap-y-2">
-									<CopyInput copyText={matchLink} />
-								</div>
-
-								<Button
-									color="yellowHollow"
-									onClick={() => navigate('/lobby')}
-									copy="Return to Lobby"
-								></Button>
-							</Modal>
+							<WordleSentModal 
+								nextWordle={nextWordle}
+								isOpen={isWordleSentModalOpen}
+								matchLink={matchLink}
+								onRequestClose={() => console.log('close')}
+							/>
 
 							<div
 								className={`h-auto relative mt-6 ${

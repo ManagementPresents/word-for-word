@@ -9,9 +9,9 @@
 
 .grey-match-card {
 	@include cards.base;
-	background-color: $yellow;
-	color: $darkestYellow;
-	border-color: $darkYellow;
+	background-color: $darkGrey;
+	color: $lightestGrey;
+	border-color: $darkestGrey;
 }
 
 .grey-match-text {
@@ -28,7 +28,7 @@
 
 .grey-match-user {
 	@include cards.username;
-	color: $darkYellow;
+	color: $lightestGrey;
 }
 
 .grey-match-avatar {
