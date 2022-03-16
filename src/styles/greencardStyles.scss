@@ -5,7 +5,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* TODO: ok dipshit you made these modular as fuck, now go make them pretty */
+// /* TODO: ok dipshit you made these modular as fuck, now go make them pretty */
 
 .green-match-card {
 	@include cards.base;
@@ -61,24 +61,23 @@
 	color: $green;
 }
 
-/* not sure why these are here but I don't want to delete them and find out the hard way
-.green-match-card {
-  background-color: $green;
-  color: $lightestGreen;
-  border-color: $darkGreen;
-  border-width: 2px;
-  border-style: solid;
-}
+// /* not sure why these are here but I don't want to delete them and find out the hard way
+// .green-match-card {
+//   background-color: $green;
+//   color: $lightestGreen;
+//   border-color: $darkGreen;
+//   border-width: 2px;
+//   border-style: solid;
+// }
 
-.yellow-match-card {
-  background-color: $yellow;
-  color: $darkestYellow;
-  border-color: #c5b77c;
-  border-width: 2px;
-  border-style: solid;
-}
-
-*/
+// .yellow-match-card {
+//   background-color: $yellow;
+//   color: $darkestYellow;
+//   border-color: #c5b77c;
+//   border-width: 2px;
+//   border-style: solid;
+// }
+// */
 
 .card-label {
 	@include cards.label;

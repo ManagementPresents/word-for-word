@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from 'react';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +16,7 @@ import { validateWordle } from '../../utils/validation';
 import ValidationError from '../../interfaces/ValidationError';
 import Turn from '../../interfaces/Turn';
 import GameState from '../../interfaces/GameState';
+import Player from '../../interfaces/Player';
 
 interface Props {
 	isOpen: boolean;
@@ -23,8 +24,9 @@ interface Props {
 	nextWordle: string;
 	setNextWordle: any;
 	gameState: string;
-	setIsOpenMatchChallenge: any;
-	setIsEndTurnModalOpen: any;
+	lazyLoadOpponentPlayer?: boolean;
+	setIsOpenMatchChallenge?: any;
+	setIsEndTurnModalOpen?: any;
 }
 
 const EndTurnModal: FC<Props> = ({
@@ -35,9 +37,21 @@ const EndTurnModal: FC<Props> = ({
 	gameState,
 	setIsOpenMatchChallenge,
 	setIsEndTurnModalOpen,
+	lazyLoadOpponentPlayer,
 }: Props) => {
-	const { opponentPlayer, db, user, currentMatch, setCurrentMatch } = useStore();
+	const { 
+		opponentPlayer, 
+		db, 
+		user, 
+		currentMatch, 
+		setCurrentMatch,
+		setOpponentPlayer,
+	} = useStore();
 
+	/* 
+		TODO: This bullshit is because EndTurnModal can now be accessed in places where currentMatch isn't guaranteed to be present.
+		Consolidation would eventually be good.
+	*/
 	const [answer] = useState(getCurrentTurn(currentMatch.turns)?.wordle.toUpperCase());
 	const [wordleValidationErrors, setWordleValidationErrors] = useState([]);
 	const [isSendingWordle, setIsSendingWordle] = useState(false);
@@ -65,6 +79,7 @@ const EndTurnModal: FC<Props> = ({
 			keyboardStatus: {},
 			turnState: 'playing',
 			wordle: nextWordle,
+			hasActivePlayerStartedTurn: false,
 		};
 		const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
 			turn.currentTurn = false;
@@ -100,7 +115,7 @@ const EndTurnModal: FC<Props> = ({
 		if (gameState === GameState.WON) {
 			return (
 				<>
-					<span className="yellow-font uppercase text-center text-[24px] md:text-[42px]">
+					<span className="yellow-font uppercase text-center text-[24px] md:text-[38px]">
 						You guessed their word!
 					</span>
 
@@ -154,7 +169,7 @@ const EndTurnModal: FC<Props> = ({
 					<LoadingButton
 						copy={'Send Wordle'}
 						isLoadingCopy={'Sending Wordle...'}
-						color="green"
+						customStyle="green-button"
 						isLoading={isSendingWordle}
 						disabled={!!wordleValidationErrors.length}
 						onClick={handleSendWordle}
@@ -165,7 +180,7 @@ const EndTurnModal: FC<Props> = ({
 
 						<Button
 							copy="Forfeit Game"
-							color="grey"
+							customStyle="grey-match-button"
 							onClick={() => {
 								console.log('forfeit game');
 							}}
@@ -176,11 +191,11 @@ const EndTurnModal: FC<Props> = ({
 		} else if (gameState === GameState.LOST) {
 			return (
 				<div className="flex flex-col items-center gap-y-3">
-					<Button copy="Rematch?" color="grey" disabled={true} />
+					<Button copy="Rematch?" customStyle="grey-match-button" disabled={true} />
 
 					<Button
 						copy="New Open Match"
-						color="grey"
+						customStyle="grey-match-button"
 						onClick={() => {
 							setIsOpenMatchChallenge(true);
 							setIsEndTurnModalOpen(false);
@@ -189,14 +204,13 @@ const EndTurnModal: FC<Props> = ({
 
 					<Button
 						copy="Comfort Yourself, Make Up a Guy"
-						color="grey"
+						customStyle="grey-match-button"
 						onClick={() => navigate('/makeupadude')}
 					/>
 
 					<Button
-						customStyle={'mt-4'}
+						customStyle={'yellow-button-hollow mt-4'}
 						copy="Back to Lobby"
-						color="yellow"
 						onClick={handleBackToLobby}
 					/>
 				</div>
@@ -215,11 +229,27 @@ const EndTurnModal: FC<Props> = ({
 		handleValidateWordle();
 	}, []);
 
+	useEffect(() => {
+		if (!Object.keys(opponentPlayer).length && lazyLoadOpponentPlayer) {
+			(async () => {
+				// TODO: Need a loading throbber here
+				const opponentPlayerDocRef = doc(db, 'players', getMatchOpponentId(user, currentMatch));
+				const opponentPlayerSnap = await getDoc(opponentPlayerDocRef);
+
+				if (opponentPlayerSnap.exists()) {
+					const opponentPlayerData: Player = opponentPlayerSnap.data() as Player;
+
+					setOpponentPlayer(opponentPlayerData);
+				}
+			})();
+		}
+	}, [opponentPlayer, lazyLoadOpponentPlayer, currentMatch, db, setOpponentPlayer, user]);
+
 	return (
 		<Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={true}>
 			{/* TODO: Think about using a random "Word for Word" generator here */}
 			<div className="flex flex-col gap-y-2">
-				<h1 className="text-4xl text-center">Turn {currentMatch.turns.length}</h1>
+				<h1 className="text-4xl text-center">Turn {currentMatch?.turns?.length}</h1>
 
 				<div className="flex flex-row items-center justify-center gap-x-3">
 					<div className="flex flex-col gap-y-2">

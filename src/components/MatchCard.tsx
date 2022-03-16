@@ -1,7 +1,9 @@
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
 import { faUserClock } from '@fortawesome/free-solid-svg-icons';
+
+import Button from './buttons/Button';
 
 import Match from '../interfaces/Match';
 import { renderWordleSquares } from '../utils/wordUtils';
@@ -9,6 +11,8 @@ import {
 	getMatchOpponentId,
 	isPlayerCurrentTurn,
 	getLastPlayedWordByPlayerId,
+	hasPlayerWonCurrentTurn,
+	getCurrentTurn,
 } from '../utils/misc';
 import useStore from '../utils/store';
 
@@ -16,12 +20,17 @@ interface Props {
 	match: Match;
 	isLobbyMatchModalOpen: boolean;
 	setIsLobbyMatchModalOpen: any;
+	setIsEndTurnModalOpen?: any;
 }
 
-const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
-	const { setSelectedMatch, user, matchOpponents } = useStore();
+const MatchCard: FC<Props> = ({ 
+	match, 
+	setIsLobbyMatchModalOpen,
+	setIsEndTurnModalOpen, 
+}: Props) => {
+	const { setCurrentMatch, user, matchOpponents } = useStore();
 
-	const [isUserTurn] = useState(isPlayerCurrentTurn(match, user.uid));
+	const [isUserTurn, setIsUserTurn] = useState(false);
 	const [matchOpponent] = useState(matchOpponents[getMatchOpponentId(user, match)]);
 
 	// TODO: I'm sure there's room for even more abstraction for the repetition across these functions
@@ -30,7 +39,16 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 
 	const renderCardDetails = () => {
 		const { players } = match;
+		let cardDetailsColor = '';
 
+		if (match.outcome) {
+			cardDetailsColor = 'grey';
+		} else if (isUserTurn) {
+			cardDetailsColor = 'yellow';
+		} else if (matchOpponent) {
+			cardDetailsColor = 'green';
+		} 
+		
 		if (!players.guestId) {
 			return (
 				<div className="yellow-match-opponent">
@@ -41,68 +59,65 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 			);
 		}
 
-		if (isUserTurn) {
-			return (
-				<div className="green-match-opponent">
-					<span className="green-match-title">Match With</span>
-					<FontAwesomeIcon icon={faCircleUser} size="4x" className="green-match-avatar" />
-					<span className="green-match-user">{matchOpponent?.email}</span>
-				</div>
-			);
-		}
-
-		if (matchOpponent) {
-			return (
-				<div className="yellow-match-opponent">
-					<span className="yellow-match-title">Match With</span>
-					<FontAwesomeIcon
-						icon={faCircleUser}
-						size="4x"
-						className="yellow-match-avatar"
-					/>
-					<span className="yellow-match-user">{matchOpponent?.email}</span>
-				</div>
-			);
-		}
+		return (
+			<div className={`${cardDetailsColor}-match-opponent`}>
+				<span className={`${cardDetailsColor}-match-title`}>Match With</span>
+				<FontAwesomeIcon icon={faCircleUser} size="4x" className={`${cardDetailsColor}-match-avatar`} />
+				<span className={`${cardDetailsColor}-match-user`}>{matchOpponent?.email}</span>
+			</div>
+		);
 	};
 
 	const renderMatchButton = () => {
 		const { players } = match;
+		const currentTurn = getCurrentTurn(match.turns);
+
+		if (match.outcome) {
+			return <Button copy="See Results" customStyle="grey-match-button" />;
+		}
+
+		if (isUserTurn && hasPlayerWonCurrentTurn(match, user.uid)) {
+			return <Button copy="Send Back a Wordle!" customStyle="yellow-match-button" />;
+		}
+		
+		if (!isUserTurn) {
+			return <Button copy="Opponent is taking their turn" customStyle="green-match-button" />;
+		}
+
+		if (isUserTurn && !currentTurn?.hasActivePlayerStartedTurn) {
+			return <Button copy="The results are in ..." customStyle="yellow-match-button" />;
+		}
 
 		if (isUserTurn) {
-			return <button className="green-match-button">The results are in...</button>;
+			return <Button copy="It's your turn!" customStyle="yellow-match-button" />;
 		}
 
 		if (!players.guestId) {
-			// TODO: is this language "fun" enough to justify being both twee and potentially a touch unclear?
-			// took another pass at it
-			return (
-				<button className="yellow-match-button">{`Waiting for an Opponent to Accept`}</button>
-			);
-		}
-
-		if (matchOpponent) {
-			// TODO: Copy?
-			// hey, here's another bad version of it!
-			return (
-				<button className="yellow-match-button-hollow">
-					Your opponent is taking their turn.
-				</button>
-			);
+			return <Button copy="Waiting for an Opponent" customStyle="green-match-button" />;
 		}
 	};
 
 	const handleCardClick = () => {
-		setSelectedMatch(match);
-		setIsLobbyMatchModalOpen(true);
+		setCurrentMatch(match);
+
+		if (hasPlayerWonCurrentTurn(match, user.uid)) {
+		setIsEndTurnModalOpen(true);
+		} else {
+			setIsLobbyMatchModalOpen(true);
+		}
 	};
 
 	/* Hello Gabriel. It's me again. The sleepy dipshit. I changed stuff below here to return just the color instead of the full "[color]-match-style" it was before, and in the section after that, I copied over the handleCardColor use I saw in the next class name, but for all the other now super modular class names in lieu of bugging you to write a whole thing about it. I think this works for now, but I am a sleepy sweaty dumb dumb who lost the ability to read when I gained massive boobies. So. Yknow. Grain of salt.*/
 
 	const handleCardColor = () => {
-		if (isUserTurn) return 'green';
-		if (!matchOpponent || (matchOpponent && !isUserTurn)) return 'yellow';
+		if (match.outcome) return 'grey';
+		if (isUserTurn) return 'yellow';
+		if (!matchOpponent || (matchOpponent && !isUserTurn)) return 'green';
 	};
+
+	useEffect(() => {
+		setIsUserTurn(isPlayerCurrentTurn(match, user.uid));
+	}, [match, user.uid]);
 
 	return (
 		<div
@@ -111,7 +126,7 @@ const MatchCard: FC<Props> = ({ match, setIsLobbyMatchModalOpen }: Props) => {
 		>
 			<div className="card-label">
 				{renderCardDetails()}
-				<span className={`${handleCardColor()}-match-text`}>You entered the word:</span>
+				<span className={`${handleCardColor()}-match-text`}>{match.outcome ? 'Final Word' : 'You last played'}</span>
 			</div>
 
 			{/* TODO: investigate repsonsiveness at REALLY small screen sizes ( < 360px) */}

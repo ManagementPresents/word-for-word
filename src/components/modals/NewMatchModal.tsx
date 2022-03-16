@@ -55,13 +55,13 @@ const NewMatchModal: FC<Props> = ({
 		// TODO: Schemas need to be permanently stored and reused
 		const generatedUri = generateMatchUri(3);
 		const newMatch: Match = {
-			isMatchEnded: false,
 			id: generatedUri,
+			outcome: '',
 			players: {
 				guestId: '',
 				hostId: user.uid,
 			},
-			winner: '',
+			isWinnerNotified: false,
 			turns: [
 				{
 					activePlayer: '',
@@ -71,6 +71,7 @@ const NewMatchModal: FC<Props> = ({
 					turnState: 'playing',
 					keyboardStatus: {},
 					wordle,
+					hasActivePlayerStartedTurn: false,
 				},
 			],
 		};
@@ -127,19 +128,7 @@ const NewMatchModal: FC<Props> = ({
 					<div className="modal-buttonzone">
 						{/* TODO: Ensure data-tip works with this new component */}
 						<Button
-							data-tip="This mode is not yet available. Check back soon!"
-							color="greyHollow"
-							disabled={true}
-							copy="Invite Specific Player"
-							onClick={(e: any) => {
-								e.preventDefault();
-								return;
-								//  handleModalButtonClick('specific')
-							}} 
-						/>
-
-						<Button
-							color="green"
+							customStyle="green-button"
 							copy="Create Open Match"
 							onClick={() => {
 								handleModalButtonClick('open');
@@ -147,7 +136,7 @@ const NewMatchModal: FC<Props> = ({
 						/>
 					</div>
 
-					<Button color="yellowHollow" copy={returnCopy} onClick={returnAction} />
+					<Button customStyle="yellow-button-hollow" copy={returnCopy} onClick={returnAction} />
 
 					<ReactTooltip effect="solid" type="dark" />
 				</>
@@ -222,14 +211,14 @@ const NewMatchModal: FC<Props> = ({
 							<LoadingButton
 								disabled={!isGenerateLinkReady}
 								onClick={handleGenerateLink}
-								color="green"
+								customStyle="green-button"
 								isLoading={isGeneratingLink}
 								isLoadingCopy={'Generating...'}
 								copy="Generate Link"
 							/>
 						)}
 
-						<Button customStyle={'mt-4'} color="yellow" copy="Go Back" onClick={handleGoBack} />
+						<Button customStyle={'yellow-button-hollow mt-4'} copy="Go Back" onClick={handleGoBack} />
 					</div>
 				</>
 			)}

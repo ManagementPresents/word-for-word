@@ -6,22 +6,42 @@ import Loading from '../components/Loading';
 import Button from '../components/buttons/Button';
 import LobbyMatchModal from '../components/modals/LobbyMatchModal';
 import NewMatchModal from '../components/modals/NewMatchModal';
+import EndTurnModal from '../components/modals/EndTurnModal';
 
-import { getMatchOpponentId } from '../utils/misc';
+import { 
+	getMatchOpponentId, 
+	hasPlayerWonCurrentTurn,
+	getCurrentTurn,
+} from '../utils/misc';
 import useStore from '../utils/store';
 import { TIMEOUT_DURATION } from '../utils/constants';
 import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
 import Players from '../interfaces/Players';
+import GameState from '../interfaces/GameState';
+import WordleSentModal from '../components/modals/WordleSentModal';
+import Turn from '../interfaces/Turn';
 
-interface Props {}
-
-const Lobby = ({}: Props) => {
-	const { user, db, matches, setMatches, setMatchOpponents } = useStore();
+const Lobby = () => {
+	const { 
+		user, 
+		db, 
+		matches, 
+		setMatches, 
+		setMatchOpponents, 
+		currentMatch 
+	} = useStore();
 
 	const [isNewMatchModalOpen, setIsNewMatchModalOpen] = useState(false);
 	const [isLoadingMatches, setIsLoadingMatches] = useState(true);
 	const [isLobbyMatchModalOpen, setIsLobbyMatchModalOpen] = useState(false);
+	const [isEndTurnModalOpen, setIsEndTurnModalOpen] = useState(false);
+	const [isWordleSentModalOpen, setIsWordleSentModalOpen] = useState(false);
+	const [nextWordle, setNextWordle] = useState('');
+
+	const determineGameState = () => {
+		return hasPlayerWonCurrentTurn(currentMatch, user.uid) ? GameState.WON : '';
+	};
 
 	useEffect(() => {
 		if (user) {
@@ -49,7 +69,7 @@ const Lobby = ({}: Props) => {
                         Perhaps this could, eventually, be abstracted to a cloud function end point, where it would be safe to pull/cache all the matches/players, filter on the server, and bring them back here. Need to test and see if that would actually be more performant.
                     */
 					const playerMatches: Match[] = await Promise.all(
-						matchIds.map(async (matchId: string): Promise<Match> => {
+						matchIds?.map(async (matchId: string): Promise<Match> => {
 							const matchRef = doc(db, 'matches', matchId);
 							const matchSnap = await getDoc(matchRef);
 
@@ -111,7 +131,28 @@ const Lobby = ({}: Props) => {
 				}
 			})();
 		}
-	}, [user]);
+	}, [user, db, setMatchOpponents, setMatches]);
+
+	// For handling end game state changes and showing the correct 'game over' modals
+	useEffect(() => {
+		const hasCurrentMatch = Object.keys(currentMatch).length;
+
+		if (hasCurrentMatch && currentMatch?.turns?.length && user) {
+			const currentTurn: Turn = getCurrentTurn(currentMatch.turns);
+
+			// TODO: This many conditions may not be necessary
+			if (
+				currentTurn &&
+				currentTurn.activePlayer &&
+				currentTurn.turnState === 'playing' &&
+				currentTurn.activePlayer !== user.uid &&
+				isEndTurnModalOpen
+			) {
+				setIsEndTurnModalOpen(false);
+				setIsWordleSentModalOpen(true);
+			}
+		}
+	}, [currentMatch, user, isEndTurnModalOpen]);
 
 	const handleStartNewMatch = () => {
 		// TODO: The idea here is totally reset the game creation modal whenever it is closed. There may be a more elegant way to handle this.
@@ -136,6 +177,7 @@ const Lobby = ({}: Props) => {
 				match={match}
 				isLobbyMatchModalOpen={isLobbyMatchModalOpen}
 				setIsLobbyMatchModalOpen={setIsLobbyMatchModalOpen}
+				setIsEndTurnModalOpen={setIsEndTurnModalOpen}
 			/>
 		));
 	};
@@ -151,7 +193,7 @@ const Lobby = ({}: Props) => {
 				<h2 className="lobby-messages">You have no currently active matches.</h2>
 
 				<Button
-					color="green"
+					customStyle="green-button"
 					copy="Start a New Match"
 					onClick={handleStartNewMatch}
 				></Button>
@@ -176,47 +218,6 @@ const Lobby = ({}: Props) => {
 	return (
 		<Fragment>
 			<div className="max-w-7xl flex flex-col gap-y-3 h-full md:gap-x-6 md:flex-row mx-auto py-6 px-4 sm:px-6 lg:px-8">
-				{/* TODO: Hi it's me zoe again, I know we're probably ganking this part sooner rather than later but just to make it a little easier on the eyes in the meantime I'm having it pull some minor non-functional aesthetics from the matchbox style, feel free to do whatever with it. I changed the font colors below manually */}
-				<div className="flex flex-col gap-y-2 h-max p-4 rounded-lg border shadow-md lobby-matchbox-style md:basis-2/12">
-					<div>
-						<h3 className="text-1xl font-bold tracking-tight text-[#F1F3F9]">
-							Welcome back,
-						</h3>
-						{/* TODO: If email is super long, it'll stretch the page */}
-						<h2 className="text-2xl font-bold tracking-tight text-[#609B94]">
-							{user?.email}
-						</h2>
-					</div>
-
-					<div className="flex flex-col justify-conter font-normal text-grey-700 dark:text-grey-400">
-						<div className="flex flex-row gap-x-6 md:flex-col">
-							<div>
-								<h3 className="text-base font-bold text-[#F1F3F9] dark:text-grey-400">
-									Matches Played
-								</h3>
-								<span className="text-[#F1F3F9]">489</span>
-							</div>
-
-							<div>
-								<h3 className="text-base font-bold text-[#F1F1F9] dark:text-grey-400">
-									Wins
-								</h3>
-								<span className="text-[#F1F1F9]">69</span>
-							</div>
-
-							<div>
-								<h3 className="text-base font-bold text-[#F1F1F9] dark:text-grey-400">
-									Losses
-								</h3>
-								<span className="text-[#F1F1F9]">420</span>
-							</div>
-						</div>
-					</div>
-
-					<Button color="green" copy="Start a New Match" onClick={handleStartNewMatch} />
-				</div>
-
-				{/* TODO: This basis-[46rem] business is a kludge fix to ensure the layout looks right on moble */}
 				{/* Hi gabriel, I added "lobby-matchbox-style here to control some colors and such from index.css in case you're wondering wtf this is. Also, you lookin fine as hell over there just fyi. ;) */}
 				<div
 					className={`lobby-matchbox-style ${matches.length ? '' : 'grid grid-cols-1'} `}
@@ -235,6 +236,22 @@ const Lobby = ({}: Props) => {
 			<LobbyMatchModal
 				isOpen={isLobbyMatchModalOpen}
 				onRequestClose={handleLobbyMatchModalClose}
+			/>
+
+			<EndTurnModal
+				isOpen={isEndTurnModalOpen}
+				onRequestClose={() => setIsEndTurnModalOpen(false)}
+				nextWordle={nextWordle}
+				setNextWordle={setNextWordle}
+				gameState={determineGameState()}
+				lazyLoadOpponentPlayer={true}
+			/>
+
+			<WordleSentModal 
+				nextWordle={nextWordle}
+				isOpen={isWordleSentModalOpen}
+				onRequestClose={() => setIsWordleSentModalOpen(false)}
+				matchLink={`${process.env.REACT_APP_URL}/match/${currentMatch.id}`}
 			/>
 		</Fragment>
 	);

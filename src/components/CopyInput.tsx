@@ -11,7 +11,7 @@ interface Props {
 }
 
 const CopyInput: FC<Props> = ({ copyText }: Props) => {
-	const { selectedMatch } = useStore();
+	const { currentMatch } = useStore();
 
 	return (
 		// TODO: 'copyText' appears to be undefined
@@ -29,9 +29,9 @@ const CopyInput: FC<Props> = ({ copyText }: Props) => {
 				/>
 			</CopyToClipboard>
 
-			<CopyToClipboard text={createMatchUrl(selectedMatch)}>
+			<CopyToClipboard text={createMatchUrl(currentMatch)}>
 				{/* TODO: Figure out how to get data-tip working both in a component, AND with CopyToClipboard (they seem to clash with each other) */}
-				<Button color="green" copy="Copy Link" data-tip="Copied!" />
+				<Button customStyle="green-button" copy="Copy Link" data-tip="Copied!" />
 			</CopyToClipboard>
 		</>
 	);

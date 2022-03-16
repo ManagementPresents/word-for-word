@@ -4,8 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
 .green {
 	@include decoStyles.cell;
 	background-color: $green;
