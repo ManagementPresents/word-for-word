@@ -12,6 +12,8 @@ interface Props {
 	isOpen: boolean;
 	onRequestClose: any;
     matchLink: string;
+    shouldCloseOnOverlayClick?: boolean;
+    hideCloseButton?: boolean;
 }
 
 const WordleSentModal: FC<Props> = ({
@@ -19,11 +21,13 @@ const WordleSentModal: FC<Props> = ({
     onRequestClose,
     nextWordle,
     matchLink,
+    shouldCloseOnOverlayClick,
+    hideCloseButton,
 }: Props) => {
     const navigate = useNavigate();
 
     return (
-        <Modal isOpen={isOpen} onRequestClose={onRequestClose}>
+        <Modal isOpen={isOpen} onRequestClose={onRequestClose} shouldCloseOnOverlayClick={shouldCloseOnOverlayClick} hideCloseButton={hideCloseButton}>
             <h1 className="text-4xl text-center">Your Wordle Has Been Sent!</h1>
 
             <div className="flex flex-row gap-x-2 justify-center">

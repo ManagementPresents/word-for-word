@@ -63,10 +63,10 @@ const MatchCard: FC<Props> = ({
 		
 		if (!players.guestId) {
 			return (
-				<div className="yellow-match-opponent">
-					<span className="yellow-match-title">Awaiting a Challenger</span>
-					<FontAwesomeIcon icon={faUserClock} size="4x" className="yellow-match-avatar" />
-					<span className="yellow-match-user">Who will it be?</span>
+				<div className="green-match-opponent">
+					<span className="green-match-title">Awaiting a Challenger</span>
+					<FontAwesomeIcon icon={faUserClock} size="4x" className="green-match-avatar" />
+					<span className="green-match-user">Who will it be?</span>
 				</div>
 			);
 		}
@@ -94,18 +94,15 @@ const MatchCard: FC<Props> = ({
 				return <Button copy="Send Back a Wordle!" customStyle="yellow-match-button" />;
 			}	
 
-			if (currentTurn.hasActivePlayerStartedTurn) {
+			if (!currentTurn?.hasActivePlayerStartedTurn) {
 				return <Button copy="It's your turn!" customStyle="yellow-match-button" />;
 			}
 
 			return <Button copy="The results are in ..." customStyle="yellow-match-button" />;
 		}
 		
-		// if ((isUserTurn && !currentTurn?.hasActivePlayerStartedTurn) || (!!match.outcome && !match.isWinnerNotified)) {
-		// 	return <Button copy="The results are in ..." customStyle="yellow-match-button" />;
-		// }
 
-		if (!isUserTurn) {
+		if (!isUserTurn && players.guestId) {
 			return <Button copy="Opponent is taking their turn" customStyle="green-match-button" />;
 		}
 
@@ -150,8 +147,13 @@ const MatchCard: FC<Props> = ({
 	}, [match, user.uid]);
 
 	useEffect(() => {
-		setIsArchived(!!match.outcome && match.isWinnerNotified);
-	}, [match.outcome, match.isWinnerNotified]);
+		
+		if (hasUserWonMatch(match, user.uid) && match.isWinnerNotified) {
+			setIsArchived(true);
+		} else if (!hasUserWonMatch(match, user.uid) && match.outcome) {
+			setIsArchived(true);
+		}
+	}, [match, user.uid]);
 
 	useEffect(() => {
 		setIsPending(isUserTurn || (!!match.outcome && !match.isWinnerNotified));

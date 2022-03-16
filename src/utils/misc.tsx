@@ -108,14 +108,12 @@ const hasPlayerWonCurrentTurn = (match: Match = {} as Match, playerId: string): 
 }
 
 const determineMatchOutcome = (match: Match): string => {
-	console.log({ match })
 	if (Object.keys(match).length) {
 		const currentTurn = getCurrentTurn(match.turns);
 		const guessesAsArray = numericalObjToArray(currentTurn.guesses);
 		const lastGuess = guessesAsArray.slice(-1);
 		const isLastGuessIncorrect = lastGuess.every((cell: Cell) => cell.status !== 'correct');
 
-		console.log({ isLastGuessIncorrect })
 		if (isLastGuessIncorrect) {
 			const { players } = match;
 

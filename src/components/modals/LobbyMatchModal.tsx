@@ -19,7 +19,6 @@ import {
 	updateCurrentTurn,
 	hasUserWonMatch,
 } from '../../utils/misc';
-import { match } from 'assert';
 
 interface Props {
 	isOpen: boolean;
@@ -139,6 +138,7 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, handleStartNewMatc
 			const renderedTurns = currentMatch?.turns.map((turn: Turn) => {
 				const guessesArray: Cell[][] = numericalObjToArray(turn.guesses) as Cell[][];
 
+				console.log({ guessesArray })
 				return (
 					<WordleHistory
 						guesses={guessesArray}

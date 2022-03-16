@@ -522,211 +522,213 @@ function MatchView() {
 	}, [currentMatch, user]);
 
 	return (
-		<div>
-			<div className={`flex flex-col justify-between h-fill bg-background`}>
-				<header className="flex items-center py-2 px-3 text-primary">
-					<button
-						type="button"
-						onClick={() => navigate('/lobby')}
-						className="p-1 rounded-full"
-					>
-						<Lobby />
-					</button>
+		<div className={`flex flex-col justify-between h-fill bg-background min-h-[100vh]`}>
+			<header className="flex items-center py-2 px-3 text-primary">
+				<button
+					type="button"
+					onClick={() => navigate('/lobby')}
+					className="p-1 rounded-full"
+				>
+					<Lobby />
+				</button>
 
-					<h1 className="flex-1 text-center text-xl xxs:text-2xl sm:text-4xl tracking-wide font-bold font-righteous">
-						Word for Word
-					</h1>
-				</header>
+				<h1 className="flex-1 text-center text-xl xxs:text-2xl sm:text-4xl tracking-wide font-bold font-righteous">
+					Word for Word
+				</h1>
+			</header>
 
-				<div className="flex items-center flex-col py-3 flex-1 justify-center relative">
-					{isLoadingMatch ? (
-						<Loading />
-					) : (
-						<>
-							<div className="relative">
-								<div className="grid grid-cols-5 grid-flow-row gap-4">
-									{board.map((row: Cell[], rowNumber: number) => {
-										return row.map((cell: Cell, colNumber: number) => {
-											return (
-												<span
-													key={colNumber}
-													className={`${getCellStyles(
-														rowNumber,
-														colNumber,
-														cell.status,
-													)} animate__animated animate__backInDown inline-flex items-center font-medium justify-center text-lg w-[13vw] h-[13vw] xs:w-14 xs:h-14 sm:w-20 sm:h-20`}
-												>
-													{cell.letter}
-												</span>
-											);
-										});
-									})}
-								</div>
+			<div className="flex items-center flex-col py-3 flex-1 justify-center relative">
+				{isLoadingMatch ? (
+					<Loading />
+				) : (
+					<>
+						<div className="relative">
+							<div className="grid grid-cols-5 grid-flow-row gap-4">
+								{board.map((row: Cell[], rowNumber: number) => {
+									return row.map((cell: Cell, colNumber: number) => {
+										return (
+											<span
+												key={colNumber}
+												className={`${getCellStyles(
+													rowNumber,
+													colNumber,
+													cell.status,
+												)} animate__animated animate__backInDown inline-flex items-center font-medium justify-center text-lg w-[13vw] h-[13vw] xs:w-14 xs:h-14 sm:w-20 sm:h-20`}
+											>
+												{cell.letter}
+											</span>
+										);
+									});
+								})}
 							</div>
+						</div>
 
-							<Modal
-								isOpen={isHowToPlayModalOpen}
-								onRequestClose={() => {
-									setIsHowToPlayModalOpen(false);
-								}}
-							>
-								<div className="flex flex-col gap-y-3">
-									<h1 className="text-center sm:text-3xl text-2xl">
-										How to Play
-									</h1>
-
-									<ul className="block sm:text-base text-sm">
-										<li className="mb-2">
-											You have 6 guesses to guess the correct word.
-										</li>
-
-										<li className="mb-2">You can guess any valid word.</li>
-
-										<li className="mb-2">
-											After each guess, each letter will turn green, yellow,
-											or grey.
-										</li>
-									</ul>
-
-									<div className="mb-3 flex flex-row items-center gap-x-2">
-										<span className="bg-[#15B097] text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10">
-											W
-										</span>
-
-										<span>Letter is in word and in the correct spot</span>
-									</div>
-
-									<div className="mb-3 flex flex-row items-center gap-x-2">
-										<span className="bg-[#FFCE47] text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10">
-											W
-										</span>
-
-										<span>Letter is in word but in the wrong spot</span>
-									</div>
-
-									<div className="mb-3 flex flex-row items-center gap-x-2">
-										<span className="bg-[#A0939A] text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10">
-											W
-										</span>
-
-										<span>Letter is not in word</span>
-									</div>
-
-									<div>
-										Alternately, you can just have fun generating 3-word urls
-										and making up stories about them. We definitely spent a late
-										night in development doing that. Highly recommend.
-									</div>
-
-									{/* TODO: Should be a LoadingButton */}
-									<Button
-										customStyle="green-match-button"
-										copy="Let's Play!"
-										onClick={handleAcceptMatch}
-									/>
-									<Button
-										customStyle="yellow-button"
-										copy="Go Back"
-										onClick={handleGoBackFromHowToPlay}
-									/>
-								</div>
-							</Modal>
-
-							<Modal
-								isOpen={isLandingModalOpen}
-								onRequestClose={() => {
-									setIsLandingModalOpen(false);
-								}}
-							>
-								{/* TODO: Think about using a random "Word for Word" generator here */}
-								<h1 className="flex flex-col gap-y-2 text-[20px] sm:text-2xl text-center">
-									<span className="text-[#15B097] block">
-										{opponentPlayer.email}
-									</span>{' '}
-									would like to have a Wordle with you!
+						<Modal
+							isOpen={isHowToPlayModalOpen}
+							onRequestClose={() => {
+								setIsHowToPlayModalOpen(false);
+							}}
+						>
+							<div className="flex flex-col gap-y-3">
+								<h1 className="text-center sm:text-3xl text-2xl">
+									How to Play
 								</h1>
 
-								<div className="flex flex-col gap-y-3">
-									{/* TODO: Should be a LoadingButton */}
-									<Button
-										onClick={handleAcceptMatch}
-										copy="Accept"
-										customStyle="green-button"
-									/>
+								<ul className="block sm:text-base text-sm">
+									<li className="mb-2">
+										You have 6 guesses to guess the correct word.
+									</li>
 
-									<Button
-										onClick={() => {
-											setIsLandingModalOpen(false);
-										}}
-										copy="Rudely Decline"
-										customStyle="grey-button"
-									/>
+									<li className="mb-2">You can guess any valid word.</li>
 
-									<Button
-										onClick={() => {
-											setIsLandingModalOpen(false);
-										}}
-										copy="Politely Decline"
-										customStyle="grey-button"
-									/>
-								</div>
+									<li className="mb-2">
+										After each guess, each letter will turn green, yellow,
+										or grey.
+									</li>
+								</ul>
 
-								<div className="flex flex-row gap-x-1 justify-center">
-									Not sure what this is?{' '}
-									<span className="yellow-link" onClick={handleOpenHowToPlay}>
-										Check out how to play.
+								<div className="mb-3 flex flex-row items-center gap-x-2">
+									<span className="bg-[#15B097] text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10">
+										W
 									</span>
+
+									<span>Letter is in word and in the correct spot</span>
 								</div>
-							</Modal>
 
-							<EndTurnModal
-								isOpen={isEndTurnModalOpen}
-								onRequestClose={handleCloseEndTurnModal}
-								nextWordle={nextWordle}
-								setNextWordle={setNextWordle}
-								gameState={gameState}
-								setIsOpenMatchChallenge={setIsOpenMatchChallenge}
-								setIsEndTurnModalOpen={setIsEndTurnModalOpen}
-							/>
+								<div className="mb-3 flex flex-row items-center gap-x-2">
+									<span className="bg-[#FFCE47] text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10">
+										W
+									</span>
 
-							<NewMatchModal
-								isOpen={isOpenMatchChallenge}
-								onRequestClose={() => console.log('close')}
-								returnAction={() => {
-									setIsOpenMatchChallenge(false);
-									setIsEndTurnModalOpen(true);
-								}}
-								returnCopy={'Return'}
-								isLobbyReturn={true}
-							/>
+									<span>Letter is in word but in the wrong spot</span>
+								</div>
 
-							<WordleSentModal 
-								nextWordle={nextWordle}
-								isOpen={isWordleSentModalOpen}
-								matchLink={matchLink}
-								onRequestClose={() => console.log('close')}
-							/>
+								<div className="mb-3 flex flex-row items-center gap-x-2">
+									<span className="bg-[#A0939A] text-gray-50 inline-flex items-center justify-center text-3x w-10 h-10">
+										W
+									</span>
 
-							<div
-								className={`h-auto relative mt-6 ${
-									gameState === GameState.PLAYING ? '' : 'invisible'
-								}`}
-							>
-								<Keyboard
-									keyboardStatus={keyboardStatus}
-									addLetter={addLetter}
-									onEnterPress={onEnterPress}
-									onDeletePress={onDeletePress}
-									gameDisabled={
-										gameState !== GameState.PLAYING ||
-										isLandingModalOpen ||
-										isHowToPlayModalOpen
-									}
+									<span>Letter is not in word</span>
+								</div>
+
+								<div>
+									Alternately, you can just have fun generating 3-word urls
+									and making up stories about them. We definitely spent a late
+									night in development doing that. Highly recommend.
+								</div>
+
+								{/* TODO: Should be a LoadingButton */}
+								<Button
+									customStyle="green-match-button"
+									copy="Let's Play!"
+									onClick={handleAcceptMatch}
+								/>
+								<Button
+									customStyle="yellow-button"
+									copy="Go Back"
+									onClick={handleGoBackFromHowToPlay}
 								/>
 							</div>
-						</>
-					)}
-				</div>
+						</Modal>
+
+						<Modal
+							isOpen={isLandingModalOpen}
+							onRequestClose={() => {
+								setIsLandingModalOpen(false);
+							}}
+							shouldCloseOnOverlayClick={false}
+							hideCloseButton={true}
+						>
+							{/* TODO: Think about using a random "Word for Word" generator here */}
+							<h1 className="flex flex-col gap-y-2 text-[20px] sm:text-2xl text-center">
+								<span className="text-[#15B097] block">
+									{opponentPlayer.email}
+								</span>{' '}
+								would like to have a Wordle with you!
+							</h1>
+
+							<div className="flex flex-col gap-y-3">
+								{/* TODO: Should be a LoadingButton */}
+								<Button
+									onClick={handleAcceptMatch}
+									copy="Accept"
+									customStyle="green-button"
+								/>
+
+								<Button
+									onClick={() => {
+										setIsLandingModalOpen(false);
+									}}
+									copy="Rudely Decline"
+									customStyle="grey-button"
+								/>
+
+								<Button
+									onClick={() => {
+										setIsLandingModalOpen(false);
+									}}
+									copy="Politely Decline"
+									customStyle="grey-button"
+								/>
+							</div>
+
+							<div className="flex flex-row gap-x-1 justify-center">
+								Not sure what this is?{' '}
+								<span className="yellow-link" onClick={handleOpenHowToPlay}>
+									Check out how to play.
+								</span>
+							</div>
+						</Modal>
+
+						<EndTurnModal
+							isOpen={isEndTurnModalOpen}
+							onRequestClose={handleCloseEndTurnModal}
+							nextWordle={nextWordle}
+							setNextWordle={setNextWordle}
+							gameState={gameState}
+							setIsOpenMatchChallenge={setIsOpenMatchChallenge}
+							setIsEndTurnModalOpen={setIsEndTurnModalOpen}
+						/>
+
+						<NewMatchModal
+							isOpen={isOpenMatchChallenge}
+							onRequestClose={() => console.log('close')}
+							returnAction={() => {
+								setIsOpenMatchChallenge(false);
+								setIsEndTurnModalOpen(true);
+							}}
+							returnCopy={'Return'}
+							isLobbyReturn={true}
+						/>
+
+						<WordleSentModal 
+							nextWordle={nextWordle}
+							isOpen={isWordleSentModalOpen}
+							matchLink={matchLink}
+							onRequestClose={() => console.log('close')}
+							shouldCloseOnOverlayClick={false}
+							hideCloseButton={true}
+						/>
+
+						<div
+							className={`h-auto relative mt-6 ${
+								gameState === GameState.PLAYING ? '' : 'invisible'
+							}`}
+						>
+							<Keyboard
+								keyboardStatus={keyboardStatus}
+								addLetter={addLetter}
+								onEnterPress={onEnterPress}
+								onDeletePress={onDeletePress}
+								gameDisabled={
+									gameState !== GameState.PLAYING ||
+									isLandingModalOpen ||
+									isHowToPlayModalOpen
+								}
+							/>
+						</div>
+					</>
+				)}
 			</div>
 		</div>
 	);

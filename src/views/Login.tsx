@@ -38,12 +38,10 @@ const Login = () => {
 				// Signed in
 				const user = userCredential.user;
 				useStore.setState({ user });
-				// console.log('successfully logged in');
 			})
 			.catch((error) => {
 				const { code } = error;
 
-				// console.log({ code })
 				let serverErrors = [];
 
 				switch (code) {
