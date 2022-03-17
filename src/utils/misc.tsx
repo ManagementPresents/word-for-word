@@ -130,9 +130,22 @@ const determineMatchOutcome = (match: Match): string => {
 
 const hasUserWonMatch = (match: Match, id: string): boolean => {
 	if (Object.keys(match).length) {
-		const matchOutcome = determineMatchOutcome(match);
 		const isUserHost = match.players.hostId === id;
-		const hasUserWon = (isUserHost && matchOutcome === MatchOutcome.HOST_WIN) || (!isUserHost && matchOutcome === MatchOutcome.GUEST_WIN);
+		let hasUserWon = false;
+		
+		if (
+			(isUserHost && match.outcome === MatchOutcome.HOST_WIN) || 
+			(!isUserHost && match.outcome === MatchOutcome.GUEST_WIN) ||
+			(isUserHost && match.outcome === MatchOutcome.GUEST_FORFEIT) ||
+			(!isUserHost && match.outcome === MatchOutcome.HOST_FORFEIT)
+		) {
+			hasUserWon = true;
+		} else if (
+			(isUserHost && match.outcome === MatchOutcome.HOST_FORFEIT) ||
+			(!isUserHost && match.outcome === MatchOutcome.GUEST_FORFEIT)
+		) {
+			hasUserWon = false;
+		}
 	
 		return hasUserWon;
 	}

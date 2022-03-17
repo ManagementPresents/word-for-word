@@ -12,7 +12,6 @@ import ForfeitModal from '../components/modals/ForfeitModal';
 
 import { 
 	getMatchOpponentId, 
-	hasPlayerWonCurrentTurn,
 	getCurrentTurn,
 } from '../utils/misc';
 import useStore from '../utils/store';
@@ -20,7 +19,6 @@ import { TIMEOUT_DURATION } from '../data/constants';
 import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
 import Players from '../interfaces/Players';
-import GameState from '../enums/GameState';
 import WordleSentModal from '../components/modals/WordleSentModal';
 import Turn from '../interfaces/Turn';
 
@@ -66,10 +64,6 @@ const Lobby = () => {
 		// @ts-ignore
 		keyMap[e.code] = false;
 	});
-
-	const determineGameState = () => {
-		return hasPlayerWonCurrentTurn(currentMatch, user.uid) ? GameState.WON : '';
-	};
 
 	useEffect(() => {
 		if (user) {
@@ -276,8 +270,11 @@ const Lobby = () => {
 				onRequestClose={() => setIsEndTurnModalOpen(false)}
 				nextWordle={nextWordle}
 				setNextWordle={setNextWordle}
-				gameState={determineGameState()}
 				lazyLoadOpponentPlayer={true}
+				isLobbyReturn={true}
+				returnAction={() => setIsEndTurnModalOpen(false)}
+				// TODO: A bit confusing that these don't have the same name
+				setIsOpenMatchChallenge={setIsNewMatchModalOpen}
 			/>
 
 			<WordleSentModal 
@@ -285,11 +282,13 @@ const Lobby = () => {
 				isOpen={isWordleSentModalOpen}
 				onRequestClose={() => setIsWordleSentModalOpen(false)}
 				matchLink={`${process.env.REACT_APP_URL}/match/${currentMatch.id}`}
+				returnAction={() => setIsWordleSentModalOpen(false)}
 			/>
 
 			<ForfeitModal 
 				isOpen={isForfeitModalOpen}
 				onRequestClose={() => setIsForfeitModalOpen(false)}
+				setIsEndTurnModalOpen={setIsEndTurnModalOpen}
 			/>
 		</Fragment>
 	);
