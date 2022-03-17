@@ -8,6 +8,7 @@ import Button from '../components/buttons/Button';
 import LobbyMatchModal from '../components/modals/LobbyMatchModal';
 import NewMatchModal from '../components/modals/NewMatchModal';
 import EndTurnModal from '../components/modals/EndTurnModal';
+import ForfeitModal from '../components/modals/ForfeitModal';
 
 import { 
 	getMatchOpponentId, 
@@ -38,6 +39,7 @@ const Lobby = () => {
 	const [isLobbyMatchModalOpen, setIsLobbyMatchModalOpen] = useState(false);
 	const [isEndTurnModalOpen, setIsEndTurnModalOpen] = useState(false);
 	const [isWordleSentModalOpen, setIsWordleSentModalOpen] = useState(false);
+	const [isForfeitModalOpen, setIsForfeitModalOpen] = useState(false);
 	const [nextWordle, setNextWordle] = useState('');
 
 	const keyMap = {};
@@ -94,66 +96,68 @@ const Lobby = () => {
 
                         Perhaps this could, eventually, be abstracted to a cloud function end point, where it would be safe to pull/cache all the matches/players, filter on the server, and bring them back here. Need to test and see if that would actually be more performant.
                     */
-					const playerMatches: Match[] = await Promise.all(
-						matchIds?.map(async (matchId: string): Promise<Match> => {
-							const matchRef = doc(db, 'matches', matchId);
-							const matchSnap = await getDoc(matchRef);
+					if (matchIds?.length) {
+						const playerMatches: Match[] = await Promise.all(
+							matchIds?.map(async (matchId: string): Promise<Match> => {
+								const matchRef = doc(db, 'matches', matchId);
+								const matchSnap = await getDoc(matchRef);
 
-							return matchSnap.data() as Match;
-						}),
-					);
+								return matchSnap.data() as Match;
+							}),
+						);
 
-					const opponentPlayersArray: Player[] = await Promise.all(
-						playerMatches.map(async (match: Match): Promise<Player> => {
-							const matchOpponentId = getMatchOpponentId(user, match);
+						const opponentPlayersArray: Player[] = await Promise.all(
+							playerMatches.map(async (match: Match): Promise<Player> => {
+								const matchOpponentId = getMatchOpponentId(user, match);
 
-							if (matchOpponentId) {
-								const playerRef = doc(db, 'players', matchOpponentId);
-								const playerSnap = await getDoc(playerRef);
+								if (matchOpponentId) {
+									const playerRef = doc(db, 'players', matchOpponentId);
+									const playerSnap = await getDoc(playerRef);
 
-								return {
-									id: matchOpponentId,
-									...playerSnap.data(),
-								} as Player;
-							}
+									return {
+										id: matchOpponentId,
+										...playerSnap.data(),
+									} as Player;
+								}
 
-							return {} as Player;
-						}),
-					);
+								return {} as Player;
+							}),
+						);
 
-					// Transform (or, i guess, reduce) the opponentPlayersArray into an object, for easier data access
-					const opponentPlayers: Players = opponentPlayersArray.reduce(
-						(accum: Players, player: Player): Players => {
-							const hasPlayer = !!Object.keys(player).length;
+						// Transform (or, i guess, reduce) the opponentPlayersArray into an object, for easier data access
+						const opponentPlayers: Players = opponentPlayersArray.reduce(
+							(accum: Players, player: Player): Players => {
+								const hasPlayer = !!Object.keys(player).length;
 
-							if (hasPlayer) {
-								//
-								const {
-									id,
-									email,
-									/* 
-                                    TODO: 'matches' is unlikely to be used, but, it's currently required by the interface.
-                                    Investigate in the future if this is the best way to do this
-                                */
-									matches,
-								} = player;
+								if (hasPlayer) {
+									//
+									const {
+										id,
+										email,
+										/* 
+										TODO: 'matches' is unlikely to be used, but, it's currently required by the interface.
+										Investigate in the future if this is the best way to do this
+									*/
+										matches,
+									} = player;
 
-								accum[id as string] = {
-									email,
-									matches,
-									id,
-								};
-							}
+									accum[id as string] = {
+										email,
+										matches,
+										id,
+									};
+								}
 
-							return accum;
-						},
-						{} as Players,
-					);
+								return accum;
+							},
+							{} as Players,
+						);
 
-					setMatchOpponents(opponentPlayers);
-					setMatches(playerMatches);
-					setIsLoadingMatches(false);
-					clearInterval(loadingMatchesTimeout);
+						setMatchOpponents(opponentPlayers);
+						setMatches(playerMatches);
+						setIsLoadingMatches(false);
+						clearInterval(loadingMatchesTimeout);
+					}
 				}
 			})();
 		}
@@ -264,6 +268,7 @@ const Lobby = () => {
 				isOpen={isLobbyMatchModalOpen}
 				onRequestClose={handleLobbyMatchModalClose}
 				handleStartNewMatch={handleStartNewMatch}
+				setIsForfeitModalOpen={setIsForfeitModalOpen}
 			/>
 
 			<EndTurnModal
@@ -280,6 +285,11 @@ const Lobby = () => {
 				isOpen={isWordleSentModalOpen}
 				onRequestClose={() => setIsWordleSentModalOpen(false)}
 				matchLink={`${process.env.REACT_APP_URL}/match/${currentMatch.id}`}
+			/>
+
+			<ForfeitModal 
+				isOpen={isForfeitModalOpen}
+				onRequestClose={() => setIsForfeitModalOpen(false)}
 			/>
 		</Fragment>
 	);

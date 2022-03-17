@@ -24,9 +24,15 @@ interface Props {
 	isOpen: boolean;
 	onRequestClose: any;
 	handleStartNewMatch: any;
+	setIsForfeitModalOpen: any;
 }
 
-const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, handleStartNewMatch }: Props) => {
+const LobbyMatchModal: FC<Props> = ({ 
+	isOpen, 
+	onRequestClose, 
+	handleStartNewMatch ,
+	setIsForfeitModalOpen,
+}: Props) => {
 	const { 
 		currentMatch, 
 		matchOpponents, 
@@ -112,7 +118,8 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, handleStartNewMatc
 							copy="Forfeit Match"
 							customStyle="grey-button-hollow mt-4 "
 							onClick={() => {
-								console.log('cancel and delete match');
+								onRequestClose();
+								setIsForfeitModalOpen(true);
 							}}
 						/>
 					}
@@ -138,7 +145,6 @@ const LobbyMatchModal: FC<Props> = ({ isOpen, onRequestClose, handleStartNewMatc
 			const renderedTurns = currentMatch?.turns.map((turn: Turn) => {
 				const guessesArray: Cell[][] = numericalObjToArray(turn.guesses) as Cell[][];
 
-				console.log({ guessesArray })
 				return (
 					<WordleHistory
 						guesses={guessesArray}
