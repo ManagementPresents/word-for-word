@@ -25,6 +25,7 @@ interface Props {
 	setNextWordle: any;
 	returnAction: any;
 	setIsOpenMatchChallenge: any;
+	setIsForfeitModalOpen: any;
 	shouldCloseOnOverlayClick?: boolean;
 	isLobbyReturn?: boolean;
 	lazyLoadOpponentPlayer?: boolean;
@@ -40,6 +41,7 @@ const EndTurnModal: FC<Props> = ({
 	returnAction,
 	isLobbyReturn,
 	shouldCloseOnOverlayClick,
+	setIsForfeitModalOpen,
 }: Props) => {
 	const { 
 		opponentPlayer, 
@@ -206,7 +208,8 @@ const EndTurnModal: FC<Props> = ({
 							copy="Forfeit Game"
 							customStyle="grey-match-button"
 							onClick={() => {
-								console.log('forfeit game');
+								setIsForfeitModalOpen(true);
+								onRequestClose();
 							}}
 						/>
 					</div>
@@ -289,7 +292,7 @@ const EndTurnModal: FC<Props> = ({
 					setHasUserWon(true);
 				} else if (currentMatch.outcome === MatchOutcome.GUEST_FORFEIT) {
 					// TODO: Do we need special copy for if your opponent forfeits?
-					setHasOpponentForfeited(true);
+					setHasUserForfeit(true);
 				}
 			}
 		}

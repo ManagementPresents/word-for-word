@@ -99,6 +99,7 @@ function MatchView() {
 	const [matchLink, setMatchLink] = useState('');
 	const [isOpenMatchChallenge, setIsOpenMatchChallenge] = useState(false);
 	const [isAModalOpen, setIsAModalOpen] = useState(false);
+	const [isForfeitModalOpen, setIsForfeitModalOpen] = useState(false);
 
 	const navigate = useNavigate();
 
@@ -678,6 +679,7 @@ function MatchView() {
 							isLobbyReturn={true}
 							returnAction={() => navigate('/lobby')}
 							shouldCloseOnOverlayClick={false}
+							setIsForfeitModalOpen={setIsForfeitModalOpen}
 						/>
 
 						<NewMatchModal

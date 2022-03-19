@@ -292,6 +292,7 @@ const Lobby = () => {
 				returnAction={() => setIsEndTurnModalOpen(false)}
 				// TODO: A bit confusing that these don't have the same name
 				setIsOpenMatchChallenge={setIsNewMatchModalOpen}
+				setIsForfeitModalOpen={setIsForfeitModalOpen}
 			/>
 
 			<WordleSentModal 
