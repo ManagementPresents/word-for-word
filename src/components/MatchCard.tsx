@@ -36,7 +36,7 @@ const MatchCard: FC<Props> = ({
 		setCurrentMatch, 
 		user, 
 		matchOpponents,
-		db 
+		db,
 	} = useStore();
 
 	const [isUserTurn, setIsUserTurn] = useState(false);
@@ -173,6 +173,16 @@ const MatchCard: FC<Props> = ({
 		if (isWaiting) return 'green';
 	};
 
+	const handleWordleSquareRender = () => {
+		if (match.outcome) {
+			const currentTurn = getCurrentTurn(match.turns);
+
+			return renderWordleSquares(currentTurn.wordle);
+		} else {
+			return renderWordleSquares(getLastPlayedWordByPlayerId(user.uid, match.turns));
+		}
+	}
+
 	useEffect(() => {
 		console.log({ match })
 		setIsUserTurn(isPlayerCurrentTurn(match, user.uid));
@@ -214,7 +224,7 @@ const MatchCard: FC<Props> = ({
 
 			{/* TODO: investigate repsonsiveness at REALLY small screen sizes ( < 360px) */}
 			<div className={`${handleCardColor()}-match-playbox`}>
-				{renderWordleSquares(getLastPlayedWordByPlayerId(user.uid, match.turns))}
+				{handleWordleSquareRender()}
 			</div>
 
 			{/* 
