@@ -13,6 +13,7 @@ import Button from '../components/buttons/Button';
 import EndTurnModal from '../components/modals/EndTurnModal';
 import NewMatchModal from '../components/modals/NewMatchModal';
 import WordleSentModal from '../components/modals/WordleSentModal';
+import ForfeitModal from '../components/modals/ForfeitModal';
 
 import useStore from '../utils/store';
 import {
@@ -701,6 +702,18 @@ function MatchView() {
 							shouldCloseOnOverlayClick={false}
 							hideCloseButton={true}
 							returnAction={() => navigate('/lobby')}
+						/>
+
+						<ForfeitModal 
+							isOpen={isForfeitModalOpen}
+							onRequestClose={() => { setIsForfeitModalOpen(false) }}
+							setIsEndTurnModalOpen={setIsEndTurnModalOpen}
+							shouldCloseOnOverlayClick={false}
+							isLobbyReturn={true}
+							handleKeepPlaying={() => {
+								setIsForfeitModalOpen(false);
+								setIsEndTurnModalOpen(true);
+							}}
 						/>
 
 						<div

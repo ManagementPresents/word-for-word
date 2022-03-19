@@ -121,28 +121,6 @@ const MatchCard: FC<Props> = ({
 	const handleCardClick = async () => {
 		setCurrentMatch(match);
 
-		// if (hasPlayerWonCurrentTurn(match, user.uid)) {
-		// 	setIsEndTurnModalOpen(true);
-		// } else {
-		// 	if (match.outcome) {
-		// 		console.log('uh', hasUserWonMatch(match, user.uid))
-		// 		if (hasUserWonMatch(match, user.uid) && !match.isWinnerNotified) {
-		// 			// TODO: Some kind of throbber will be necessary here
-		// 			const currentMatchRef = doc(db, 'matches', match.id);
-
-		// 			console.log('not right!')
-		// 			// await setDoc(
-		// 			// 	currentMatchRef,
-		// 			// 	{
-		// 			// 		isWinnerNotified: true,
-		// 			// 	},
-		// 			// 	{ merge: true },
-		// 			// );
-		// 		}
-		// 	}
-
-		// 	setIsLobbyMatchModalOpen(true);
-		// }
 		if (match.outcome) {
 			if (hasUserWonMatch(match, user.uid) && !match.isWinnerNotified) {
 				// TODO: Some kind of throbber will be necessary here

@@ -13,8 +13,10 @@ interface Props {
 	isOpen: boolean;
 	onRequestClose: any;
     setIsEndTurnModalOpen: any;
+    handleKeepPlaying: any;
     shouldCloseOnOverlayClick?: boolean;
     hideCloseButton?: boolean;
+    isLobbyReturn?: boolean;
 }
 
 const ForfeitModal: FC<Props> = ({
@@ -23,6 +25,8 @@ const ForfeitModal: FC<Props> = ({
     shouldCloseOnOverlayClick,
     hideCloseButton,
     setIsEndTurnModalOpen,
+    isLobbyReturn,
+    handleKeepPlaying,
 }: Props) => {
     const {
         setCurrentMatch,
@@ -57,18 +61,13 @@ const ForfeitModal: FC<Props> = ({
             outcome
         });
 
-        console.log('new current match', {
-            ...currentMatch,
-            outcome
-        })
-
         setIsForfeiting(false);
         setIsEndTurnModalOpen(true);
         onRequestClose();
     }
 
     return (
-        <Modal isOpen={isOpen} onRequestClose={onRequestClose} shouldCloseOnOverlayClick={shouldCloseOnOverlayClick} hideCloseButton={hideCloseButton}>
+        <Modal isOpen={isOpen} onRequestClose={onRequestClose} shouldCloseOnOverlayClick={shouldCloseOnOverlayClick} hideCloseButton={hideCloseButton} isLobbyReturn={isLobbyReturn}>
             <h1 className="modal-header">Forfeit Match?</h1>
 
             <p className="max-w-xs">There is honor in knowing when to call it quits, we just want to be sure.</p>
@@ -86,6 +85,7 @@ const ForfeitModal: FC<Props> = ({
             <Button 
                 copy="Keep Playing"
                 customStyle="yellow-button"
+                onClick={handleKeepPlaying}
             />
         </Modal>
     );

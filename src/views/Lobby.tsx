@@ -307,6 +307,11 @@ const Lobby = () => {
 				isOpen={isForfeitModalOpen}
 				onRequestClose={() => setIsForfeitModalOpen(false)}
 				setIsEndTurnModalOpen={setIsEndTurnModalOpen}
+				handleKeepPlaying={() => {
+					setIsForfeitModalOpen(false);
+					// TODO: Figure out how best to determine what modal needs to be opened again
+					// setIsEndTurnModalOpen(true);
+				}}
 			/>
 		</Fragment>
 	);
