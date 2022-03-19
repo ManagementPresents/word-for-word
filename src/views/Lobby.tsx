@@ -147,8 +147,17 @@ const Lobby = () => {
 							{} as Players,
 						);
 
+						// @ts-ignore
+						const playerMatchesObject = playerMatches.reduce((accum, playerMatch) => {
+							// @ts-ignore
+							accum[playerMatch.id] = playerMatch;
+							return accum;
+						}, {});
+
+						console.log({ playerMatchesObject })
+
 						setMatchOpponents(opponentPlayers);
-						setMatches(playerMatches);
+						setMatches(playerMatchesObject);
 						setIsLoadingMatches(false);
 						clearInterval(loadingMatchesTimeout);
 					}
@@ -196,8 +205,16 @@ const Lobby = () => {
 	};
 
 	// TODO: When a new match is made, it should probably load in the first card slot (i.e. it should appear in the top left of the match box on large devices, and at the very top on mobile devices)
-	const renderMatches = (matches: Match[]) => {
-		return matches.map((match) => (
+	const renderMatches = (matches: {}) => {
+		// TODO: This match serialization logic could use abstraction
+		const matchesArray = [];
+
+		for (const matchId in matches) {
+			// @ts-ignore
+			matchesArray.push(matches[matchId]);
+		}
+
+		return matchesArray.map((match) => (
 			<MatchCard
 				match={match}
 				isLobbyMatchModalOpen={isLobbyMatchModalOpen}
@@ -211,7 +228,7 @@ const Lobby = () => {
 		// TODO: There is some kind of over-rendering nonsense going on here
 		if (isLoadingMatches) return <Loading enableCentering={false} />;
 
-		return matches.length ? (
+		return Object.keys(matches).length ? (
 			<Fragment>{renderMatches(matches)}</Fragment>
 		) : (
 			<div className="flex flex-col gap-y-2 mx-auto max-w-lg">
@@ -245,7 +262,7 @@ const Lobby = () => {
 			<div className="max-w-7xl flex flex-col gap-y-3 h-full md:gap-x-6 md:flex-row mx-auto py-6 px-4 sm:px-6 lg:px-8">
 				{/* Hi gabriel, I added "lobby-matchbox-style here to control some colors and such from index.css in case you're wondering wtf this is. Also, you lookin fine as hell over there just fyi. ;) */}
 				<div
-					className={`lobby-matchbox-style ${matches.length ? '' : 'grid grid-cols-1'} `}
+					className={`lobby-matchbox-style ${Object.keys(matches).length ? '' : 'grid grid-cols-1'} `}
 				>
 					{handleMatchBox()}
 				</div>
