@@ -52,7 +52,18 @@ const useStore = create<State>((set, get) => ({
 	setMatches: (matches: {}) => set({ matches }),
 	setIsLoading: (isLoading: boolean) => set({ isLoading }),
 	setUser: (user: any) => set({ user }),
-	setCurrentMatch: (currentMatch: Match) => set({ currentMatch }),
+	setCurrentMatch: (currentMatch: Match) => {
+		// TODO: idk if it's a zustand 'antipattern' to edit multiple state properties in one call, but, it works, so
+		const matches = {
+			...get().matches,
+			[currentMatch.id]: currentMatch
+		}; 
+
+		set({ 
+			currentMatch,
+			matches,
+		});
+	},
 	setCurrentTurn: (currentTurn: Turn) => set({ currentTurn }),
 	setMatchOpponents: (matchOpponents: Players) => set({ matchOpponents }),
 }));
