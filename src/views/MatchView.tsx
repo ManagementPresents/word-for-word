@@ -311,12 +311,6 @@ function MatchView() {
 	const [isLoadingMatch, setIsLoadingMatch] = useState(true);
 	const [isWordleSentModalOpen, setIsWordleSentModalOpen] = useState(false);
 
-	const handleCloseEndTurnModal = () => {
-		// navigate('/lobby');
-		// TODO: Right now, if this modal closes, we shoot the player back to the lobby. It seems like a bad idea, if the user taps off the modal, to just close it normally and freeze them in a finished game.
-		console.log('intentionally do nothing');
-	};
-
 	const handleOpenHowToPlay = () => {
 		setIsLandingModalOpen(false);
 		setIsHowToPlayModalOpen(true);
@@ -359,7 +353,7 @@ function MatchView() {
 		if (updatedCurrentMatchSnap.exists()) {
 			const updatedCurrentMatchData: Match = updatedCurrentMatchSnap.data() as Match;
 			const currentTurn: Turn = updatedCurrentMatchData.turns.find(
-				(turn: Turn): boolean => turn.currentTurn,
+				(turn: Turn): boolean => turn.isCurrentTurn,
 			) as Turn;
 
 			setCurrentMatch(updatedCurrentMatchData);
@@ -370,10 +364,6 @@ function MatchView() {
 		}
 	};
 
-	const handleCloseExitModal = () => {
-		console.log('leave the match');
-	};
-
 	useEffect(() => {
 		const reversedBoard = board.slice().reverse();
 		const lastFilledRow = reversedBoard.find((row) => {
@@ -382,6 +372,8 @@ function MatchView() {
 
 		const isMatchWon: boolean = (lastFilledRow && isRowAllGreen(lastFilledRow)) as boolean;
 		const isGameLost: boolean = ((currentRowIndex === 6) && !isMatchWon) as boolean;
+
+		const currentTurn = getCurrentTurn(currentMatch.turns);
 
 		if (isGameLost) {
 			if (!currentMatch.outcome) {
@@ -411,7 +403,7 @@ function MatchView() {
 			}
 		}
 
-		if (isMatchWon) {
+		if (isMatchWon && currentTurn.activePlayer === user.uid) {
 			/* 
 				TODO: It feels abrupt showing this modal with no delay.
 				In the long term, perhaps a fun victory animation? 
@@ -679,12 +671,13 @@ function MatchView() {
 
 						<EndTurnModal
 							isOpen={isEndTurnModalOpen}
-							onRequestClose={handleCloseEndTurnModal}
+							onRequestClose={() => setIsEndTurnModalOpen(false)}
 							nextWordle={nextWordle}
 							setNextWordle={setNextWordle}
 							setIsOpenMatchChallenge={setIsOpenMatchChallenge}
 							isLobbyReturn={true}
 							returnAction={() => navigate('/lobby')}
+							shouldCloseOnOverlayClick={false}
 						/>
 
 						<NewMatchModal

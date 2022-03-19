@@ -65,7 +65,7 @@ const NewMatchModal: FC<Props> = ({
 			turns: [
 				{
 					activePlayer: '',
-					currentTurn: true,
+					isCurrentTurn: true,
 					// TODO: This is an (annoying) concession to firebase, which does not support arrays of arrays at the moment
 					guesses: {},
 					turnState: 'playing',

@@ -18,6 +18,7 @@ import {
 	numericalObjToArray,
 	updateCurrentTurn,
 	hasUserWonMatch,
+	getCurrentTurn,
 } from '../../utils/misc';
 
 interface Props {
@@ -49,28 +50,34 @@ const LobbyMatchModal: FC<Props> = ({
 	const navigate = useNavigate();
 
 	const handleGoToMatch = async () => {
-		// TODO: Need a loading throbber
-		const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
-			turn.hasActivePlayerStartedTurn = true;
-			return turn;
-		});
+		const currentTurn = getCurrentTurn(currentMatch.turns);
 
-		const currentMatchRef = doc(db, 'matches', currentMatch.id);
+		if (isUserTurn && !currentTurn.hasActivePlayerStartedTurn) {
+			console.log('updating hasActivePlayerStartedTurn')
+			// TODO: Need a loading throbber
+			const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
+				turn.hasActivePlayerStartedTurn = true;
+				return turn;
+			});
 
-		await setDoc(
-			currentMatchRef,
-			{
-				turns: updatedTurns,
-			},
-			{ merge: true },
-		);
+			const currentMatchRef = doc(db, 'matches', currentMatch.id);
 
-		/*
-            TODO: Set the local state so we see UI updates
-            In the long term, we might need to think of the best way to keep local state and firestore in sync
-            (something similar to, but not quite, ember data)
-        */
-		setCurrentMatch({ ...currentMatch, turns: updatedTurns });
+			await setDoc(
+				currentMatchRef,
+				{
+					turns: updatedTurns,
+				},
+				{ merge: true },
+			);
+
+			/*
+				TODO: Set the local state so we see UI updates
+				In the long term, we might need to think of the best way to keep local state and firestore in sync
+				(something similar to, but not quite, ember data)
+			*/
+			setCurrentMatch({ ...currentMatch, turns: updatedTurns });
+		}
+
 		navigate(`/match/${currentMatch.id}`);
 	}
 

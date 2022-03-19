@@ -90,7 +90,7 @@ const MatchCard: FC<Props> = ({
 			return <Button copy="See Results" customStyle="grey-match-button" />;
 		}
 
-		if (match.outcome ) {
+		if (match.outcome) {
 			if (!match.isWinnerNotified) {
 				return <Button copy="The results are in ..." customStyle="yellow-match-button" />;
 			}
@@ -102,10 +102,10 @@ const MatchCard: FC<Props> = ({
 			}	
 
 			if (!currentTurn?.hasActivePlayerStartedTurn) {
-				return <Button copy="It's your turn!" customStyle="yellow-match-button" />;
+				return <Button copy="The results are in ..." customStyle="yellow-match-button" />
 			}
 
-			return <Button copy="The results are in ..." customStyle="yellow-match-button" />;
+			return <Button copy="It's your turn!" customStyle="yellow-match-button" />;
 		}
 		
 
@@ -143,7 +143,6 @@ const MatchCard: FC<Props> = ({
 
 		// 	setIsLobbyMatchModalOpen(true);
 		// }
-
 		if (match.outcome) {
 			if (hasUserWonMatch(match, user.uid) && !match.isWinnerNotified) {
 				// TODO: Some kind of throbber will be necessary here
@@ -161,6 +160,8 @@ const MatchCard: FC<Props> = ({
 			setIsLobbyMatchModalOpen(true);
 		} else if (hasPlayerWonCurrentTurn(match, user.uid)) {
 			setIsEndTurnModalOpen(true);
+		} else {
+			setIsLobbyMatchModalOpen(true);
 		}
 	};
 
@@ -173,6 +174,7 @@ const MatchCard: FC<Props> = ({
 	};
 
 	useEffect(() => {
+		console.log({ match })
 		setIsUserTurn(isPlayerCurrentTurn(match, user.uid));
 	}, [match, user.uid]);
 

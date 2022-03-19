@@ -48,14 +48,14 @@ const arrayToNumericalObj = (array: any[]): { [key: string]: any } => {
 */
 const updateCurrentTurn = (turns: Turn[], callback: (turn: Turn) => Turn): Turn[] => {
 	return turns.map((turn: Turn): Turn => {
-		if (!turn.currentTurn) return turn;
+		if (!turn.isCurrentTurn) return turn;
 
 		return callback(turn);
 	}) as Turn[];
 };
 
 const getCurrentTurn = (turns: Turn[] = []): Turn => {
-	return turns.find((turn: Turn): boolean => turn.currentTurn) as Turn;
+	return turns.find((turn: Turn): boolean => turn.isCurrentTurn) as Turn;
 };
 
 const addTurn = (turns: Turn[], turn: Turn): Turn[] => {
@@ -77,7 +77,7 @@ const getMatchOpponentId = (user: any, match: Match): string => {
 
 const isPlayerCurrentTurn = (match: Match = {} as Match, id: string): boolean => {
 	const currentTurn: Turn = getCurrentTurn(match.turns) as Turn;
-
+	
 	return currentTurn?.activePlayer === id;
 };
 

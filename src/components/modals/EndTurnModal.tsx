@@ -25,6 +25,7 @@ interface Props {
 	setNextWordle: any;
 	returnAction: any;
 	setIsOpenMatchChallenge: any;
+	shouldCloseOnOverlayClick?: boolean;
 	isLobbyReturn?: boolean;
 	lazyLoadOpponentPlayer?: boolean;
 }
@@ -38,6 +39,7 @@ const EndTurnModal: FC<Props> = ({
 	lazyLoadOpponentPlayer,
 	returnAction,
 	isLobbyReturn,
+	shouldCloseOnOverlayClick,
 }: Props) => {
 	const { 
 		opponentPlayer, 
@@ -79,7 +81,7 @@ const EndTurnModal: FC<Props> = ({
 
 		const newTurn: Turn = {
 			activePlayer: opponentId,
-			currentTurn: true,
+			isCurrentTurn: true,
 			guesses: {},
 			keyboardStatus: {},
 			turnState: 'playing',
@@ -87,7 +89,7 @@ const EndTurnModal: FC<Props> = ({
 			hasActivePlayerStartedTurn: false,
 		};
 		const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
-			turn.currentTurn = false;
+			turn.isCurrentTurn = false;
 			// TODO: This state obviously needs to depend on whether they won or lost
 			turn.turnState = 'won';
 
@@ -114,6 +116,7 @@ const EndTurnModal: FC<Props> = ({
         */
 		setCurrentMatch({ ...currentMatch, turns: newTurns });
 		setIsSendingWordle(false);
+		onRequestClose();
 	};
 
 	const renderEndTurnCopy = () => {
@@ -297,7 +300,7 @@ const EndTurnModal: FC<Props> = ({
 	}, [currentMatch.turns]);
 
 	return (
-		<Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={isLobbyReturn}>
+		<Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={isLobbyReturn} shouldCloseOnOverlayClick={shouldCloseOnOverlayClick}>
 			{/* TODO: Think about using a random "Word for Word" generator here */}
 			<div className="flex flex-col gap-y-2">
 				<h1 className="text-4xl text-center">Turn {currentMatch?.turns?.length}</h1>
