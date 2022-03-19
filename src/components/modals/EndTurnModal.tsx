@@ -15,7 +15,7 @@ import { renderWordleSquares } from '../../utils/wordUtils';
 import { validateWordle } from '../../utils/validation';
 import ValidationError from '../../interfaces/ValidationError';
 import Turn from '../../interfaces/Turn';
-import GameState from '../../enums/GameState';
+import MatchOutcome from '../../enums/MatchOutcome';
 import Player from '../../interfaces/Player';
 
 interface Props {
@@ -23,10 +23,12 @@ interface Props {
 	onRequestClose: any;
 	nextWordle: string;
 	setNextWordle: any;
-	gameState: string;
+	returnAction: any;
+	setIsOpenMatchChallenge: any;
+	setIsForfeitModalOpen: any;
+	shouldCloseOnOverlayClick?: boolean;
+	isLobbyReturn?: boolean;
 	lazyLoadOpponentPlayer?: boolean;
-	setIsOpenMatchChallenge?: any;
-	setIsEndTurnModalOpen?: any;
 }
 
 const EndTurnModal: FC<Props> = ({
@@ -34,10 +36,12 @@ const EndTurnModal: FC<Props> = ({
 	onRequestClose,
 	nextWordle,
 	setNextWordle,
-	gameState,
 	setIsOpenMatchChallenge,
-	setIsEndTurnModalOpen,
 	lazyLoadOpponentPlayer,
+	returnAction,
+	isLobbyReturn,
+	shouldCloseOnOverlayClick,
+	setIsForfeitModalOpen,
 }: Props) => {
 	const { 
 		opponentPlayer, 
@@ -52,9 +56,14 @@ const EndTurnModal: FC<Props> = ({
 		TODO: This bullshit is because EndTurnModal can now be accessed in places where currentMatch isn't guaranteed to be present.
 		Consolidation would eventually be good.
 	*/
-	const [answer] = useState(getCurrentTurn(currentMatch.turns)?.wordle.toUpperCase());
+	const [answer, setAnswer] = useState('');
 	const [wordleValidationErrors, setWordleValidationErrors] = useState([]);
 	const [isSendingWordle, setIsSendingWordle] = useState(false);
+	const [hasUserWon, setHasUserWon] = useState(false);
+	const [hasUserLost, setHasUserLost] = useState(false);
+	const [hasUserForfeit, setHasUserForfeit] = useState(false);
+	const [hasOpponentForfeited, setHasOpponentForfeited] = useState(false);
+	const [isDraw, setIsDraw] = useState(false);
 
 	const navigate = useNavigate();
 
@@ -74,7 +83,7 @@ const EndTurnModal: FC<Props> = ({
 
 		const newTurn: Turn = {
 			activePlayer: opponentId,
-			currentTurn: true,
+			isCurrentTurn: true,
 			guesses: {},
 			keyboardStatus: {},
 			turnState: 'playing',
@@ -82,7 +91,7 @@ const EndTurnModal: FC<Props> = ({
 			hasActivePlayerStartedTurn: false,
 		};
 		const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
-			turn.currentTurn = false;
+			turn.isCurrentTurn = false;
 			// TODO: This state obviously needs to depend on whether they won or lost
 			turn.turnState = 'won';
 
@@ -109,10 +118,11 @@ const EndTurnModal: FC<Props> = ({
         */
 		setCurrentMatch({ ...currentMatch, turns: newTurns });
 		setIsSendingWordle(false);
+		onRequestClose();
 	};
 
 	const renderEndTurnCopy = () => {
-		if (gameState === GameState.WON) {
+		if (!currentMatch.outcome) {
 			return (
 				<>
 					<span className="yellow-font uppercase text-center text-[24px] md:text-[38px]">
@@ -124,12 +134,29 @@ const EndTurnModal: FC<Props> = ({
 					</div>
 				</>
 			);
-		} else if (gameState === GameState.LOST) {
+		} else if (hasUserLost) {
 			return (
 				<>
 					<span className="yellow-font uppercase text-center text-[24px] md:text-[42px]">
 						You lost the game!
 					</span>
+
+					<div className="flex flex-col gap-y-2">
+						<span className="text-center">Your Opponent's Word Was:</span>
+
+						<div className="flex flex-row gap-x-2 justify-center">
+							{renderWordleSquares(answer, 'green')}
+						</div>
+					</div>
+				</>
+			);
+		} else if (hasUserForfeit) {
+			return (
+				<>
+					<div className="flex flex-col justify-center items-center gap-y-2">
+						<span className="yellow-font uppercase text-center text-[24px] md:text-[42px]">You have forfeited!</span>
+						<span>This counts as your loss.</span>
+					</div>
 
 					<div className="flex flex-col gap-y-2">
 						<span className="text-center">Your Opponent's Word Was:</span>
@@ -146,7 +173,7 @@ const EndTurnModal: FC<Props> = ({
 	};
 
 	const renderEndTurnInputs = () => {
-		if (gameState === GameState.WON) {
+		if (!currentMatch.outcome) {
 			return (
 				<>
 					<div className="flex flex-col gap-y-2 text-center mx-auto md:min-w-[250px]">
@@ -165,7 +192,6 @@ const EndTurnModal: FC<Props> = ({
 						/>
 					</div>
 
-					{/* TODO: Hook up isLoading and onClick props */}
 					<LoadingButton
 						copy={'Send Wordle'}
 						isLoadingCopy={'Sending Wordle...'}
@@ -182,13 +208,14 @@ const EndTurnModal: FC<Props> = ({
 							copy="Forfeit Game"
 							customStyle="grey-match-button"
 							onClick={() => {
-								console.log('forfeit game');
+								setIsForfeitModalOpen(true);
+								onRequestClose();
 							}}
 						/>
 					</div>
 				</>
 			);
-		} else if (gameState === GameState.LOST) {
+		} else if (hasUserLost || hasUserForfeit) {
 			return (
 				<div className="flex flex-col items-center gap-y-3">
 					<Button copy="Rematch?" customStyle="grey-match-button" disabled={true} />
@@ -198,7 +225,7 @@ const EndTurnModal: FC<Props> = ({
 						customStyle="grey-match-button"
 						onClick={() => {
 							setIsOpenMatchChallenge(true);
-							setIsEndTurnModalOpen(false);
+							onRequestClose();
 						}}
 					/>
 
@@ -211,17 +238,13 @@ const EndTurnModal: FC<Props> = ({
 					<Button
 						customStyle={'yellow-button-hollow mt-4'}
 						copy="Back to Lobby"
-						onClick={handleBackToLobby}
+						onClick={returnAction}
 					/>
 				</div>
 			);
 		}
 
 		return <></>;
-	};
-
-	const handleBackToLobby = () => {
-		navigate('/lobby');
 	};
 
 	useEffect(() => {
@@ -245,8 +268,42 @@ const EndTurnModal: FC<Props> = ({
 		}
 	}, [opponentPlayer, lazyLoadOpponentPlayer, currentMatch, db, setOpponentPlayer, user]);
 
+	useEffect(() => {
+		if (Object.keys(currentMatch).length) {
+			const userIsHost = user.uid === currentMatch.players.hostId;
+
+			if (userIsHost || !userIsHost) {
+				if (currentMatch.outcome === MatchOutcome.DRAW) {
+					setIsDraw(true);
+					return;
+				}
+			}
+
+			if (userIsHost) {
+				if (currentMatch.outcome === MatchOutcome.HOST_WIN) {
+					setHasUserWon(true);
+				} else if (currentMatch.outcome === MatchOutcome.HOST_FORFEIT) {
+					setHasUserForfeit(true);
+				} else if (currentMatch.outcome === MatchOutcome.GUEST_WIN) {
+					setHasUserLost(true);
+				}
+			} else if (!userIsHost) {
+				if (currentMatch.outcome === MatchOutcome.GUEST_WIN) {
+					setHasUserWon(true);
+				} else if (currentMatch.outcome === MatchOutcome.GUEST_FORFEIT) {
+					// TODO: Do we need special copy for if your opponent forfeits?
+					setHasUserForfeit(true);
+				}
+			}
+		}
+	}, [currentMatch, user.uid]);
+
+	useEffect(() => {
+		setAnswer(getCurrentTurn(currentMatch.turns)?.wordle.toUpperCase());
+	}, [currentMatch.turns]);
+
 	return (
-		<Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={true}>
+		<Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={isLobbyReturn} shouldCloseOnOverlayClick={shouldCloseOnOverlayClick}>
 			{/* TODO: Think about using a random "Word for Word" generator here */}
 			<div className="flex flex-col gap-y-2">
 				<h1 className="text-4xl text-center">Turn {currentMatch?.turns?.length}</h1>

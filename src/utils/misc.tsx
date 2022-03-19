@@ -48,14 +48,14 @@ const arrayToNumericalObj = (array: any[]): { [key: string]: any } => {
 */
 const updateCurrentTurn = (turns: Turn[], callback: (turn: Turn) => Turn): Turn[] => {
 	return turns.map((turn: Turn): Turn => {
-		if (!turn.currentTurn) return turn;
+		if (!turn.isCurrentTurn) return turn;
 
 		return callback(turn);
 	}) as Turn[];
 };
 
 const getCurrentTurn = (turns: Turn[] = []): Turn => {
-	return turns.find((turn: Turn): boolean => turn.currentTurn) as Turn;
+	return turns.find((turn: Turn): boolean => turn.isCurrentTurn) as Turn;
 };
 
 const addTurn = (turns: Turn[], turn: Turn): Turn[] => {
@@ -77,7 +77,7 @@ const getMatchOpponentId = (user: any, match: Match): string => {
 
 const isPlayerCurrentTurn = (match: Match = {} as Match, id: string): boolean => {
 	const currentTurn: Turn = getCurrentTurn(match.turns) as Turn;
-
+	
 	return currentTurn?.activePlayer === id;
 };
 
@@ -130,9 +130,22 @@ const determineMatchOutcome = (match: Match): string => {
 
 const hasUserWonMatch = (match: Match, id: string): boolean => {
 	if (Object.keys(match).length) {
-		const matchOutcome = determineMatchOutcome(match);
 		const isUserHost = match.players.hostId === id;
-		const hasUserWon = (isUserHost && matchOutcome === MatchOutcome.HOST_WIN) || (!isUserHost && matchOutcome === MatchOutcome.GUEST_WIN);
+		let hasUserWon = false;
+		
+		if (
+			(isUserHost && match.outcome === MatchOutcome.HOST_WIN) || 
+			(!isUserHost && match.outcome === MatchOutcome.GUEST_WIN) ||
+			(isUserHost && match.outcome === MatchOutcome.GUEST_FORFEIT) ||
+			(!isUserHost && match.outcome === MatchOutcome.HOST_FORFEIT)
+		) {
+			hasUserWon = true;
+		} else if (
+			(isUserHost && match.outcome === MatchOutcome.HOST_FORFEIT) ||
+			(!isUserHost && match.outcome === MatchOutcome.GUEST_FORFEIT)
+		) {
+			hasUserWon = false;
+		}
 	
 		return hasUserWon;
 	}

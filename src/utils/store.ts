@@ -11,7 +11,7 @@ interface State {
 	isLoading: boolean;
 	db: any;
 	app: any;
-	matches: Match[];
+	matches: {};
 	currentMatch: Match;
 	opponentPlayer: Player;
 	hasCheckedUser: boolean;
@@ -36,17 +36,34 @@ const useStore = create<State>((set, get) => ({
 	app: null,
 	currentMatch: {} as Match,
 	currentTurn: {} as Turn,
-	matches: [] as Match[],
+	matches: {},
 	opponentPlayer: {} as Player,
 	hasCheckedUser: false,
 	setHasCheckedUser: (hasCheckedUser: boolean) => set({ hasCheckedUser }),
 	setOpponentPlayer: (opponentPlayer: Player) => set({ opponentPlayer }),
-	addMatch: (match: Match) => set({ matches: get().matches.concat(match) }),
+	addMatch: (match: Match) => {
+		const matches = get().matches;
+		// @ts-ignore
+		matches[match.id] = match;
+
+		set({ matches });
+	},
 	matchOpponents: {} as Players,
-	setMatches: (matches: Match[]) => set({ matches }),
+	setMatches: (matches: {}) => set({ matches }),
 	setIsLoading: (isLoading: boolean) => set({ isLoading }),
 	setUser: (user: any) => set({ user }),
-	setCurrentMatch: (currentMatch: Match) => set({ currentMatch }),
+	setCurrentMatch: (currentMatch: Match) => {
+		// TODO: idk if it's a zustand 'antipattern' to edit multiple state properties in one call, but, it works, so
+		const matches = {
+			...get().matches,
+			[currentMatch.id]: currentMatch
+		}; 
+
+		set({ 
+			currentMatch,
+			matches,
+		});
+	},
 	setCurrentTurn: (currentTurn: Turn) => set({ currentTurn }),
 	setMatchOpponents: (matchOpponents: Players) => set({ matchOpponents }),
 }));

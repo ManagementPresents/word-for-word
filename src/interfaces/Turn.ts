@@ -1,6 +1,6 @@
 interface Turn {
 	activePlayer: string;
-	currentTurn: boolean;
+	isCurrentTurn: boolean;
 	guesses: {};
 	turnState: string;
 	wordle: string;

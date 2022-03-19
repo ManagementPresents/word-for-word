@@ -1,17 +1,16 @@
 import { FC } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import CopyInput from '../CopyInput';
 import Button from '../buttons/Button';
 import Modal from './Modal';
 
 import { renderWordleSquares } from '../../utils/wordUtils';
-
 interface Props {
     nextWordle: string;
 	isOpen: boolean;
 	onRequestClose: any;
     matchLink: string;
+    returnAction: any;
     shouldCloseOnOverlayClick?: boolean;
     hideCloseButton?: boolean;
 }
@@ -23,8 +22,8 @@ const WordleSentModal: FC<Props> = ({
     matchLink,
     shouldCloseOnOverlayClick,
     hideCloseButton,
+    returnAction,
 }: Props) => {
-    const navigate = useNavigate();
 
     return (
         <Modal isOpen={isOpen} onRequestClose={onRequestClose} shouldCloseOnOverlayClick={shouldCloseOnOverlayClick} hideCloseButton={hideCloseButton}>
@@ -47,7 +46,7 @@ const WordleSentModal: FC<Props> = ({
 
             <Button
                 customStyle="yellow-button-hollow"
-                onClick={() => navigate('/lobby')}
+                onClick={returnAction}
                 copy="Return to Lobby"
             ></Button>
         </Modal>

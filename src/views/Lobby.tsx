@@ -8,10 +8,10 @@ import Button from '../components/buttons/Button';
 import LobbyMatchModal from '../components/modals/LobbyMatchModal';
 import NewMatchModal from '../components/modals/NewMatchModal';
 import EndTurnModal from '../components/modals/EndTurnModal';
+import ForfeitModal from '../components/modals/ForfeitModal';
 
 import { 
 	getMatchOpponentId, 
-	hasPlayerWonCurrentTurn,
 	getCurrentTurn,
 } from '../utils/misc';
 import useStore from '../utils/store';
@@ -19,7 +19,6 @@ import { TIMEOUT_DURATION } from '../data/constants';
 import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
 import Players from '../interfaces/Players';
-import GameState from '../enums/GameState';
 import WordleSentModal from '../components/modals/WordleSentModal';
 import Turn from '../interfaces/Turn';
 
@@ -38,6 +37,7 @@ const Lobby = () => {
 	const [isLobbyMatchModalOpen, setIsLobbyMatchModalOpen] = useState(false);
 	const [isEndTurnModalOpen, setIsEndTurnModalOpen] = useState(false);
 	const [isWordleSentModalOpen, setIsWordleSentModalOpen] = useState(false);
+	const [isForfeitModalOpen, setIsForfeitModalOpen] = useState(false);
 	const [nextWordle, setNextWordle] = useState('');
 
 	const keyMap = {};
@@ -65,10 +65,6 @@ const Lobby = () => {
 		keyMap[e.code] = false;
 	});
 
-	const determineGameState = () => {
-		return hasPlayerWonCurrentTurn(currentMatch, user.uid) ? GameState.WON : '';
-	};
-
 	useEffect(() => {
 		if (user) {
 			setIsLoadingMatches(true);
@@ -94,66 +90,77 @@ const Lobby = () => {
 
                         Perhaps this could, eventually, be abstracted to a cloud function end point, where it would be safe to pull/cache all the matches/players, filter on the server, and bring them back here. Need to test and see if that would actually be more performant.
                     */
-					const playerMatches: Match[] = await Promise.all(
-						matchIds?.map(async (matchId: string): Promise<Match> => {
-							const matchRef = doc(db, 'matches', matchId);
-							const matchSnap = await getDoc(matchRef);
+					if (matchIds?.length) {
+						const playerMatches: Match[] = await Promise.all(
+							matchIds?.map(async (matchId: string): Promise<Match> => {
+								const matchRef = doc(db, 'matches', matchId);
+								const matchSnap = await getDoc(matchRef);
 
-							return matchSnap.data() as Match;
-						}),
-					);
+								return matchSnap.data() as Match;
+							}),
+						);
 
-					const opponentPlayersArray: Player[] = await Promise.all(
-						playerMatches.map(async (match: Match): Promise<Player> => {
-							const matchOpponentId = getMatchOpponentId(user, match);
+						const opponentPlayersArray: Player[] = await Promise.all(
+							playerMatches.map(async (match: Match): Promise<Player> => {
+								const matchOpponentId = getMatchOpponentId(user, match);
 
-							if (matchOpponentId) {
-								const playerRef = doc(db, 'players', matchOpponentId);
-								const playerSnap = await getDoc(playerRef);
+								if (matchOpponentId) {
+									const playerRef = doc(db, 'players', matchOpponentId);
+									const playerSnap = await getDoc(playerRef);
 
-								return {
-									id: matchOpponentId,
-									...playerSnap.data(),
-								} as Player;
-							}
+									return {
+										id: matchOpponentId,
+										...playerSnap.data(),
+									} as Player;
+								}
 
-							return {} as Player;
-						}),
-					);
+								return {} as Player;
+							}),
+						);
 
-					// Transform (or, i guess, reduce) the opponentPlayersArray into an object, for easier data access
-					const opponentPlayers: Players = opponentPlayersArray.reduce(
-						(accum: Players, player: Player): Players => {
-							const hasPlayer = !!Object.keys(player).length;
+						// Transform (or, i guess, reduce) the opponentPlayersArray into an object, for easier data access
+						const opponentPlayers: Players = opponentPlayersArray.reduce(
+							(accum: Players, player: Player): Players => {
+								const hasPlayer = !!Object.keys(player).length;
 
-							if (hasPlayer) {
-								//
-								const {
-									id,
-									email,
-									/* 
-                                    TODO: 'matches' is unlikely to be used, but, it's currently required by the interface.
-                                    Investigate in the future if this is the best way to do this
-                                */
-									matches,
-								} = player;
+								if (hasPlayer) {
+									//
+									const {
+										id,
+										email,
+										/* 
+										TODO: 'matches' is unlikely to be used, but, it's currently required by the interface.
+										Investigate in the future if this is the best way to do this
+									*/
+										matches,
+									} = player;
 
-								accum[id as string] = {
-									email,
-									matches,
-									id,
-								};
-							}
+									accum[id as string] = {
+										email,
+										matches,
+										id,
+									};
+								}
 
+								return accum;
+							},
+							{} as Players,
+						);
+
+						// @ts-ignore
+						const playerMatchesObject = playerMatches.reduce((accum, playerMatch) => {
+							// @ts-ignore
+							accum[playerMatch.id] = playerMatch;
 							return accum;
-						},
-						{} as Players,
-					);
+						}, {});
 
-					setMatchOpponents(opponentPlayers);
-					setMatches(playerMatches);
-					setIsLoadingMatches(false);
-					clearInterval(loadingMatchesTimeout);
+						console.log({ playerMatchesObject })
+
+						setMatchOpponents(opponentPlayers);
+						setMatches(playerMatchesObject);
+						setIsLoadingMatches(false);
+						clearInterval(loadingMatchesTimeout);
+					}
 				}
 			})();
 		}
@@ -198,8 +205,16 @@ const Lobby = () => {
 	};
 
 	// TODO: When a new match is made, it should probably load in the first card slot (i.e. it should appear in the top left of the match box on large devices, and at the very top on mobile devices)
-	const renderMatches = (matches: Match[]) => {
-		return matches.map((match) => (
+	const renderMatches = (matches: {}) => {
+		// TODO: This match serialization logic could use abstraction
+		const matchesArray = [];
+
+		for (const matchId in matches) {
+			// @ts-ignore
+			matchesArray.push(matches[matchId]);
+		}
+
+		return matchesArray.map((match) => (
 			<MatchCard
 				match={match}
 				isLobbyMatchModalOpen={isLobbyMatchModalOpen}
@@ -213,7 +228,7 @@ const Lobby = () => {
 		// TODO: There is some kind of over-rendering nonsense going on here
 		if (isLoadingMatches) return <Loading enableCentering={false} />;
 
-		return matches.length ? (
+		return Object.keys(matches).length ? (
 			<Fragment>{renderMatches(matches)}</Fragment>
 		) : (
 			<div className="flex flex-col gap-y-2 mx-auto max-w-lg">
@@ -247,7 +262,7 @@ const Lobby = () => {
 			<div className="max-w-7xl flex flex-col gap-y-3 h-full md:gap-x-6 md:flex-row mx-auto py-6 px-4 sm:px-6 lg:px-8">
 				{/* Hi gabriel, I added "lobby-matchbox-style here to control some colors and such from index.css in case you're wondering wtf this is. Also, you lookin fine as hell over there just fyi. ;) */}
 				<div
-					className={`lobby-matchbox-style ${matches.length ? '' : 'grid grid-cols-1'} `}
+					className={`lobby-matchbox-style ${Object.keys(matches).length ? '' : 'grid grid-cols-1'} `}
 				>
 					{handleMatchBox()}
 				</div>
@@ -264,6 +279,7 @@ const Lobby = () => {
 				isOpen={isLobbyMatchModalOpen}
 				onRequestClose={handleLobbyMatchModalClose}
 				handleStartNewMatch={handleStartNewMatch}
+				setIsForfeitModalOpen={setIsForfeitModalOpen}
 			/>
 
 			<EndTurnModal
@@ -271,8 +287,12 @@ const Lobby = () => {
 				onRequestClose={() => setIsEndTurnModalOpen(false)}
 				nextWordle={nextWordle}
 				setNextWordle={setNextWordle}
-				gameState={determineGameState()}
 				lazyLoadOpponentPlayer={true}
+				isLobbyReturn={true}
+				returnAction={() => setIsEndTurnModalOpen(false)}
+				// TODO: A bit confusing that these don't have the same name
+				setIsOpenMatchChallenge={setIsNewMatchModalOpen}
+				setIsForfeitModalOpen={setIsForfeitModalOpen}
 			/>
 
 			<WordleSentModal 
@@ -280,6 +300,18 @@ const Lobby = () => {
 				isOpen={isWordleSentModalOpen}
 				onRequestClose={() => setIsWordleSentModalOpen(false)}
 				matchLink={`${process.env.REACT_APP_URL}/match/${currentMatch.id}`}
+				returnAction={() => setIsWordleSentModalOpen(false)}
+			/>
+
+			<ForfeitModal 
+				isOpen={isForfeitModalOpen}
+				onRequestClose={() => setIsForfeitModalOpen(false)}
+				setIsEndTurnModalOpen={setIsEndTurnModalOpen}
+				handleKeepPlaying={() => {
+					setIsForfeitModalOpen(false);
+					// TODO: Figure out how best to determine what modal needs to be opened again
+					// setIsEndTurnModalOpen(true);
+				}}
 			/>
 		</Fragment>
 	);

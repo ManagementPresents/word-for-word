@@ -13,6 +13,7 @@ import Button from '../components/buttons/Button';
 import EndTurnModal from '../components/modals/EndTurnModal';
 import NewMatchModal from '../components/modals/NewMatchModal';
 import WordleSentModal from '../components/modals/WordleSentModal';
+import ForfeitModal from '../components/modals/ForfeitModal';
 
 import useStore from '../utils/store';
 import {
@@ -28,7 +29,6 @@ import Turn from '../interfaces/Turn';
 import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
 import Cell from '../interfaces/Cell';
-import GameState from '../enums/GameState';
 
 import { ReactComponent as Lobby } from '../assets/Lobby.svg';
 
@@ -42,7 +42,6 @@ export const difficulty = {
 
 interface State {
 	answer: '';
-	gameState: string;
 	board: Cell[][];
 	// Will be zero indexed
 	currentRowIndex: number;
@@ -54,7 +53,6 @@ interface State {
 function MatchView() {
 	const initialStates: State = {
 		answer: '',
-		gameState: GameState.PLAYING,
 		// TODO: Probably a better way to do this. May not even be necessary once the board logic is properly figured out
 		board: [
 			Array(5)
@@ -92,7 +90,6 @@ function MatchView() {
 		submittedInvalidWord: false,
 	};
 
-	const [gameState, setGameState] = useState('playing');
 	const [currentRowIndex, setCurrentRowIndex] = useState(initialStates.currentRowIndex);
 	const [currentCol, setCurrentCol] = useState(initialStates.currentCol);
 	const [keyboardStatus, setKeyboardStatus] = useState(initialStates.keyboardStatus());
@@ -102,6 +99,8 @@ function MatchView() {
 	const [nextWordle, setNextWordle] = useState('');
 	const [matchLink, setMatchLink] = useState('');
 	const [isOpenMatchChallenge, setIsOpenMatchChallenge] = useState(false);
+	const [isAModalOpen, setIsAModalOpen] = useState(false);
+	const [isForfeitModalOpen, setIsForfeitModalOpen] = useState(false);
 
 	const navigate = useNavigate();
 
@@ -314,12 +313,6 @@ function MatchView() {
 	const [isLoadingMatch, setIsLoadingMatch] = useState(true);
 	const [isWordleSentModalOpen, setIsWordleSentModalOpen] = useState(false);
 
-	const handleCloseEndTurnModal = () => {
-		// navigate('/lobby');
-		// TODO: Right now, if this modal closes, we shoot the player back to the lobby. It seems like a bad idea, if the user taps off the modal, to just close it normally and freeze them in a finished game.
-		console.log('intentionally do nothing');
-	};
-
 	const handleOpenHowToPlay = () => {
 		setIsLandingModalOpen(false);
 		setIsHowToPlayModalOpen(true);
@@ -362,7 +355,7 @@ function MatchView() {
 		if (updatedCurrentMatchSnap.exists()) {
 			const updatedCurrentMatchData: Match = updatedCurrentMatchSnap.data() as Match;
 			const currentTurn: Turn = updatedCurrentMatchData.turns.find(
-				(turn: Turn): boolean => turn.currentTurn,
+				(turn: Turn): boolean => turn.isCurrentTurn,
 			) as Turn;
 
 			setCurrentMatch(updatedCurrentMatchData);
@@ -373,67 +366,59 @@ function MatchView() {
 		}
 	};
 
-	const handleCloseExitModal = () => {
-		console.log('leave the match');
-	};
-
 	useEffect(() => {
 		const reversedBoard = board.slice().reverse();
 		const lastFilledRow = reversedBoard.find((row) => {
 			return row.every((cell) => cell.status !== 'unguessed');
 		});
 
-		if (gameState === GameState.PLAYING) {
-			const isMatchWon: boolean = (lastFilledRow && isRowAllGreen(lastFilledRow)) as boolean;
-			const isGameLost: boolean = ((currentRowIndex === 6) && !isMatchWon) as boolean;
+		const isMatchWon: boolean = (lastFilledRow && isRowAllGreen(lastFilledRow)) as boolean;
+		const isGameLost: boolean = ((currentRowIndex === 6) && !isMatchWon) as boolean;
 
-			if (isGameLost) {
-				if (!currentMatch.outcome) {
-					const currentMatchRef = doc(db, 'matches', currentMatch.id);
-					const outcome = determineMatchOutcome(currentMatch);
+		const currentTurn = getCurrentTurn(currentMatch.turns);
 
-					console.log({ outcome })
-					// TODO: Update local state AND firestore. this feels ... fragile, to say the least
-					setCurrentMatch({
-						...currentMatch,
-						outcome,
-					});
+		if (isGameLost) {
+			if (!currentMatch.outcome) {
+				const currentMatchRef = doc(db, 'matches', currentMatch.id);
+				const outcome = determineMatchOutcome(currentMatch);
 
-					/*
-						TODO: In a perfect world, anything that has to do with determining fundamental game logic should probably not be present in the client. This should be abstracted out to an end point
-					*/
+				console.log({ outcome })
+				// TODO: Update local state AND firestore. this feels ... fragile, to say the least
+				setCurrentMatch({
+					...currentMatch,
+					outcome,
+				});
 
-					(async () => {
-						await setDoc(
-							currentMatchRef,
-							{
-								outcome,
-							},
-							{ merge: true },
-						);
-					})();
-				}
-			}
+				/*
+					TODO: In a perfect world, anything that has to do with determining fundamental game logic should probably not be present in the client. This should be abstracted out to an end point
+				*/
 
-			if (isMatchWon) {
-				setGameState(GameState.WON);
-
-				/* 
-                    TODO: It feels abrupt showing this modal with no delay.
-                    In the long term, perhaps a fun victory animation? 
-                */
-				setTimeout(() => {
-					setIsEndTurnModalOpen(true);
-				}, 500);
-			} else if (isGameLost) {
-				setGameState(GameState.LOST);
-
-				setTimeout(() => {
-					setIsEndTurnModalOpen(true);
-				}, 500);
+				(async () => {
+					await setDoc(
+						currentMatchRef,
+						{
+							outcome,
+						},
+						{ merge: true },
+					);
+				})();
 			}
 		}
-	}, [board, currentRowIndex, gameState, setGameState]);
+
+		if (isMatchWon && currentTurn.activePlayer === user.uid) {
+			/* 
+				TODO: It feels abrupt showing this modal with no delay.
+				In the long term, perhaps a fun victory animation? 
+			*/
+			setTimeout(() => {
+				setIsEndTurnModalOpen(true);
+			}, 500);
+		} else if (isGameLost) {
+			setTimeout(() => {
+				setIsEndTurnModalOpen(true);
+			}, 500);
+		}
+	}, [board, currentRowIndex, currentMatch, db, setCurrentMatch]);
 
 	useEffect(() => {
 		(async () => {
@@ -520,6 +505,12 @@ function MatchView() {
 			}
 		}
 	}, [currentMatch, user]);
+
+	useEffect(() => {
+		// TODO: This could be simplified by having a single state variable that signifies whether or not any modal is open
+
+		setIsAModalOpen(isLandingModalOpen || isHowToPlayModalOpen || isEndTurnModalOpen || isWordleSentModalOpen);
+	}, [isLandingModalOpen, isHowToPlayModalOpen, isEndTurnModalOpen, isWordleSentModalOpen]);
 
 	return (
 		<div className={`flex flex-col justify-between h-fill bg-background min-h-[100vh]`}>
@@ -682,12 +673,14 @@ function MatchView() {
 
 						<EndTurnModal
 							isOpen={isEndTurnModalOpen}
-							onRequestClose={handleCloseEndTurnModal}
+							onRequestClose={() => setIsEndTurnModalOpen(false)}
 							nextWordle={nextWordle}
 							setNextWordle={setNextWordle}
-							gameState={gameState}
 							setIsOpenMatchChallenge={setIsOpenMatchChallenge}
-							setIsEndTurnModalOpen={setIsEndTurnModalOpen}
+							isLobbyReturn={true}
+							returnAction={() => navigate('/lobby')}
+							shouldCloseOnOverlayClick={false}
+							setIsForfeitModalOpen={setIsForfeitModalOpen}
 						/>
 
 						<NewMatchModal
@@ -708,11 +701,24 @@ function MatchView() {
 							onRequestClose={() => console.log('close')}
 							shouldCloseOnOverlayClick={false}
 							hideCloseButton={true}
+							returnAction={() => navigate('/lobby')}
+						/>
+
+						<ForfeitModal 
+							isOpen={isForfeitModalOpen}
+							onRequestClose={() => { setIsForfeitModalOpen(false) }}
+							setIsEndTurnModalOpen={setIsEndTurnModalOpen}
+							shouldCloseOnOverlayClick={false}
+							isLobbyReturn={true}
+							handleKeepPlaying={() => {
+								setIsForfeitModalOpen(false);
+								setIsEndTurnModalOpen(true);
+							}}
 						/>
 
 						<div
 							className={`h-auto relative mt-6 ${
-								gameState === GameState.PLAYING ? '' : 'invisible'
+								!isAModalOpen ? '' : 'invisible'
 							}`}
 						>
 							<Keyboard
@@ -720,11 +726,7 @@ function MatchView() {
 								addLetter={addLetter}
 								onEnterPress={onEnterPress}
 								onDeletePress={onDeletePress}
-								gameDisabled={
-									gameState !== GameState.PLAYING ||
-									isLandingModalOpen ||
-									isHowToPlayModalOpen
-								}
+								gameDisabled={isAModalOpen}
 							/>
 						</div>
 					</>

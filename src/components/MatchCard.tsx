@@ -18,6 +18,7 @@ import {
 } from '../utils/misc';
 import useStore from '../utils/store';
 import Turn from '../interfaces/Turn';
+import MatchOutcome from '../enums/MatchOutcome';
 
 interface Props {
 	match: Match;
@@ -35,7 +36,7 @@ const MatchCard: FC<Props> = ({
 		setCurrentMatch, 
 		user, 
 		matchOpponents,
-		db 
+		db,
 	} = useStore();
 
 	const [isUserTurn, setIsUserTurn] = useState(false);
@@ -88,17 +89,23 @@ const MatchCard: FC<Props> = ({
 		if (isArchived) {
 			return <Button copy="See Results" customStyle="grey-match-button" />;
 		}
+
+		if (match.outcome) {
+			if (!match.isWinnerNotified) {
+				return <Button copy="The results are in ..." customStyle="yellow-match-button" />;
+			}
+		}
 		
-		if (isUserTurn || match.outcome) {
+		if (isUserTurn) {
 			if (hasPlayerWonCurrentTurn(match, user.uid)) {
 				return <Button copy="Send Back a Wordle!" customStyle="yellow-match-button" />;
 			}	
 
 			if (!currentTurn?.hasActivePlayerStartedTurn) {
-				return <Button copy="It's your turn!" customStyle="yellow-match-button" />;
+				return <Button copy="The results are in ..." customStyle="yellow-match-button" />
 			}
 
-			return <Button copy="The results are in ..." customStyle="yellow-match-button" />;
+			return <Button copy="It's your turn!" customStyle="yellow-match-button" />;
 		}
 		
 
@@ -114,10 +121,8 @@ const MatchCard: FC<Props> = ({
 	const handleCardClick = async () => {
 		setCurrentMatch(match);
 
-		if (hasPlayerWonCurrentTurn(match, user.uid)) {
-			setIsEndTurnModalOpen(true);
-		} else {
-			if (match.outcome && hasUserWonMatch(match, user.uid) && !match.isWinnerNotified) {
+		if (match.outcome) {
+			if (hasUserWonMatch(match, user.uid) && !match.isWinnerNotified) {
 				// TODO: Some kind of throbber will be necessary here
 				const currentMatchRef = doc(db, 'matches', match.id);
 
@@ -131,6 +136,10 @@ const MatchCard: FC<Props> = ({
 			}
 
 			setIsLobbyMatchModalOpen(true);
+		} else if (hasPlayerWonCurrentTurn(match, user.uid)) {
+			setIsEndTurnModalOpen(true);
+		} else {
+			setIsLobbyMatchModalOpen(true);
 		}
 	};
 
@@ -142,16 +151,34 @@ const MatchCard: FC<Props> = ({
 		if (isWaiting) return 'green';
 	};
 
+	const handleWordleSquareRender = () => {
+		if (match.outcome) {
+			const currentTurn = getCurrentTurn(match.turns);
+
+			return renderWordleSquares(currentTurn.wordle);
+		} else {
+			return renderWordleSquares(getLastPlayedWordByPlayerId(user.uid, match.turns));
+		}
+	}
+
 	useEffect(() => {
+		console.log({ match })
 		setIsUserTurn(isPlayerCurrentTurn(match, user.uid));
 	}, [match, user.uid]);
 
 	useEffect(() => {
-		
 		if (hasUserWonMatch(match, user.uid) && match.isWinnerNotified) {
 			setIsArchived(true);
 		} else if (!hasUserWonMatch(match, user.uid) && match.outcome) {
 			setIsArchived(true);
+		} else if (match.outcome) {
+			const userIsHost = user.uid === match.players.hostId;
+
+			if (userIsHost && match.outcome === MatchOutcome.HOST_FORFEIT) {
+				setIsArchived(true);
+			} else if (!userIsHost && match.outcome === MatchOutcome.GUEST_FORFEIT) {
+				setIsArchived(true);
+			}
 		}
 	}, [match, user.uid]);
 
@@ -175,7 +202,7 @@ const MatchCard: FC<Props> = ({
 
 			{/* TODO: investigate repsonsiveness at REALLY small screen sizes ( < 360px) */}
 			<div className={`${handleCardColor()}-match-playbox`}>
-				{renderWordleSquares(getLastPlayedWordByPlayerId(user.uid, match.turns))}
+				{handleWordleSquareRender()}
 			</div>
 
 			{/* 
