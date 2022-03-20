@@ -18,6 +18,7 @@ interface State {
 	currentTurn: Turn;
 	// All the people you are currently involved in matches with
 	matchOpponents: Players;
+	removeMatchById: any;
 	setMatchOpponents: any;
 	setOpponentPlayer: any;
 	setCurrentMatch: any;
@@ -49,6 +50,18 @@ const useStore = create<State>((set, get) => ({
 		set({ matches });
 	},
 	matchOpponents: {} as Players,
+	removeMatchById: (matchId: string) => {
+		const matches = {...get().matches };
+
+		// @ts-ignore
+		delete matches[matchId];
+
+		// TODO: Might be an unexpected side effect, clearing out currentMatch, but for now it seems right
+		set({
+			currentMatch: {} as Match,
+			matches,
+		});
+	},
 	setMatches: (matches: {}) => set({ matches }),
 	setIsLoading: (isLoading: boolean) => set({ isLoading }),
 	setUser: (user: any) => set({ user }),

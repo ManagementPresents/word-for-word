@@ -162,7 +162,6 @@ const MatchCard: FC<Props> = ({
 	}
 
 	useEffect(() => {
-		console.log({ match })
 		setIsUserTurn(isPlayerCurrentTurn(match, user.uid));
 	}, [match, user.uid]);
 
