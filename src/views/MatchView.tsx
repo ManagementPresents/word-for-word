@@ -382,7 +382,6 @@ function MatchView() {
 				const currentMatchRef = doc(db, 'matches', currentMatch.id);
 				const outcome = determineMatchOutcome(currentMatch);
 
-				console.log({ outcome })
 				// TODO: Update local state AND firestore. this feels ... fragile, to say the least
 				setCurrentMatch({
 					...currentMatch,

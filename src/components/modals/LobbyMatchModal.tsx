@@ -26,6 +26,7 @@ interface Props {
 	onRequestClose: any;
 	handleStartNewMatch: any;
 	setIsForfeitModalOpen: any;
+	setIsCancelModalOpen: any;
 }
 
 const LobbyMatchModal: FC<Props> = ({ 
@@ -33,6 +34,7 @@ const LobbyMatchModal: FC<Props> = ({
 	onRequestClose, 
 	handleStartNewMatch ,
 	setIsForfeitModalOpen,
+	setIsCancelModalOpen,
 }: Props) => {
 	const { 
 		currentMatch, 
@@ -139,7 +141,8 @@ const LobbyMatchModal: FC<Props> = ({
 				copy="Cancel Invite"
 				customStyle="grey-button-hollow w-full"
 				onClick={() => {
-					console.log('cancel and delete match');
+					onRequestClose();
+					setIsCancelModalOpen(true)
 				}}
 			/>
 		);

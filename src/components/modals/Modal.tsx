@@ -28,7 +28,7 @@ const Modal: FC<Props> = ({
 	isOpen, 
 	isLobbyReturn, 
 	onRequestClose, 
-	shouldCloseOnOverlayClick,
+	shouldCloseOnOverlayClick = true,
 	hideCloseButton,
 	children 
 }: Props) => {

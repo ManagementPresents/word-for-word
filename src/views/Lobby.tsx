@@ -9,6 +9,7 @@ import LobbyMatchModal from '../components/modals/LobbyMatchModal';
 import NewMatchModal from '../components/modals/NewMatchModal';
 import EndTurnModal from '../components/modals/EndTurnModal';
 import ForfeitModal from '../components/modals/ForfeitModal';
+import CancelModal from '../components/modals/CancelModal';
 
 import { 
 	getMatchOpponentId, 
@@ -38,6 +39,7 @@ const Lobby = () => {
 	const [isEndTurnModalOpen, setIsEndTurnModalOpen] = useState(false);
 	const [isWordleSentModalOpen, setIsWordleSentModalOpen] = useState(false);
 	const [isForfeitModalOpen, setIsForfeitModalOpen] = useState(false);
+	const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 	const [nextWordle, setNextWordle] = useState('');
 
 	const keyMap = {};
@@ -74,6 +76,7 @@ const Lobby = () => {
 			}, TIMEOUT_DURATION);
 
 			(async () => {
+				// TODO: Data like the user's "player" objecet should be cached, and updated when changes happen in firebase
 				const playerRef = doc(db, 'players', user.uid);
 				const playerSnap = await getDoc(playerRef);
 
@@ -153,8 +156,6 @@ const Lobby = () => {
 							accum[playerMatch.id] = playerMatch;
 							return accum;
 						}, {});
-
-						console.log({ playerMatchesObject })
 
 						setMatchOpponents(opponentPlayers);
 						setMatches(playerMatchesObject);
@@ -280,6 +281,7 @@ const Lobby = () => {
 				onRequestClose={handleLobbyMatchModalClose}
 				handleStartNewMatch={handleStartNewMatch}
 				setIsForfeitModalOpen={setIsForfeitModalOpen}
+				setIsCancelModalOpen={setIsCancelModalOpen}
 			/>
 
 			<EndTurnModal
@@ -311,6 +313,15 @@ const Lobby = () => {
 					setIsForfeitModalOpen(false);
 					// TODO: Figure out how best to determine what modal needs to be opened again
 					// setIsEndTurnModalOpen(true);
+				}}
+			/>
+
+			<CancelModal
+				isOpen={isCancelModalOpen}
+				onRequestClose={() => setIsCancelModalOpen(false)}
+				handleReturn={() => {
+					// TODO: Right now, this just returns you to the lobby, and does not re-open the previously opened modal
+					setIsCancelModalOpen(false);
 				}}
 			/>
 		</Fragment>
