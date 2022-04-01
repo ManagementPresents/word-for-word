@@ -20,7 +20,6 @@ import {
 	hasUserWonMatch,
 	getCurrentTurn,
 } from '../../utils/misc';
-
 interface Props {
 	isOpen: boolean;
 	onRequestClose: any;
@@ -55,7 +54,6 @@ const LobbyMatchModal: FC<Props> = ({
 		const currentTurn = getCurrentTurn(currentMatch.turns);
 
 		if (isUserTurn && !currentTurn.hasActivePlayerStartedTurn) {
-			console.log('updating hasActivePlayerStartedTurn')
 			// TODO: Need a loading throbber
 			const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
 				turn.hasActivePlayerStartedTurn = true;
@@ -209,10 +207,18 @@ const LobbyMatchModal: FC<Props> = ({
 			);
 		}
 
+		const acceptCopy = currentMatch.type === 'invite' ? 'Waiting for your opponent to accept their invite!' : 'Waiting for an opponent to enter the open match!';
+
 		return (
-			<p className="modal-content modal-header">
-				Waiting for an opponent to accept match invite!
-			</p>
+			<>
+				<p className="modal-content modal-header">
+					{acceptCopy}
+				</p>
+				{
+					currentMatch.type === 'invite' && 
+					<p>Make sure to share the invite link with your opponent!</p>
+				}
+			</>
 		);
 	};
 

@@ -29,13 +29,13 @@ const NewMatchModal: FC<Props> = ({
 	returnCopy,
 	isLobbyReturn,
 }: Props) => {
-	const [isSpecificPlayer, setIsSpecificPlayer] = useState(false);
 	const [openMatchLink, setOpenMatchLink] = useState('');
-	const [specificMatchLink, setSpecificMatchLink] = useState('');
+	const [inviteMatchLink, setInviteMatchLink] = useState('');
 	const [isGeneratingLink, setIsGeneratingLink] = useState(false);
 	const [wordle, setWordle] = useState('');
 	const [isGenerateLinkReady, setIsGenerateLinkReady] = useState(false);
 	const [isOpenMatch, setIsOpenMatch] = useState(false);
+	const [isInviteMatch, setIsInviteMatch] = useState(false);
 	const [wordleValidationErrors, setWordleValidationErrors] = useState([]);
 
 	const { db, user, addMatch } = useStore();
@@ -46,16 +46,17 @@ const NewMatchModal: FC<Props> = ({
 		setIsGeneratingLink(false);
 		setWordle('');
 		setIsOpenMatch(false);
-		setIsSpecificPlayer(false);
+		setIsInviteMatch(false);
 	};
 
-	const handleGenerateLink = async () => {
+	const handleGenerateLink = async (type: string) => {
 		setIsGeneratingLink(true);
 
 		// TODO: Schemas need to be permanently stored and reused
 		const generatedUri = generateMatchUri(3);
 		const newMatch: Match = {
 			id: generatedUri,
+			type,
 			outcome: '',
 			players: {
 				guestId: '',
@@ -87,9 +88,15 @@ const NewMatchModal: FC<Props> = ({
 		addMatch(newMatch);
 
 		setIsGeneratingLink(false);
-		// TODO: This setOpenMatchLink thing probably needs to be abstracted
-		// @ts-ignore
-		setOpenMatchLink(`${process.env.REACT_APP_URL}/match/${generatedUri}`); // TODO: Figure out if there's any danger using this ID in the match url
+
+		if (type === 'open') {
+			// TODO: This setOpenMatchLink thing probably needs to be abstracted
+			// @ts-ignore
+			setOpenMatchLink(`${process.env.REACT_APP_URL}/match/${generatedUri}`); // TODO: Figure out if there's any danger using this ID in the match url
+		} else if (type === 'invite') {
+			// @ts-ignore
+			setInviteMatchLink(`${process.env.REACT_APP_URL}/match/${generatedUri}`);
+		}
 	};
 
 	const handleValidateWordle = (wordle: string = ''): void => {
@@ -109,19 +116,19 @@ const NewMatchModal: FC<Props> = ({
 		}
 	};
 
-	const handleModalButtonClick = (selection: string) => {
+	const handleCreateNewMatch = (selection: string) => {
 		if (selection === 'open') {
 			setIsOpenMatch(true);
-			setIsSpecificPlayer(false);
-		} else if (selection === 'specific') {
+			setIsInviteMatch(false);
+		} else if (selection === 'invite') {
 			setIsOpenMatch(false);
-			setIsSpecificPlayer(true);
+			setIsInviteMatch(true);
 		}
 	};
 
 	return (
 		<Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={isLobbyReturn}>
-			{!isSpecificPlayer && !isOpenMatch && (
+			{(!isInviteMatch && !isOpenMatch) && (
 				<>
 					<h2 className="modal-header">Start a New Match</h2>
 
@@ -129,9 +136,17 @@ const NewMatchModal: FC<Props> = ({
 						{/* TODO: Ensure data-tip works with this new component */}
 						<Button
 							customStyle="green-button"
-							copy="Create Open Match"
+							copy="Open Match"
 							onClick={() => {
-								handleModalButtonClick('open');
+								handleCreateNewMatch('open');
+							}} 
+						/>
+
+						<Button
+							customStyle="green-button"
+							copy="Invite Match"
+							onClick={() => {
+								handleCreateNewMatch('invite');
 							}} 
 						/>
 					</div>
@@ -142,44 +157,43 @@ const NewMatchModal: FC<Props> = ({
 				</>
 			)}
 
-			{isSpecificPlayer && (
+			{isInviteMatch && (
 				<>
-					<h2 className="modal-header">Invite Specific Player</h2>
+					<section className="modal-header">
+						<h2>
+							Invite Match
+						</h2>
 
-					<p className="modals-body">
-						Get a match link only you and a specific player can use.
-					</p>
+						<p className="modal-body">Play only with whoever you share this link.</p>
+					</section>
 
 					<div className="modal-label">
 						<span>Your Word</span>
-						<input type="text" className="text-black"></input>
-					</div>
 
-					<div className="modal-label">
-						<span>Enter user email</span>
-						<input
-							type="text"
-							className="text-black pd-2"
-							placeholder="User's email"
-						></input>
-					</div>
+						<WordleInput
+							validationErrors={wordleValidationErrors}
+							handleInputChange={(e: any) => handleValidateWordle(e.target.value)}
+							value={wordle}
+							isReadOnly={!!inviteMatchLink}
+						/>
 
-					{specificMatchLink ? (
-						<input type="text" />
-					) : (
-						<div className="modal-buttonzone">
-							<button className="green-button">Generate Link</button>
-							<button
-								className="yellow-button"
-								onClick={() => {
-									setIsOpenMatch(false);
-									setIsSpecificPlayer(false);
-								}}
-							>
-								Go Back
-							</button>
-						</div>
-					)}
+						{inviteMatchLink ? (
+							<div className="modal-buttonzone">
+								<CopyInput copyText={inviteMatchLink} />
+							</div>
+						) : (
+							<LoadingButton
+								disabled={!isGenerateLinkReady}
+								onClick={() => handleGenerateLink('invite')}
+								customStyle="green-button"
+								isLoading={isGeneratingLink}
+								isLoadingCopy={'Generating...'}
+								copy="Generate Invite Match Link"
+							/>
+						)}
+
+						<Button customStyle={'yellow-button-hollow mt-4'} copy="Go Back" onClick={handleGoBack} />
+					</div>
 				</>
 			)}
 
@@ -187,7 +201,7 @@ const NewMatchModal: FC<Props> = ({
 				<>
 					<section className="modal-header">
 						<h2>
-							Create Open Match
+							Open Match
 						</h2>
 
 						<p className="modal-body">Play with the first person who opens the link!</p>
@@ -210,11 +224,11 @@ const NewMatchModal: FC<Props> = ({
 						) : (
 							<LoadingButton
 								disabled={!isGenerateLinkReady}
-								onClick={handleGenerateLink}
+								onClick={() => handleGenerateLink('open')}
 								customStyle="green-button"
 								isLoading={isGeneratingLink}
 								isLoadingCopy={'Generating...'}
-								copy="Generate Link"
+								copy="Generate Open Match Link"
 							/>
 						)}
 

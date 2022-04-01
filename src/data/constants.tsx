@@ -33,7 +33,7 @@ const LETTERS = [
 	'Z',
 ];
 
-const TIMEOUT_DURATION = 2500;
+const TIMEOUT_DURATION = 1200;
 
 export { 
 	LETTERS,

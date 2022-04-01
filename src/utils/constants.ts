@@ -1,3 +1,0 @@
-const TIMEOUT_DURATION = 1750;
-
-export { TIMEOUT_DURATION };

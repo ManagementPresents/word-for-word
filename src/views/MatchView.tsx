@@ -14,6 +14,7 @@ import EndTurnModal from '../components/modals/EndTurnModal';
 import NewMatchModal from '../components/modals/NewMatchModal';
 import WordleSentModal from '../components/modals/WordleSentModal';
 import ForfeitModal from '../components/modals/ForfeitModal';
+import DeclineModal from '../components/modals/DeclineModal';
 
 import useStore from '../utils/store';
 import {
@@ -101,6 +102,7 @@ function MatchView() {
 	const [isOpenMatchChallenge, setIsOpenMatchChallenge] = useState(false);
 	const [isAModalOpen, setIsAModalOpen] = useState(false);
 	const [isForfeitModalOpen, setIsForfeitModalOpen] = useState(false);
+	const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
 
 	const navigate = useNavigate();
 
@@ -366,6 +368,11 @@ function MatchView() {
 		}
 	};
 
+	const handleDeclineMatch = () => {
+		setIsLandingModalOpen(false);
+		setIsDeclineModalOpen(true);
+	};
+
 	useEffect(() => {
 		const reversedBoard = board.slice().reverse();
 		const lastFilledRow = reversedBoard.find((row) => {
@@ -498,7 +505,7 @@ function MatchView() {
 			) {
 				setIsEndTurnModalOpen(false);
 				setIsWordleSentModalOpen(true);
-				// TODO: This setOpenMatchLink thing probably needs to be abstracted
+				// TODO: This setMatchLink thing probably needs to be abstracted
 				// @ts-ignore
 				setMatchLink(`${process.env.REACT_APP_URL}/match/${currentMatch.id}`);
 			}
@@ -507,9 +514,8 @@ function MatchView() {
 
 	useEffect(() => {
 		// TODO: This could be simplified by having a single state variable that signifies whether or not any modal is open
-
-		setIsAModalOpen(isLandingModalOpen || isHowToPlayModalOpen || isEndTurnModalOpen || isWordleSentModalOpen);
-	}, [isLandingModalOpen, isHowToPlayModalOpen, isEndTurnModalOpen, isWordleSentModalOpen]);
+		setIsAModalOpen(isLandingModalOpen || isHowToPlayModalOpen || isEndTurnModalOpen || isWordleSentModalOpen || isDeclineModalOpen);
+	}, [isLandingModalOpen, isHowToPlayModalOpen, isEndTurnModalOpen, isWordleSentModalOpen, isDeclineModalOpen]);
 
 	return (
 		<div className={`flex flex-col justify-between h-fill bg-background min-h-[100vh]`}>
@@ -645,20 +651,27 @@ function MatchView() {
 									customStyle="green-button"
 								/>
 
-								<Button
-									onClick={() => {
-										setIsLandingModalOpen(false);
-									}}
-									copy="Rudely Decline"
-									customStyle="grey-button"
-								/>
+								{
+									currentMatch.type === 'invite' && 
+									<>
+										<Button
+											onClick={handleDeclineMatch}
+											copy="Rudely Decline"
+											customStyle="grey-button"
+										/>
+
+										<Button
+											onClick={handleDeclineMatch}
+											copy="Politely Decline"
+											customStyle="grey-button"
+										/>	
+									</>
+								}
 
 								<Button
-									onClick={() => {
-										setIsLandingModalOpen(false);
-									}}
-									copy="Politely Decline"
-									customStyle="grey-button"
+									onClick={() => navigate('/lobby')}
+									copy="Return to Lobby"
+									customStyle="yellow-button"
 								/>
 							</div>
 
@@ -712,6 +725,15 @@ function MatchView() {
 							handleKeepPlaying={() => {
 								setIsForfeitModalOpen(false);
 								setIsEndTurnModalOpen(true);
+							}}
+						/>
+
+						<DeclineModal
+							isOpen={isDeclineModalOpen}
+							onRequestClose={() => setIsDeclineModalOpen(false)}
+							handleReturn={() => {
+								setIsLandingModalOpen(true);
+								setIsDeclineModalOpen(false);
 							}}
 						/>
 
