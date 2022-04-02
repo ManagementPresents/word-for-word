@@ -105,6 +105,7 @@ const Lobby = () => {
 
 						const opponentPlayersArray: Player[] = await Promise.all(
 							playerMatches.map(async (match: Match): Promise<Player> => {
+								console.log({ match })
 								const matchOpponentId = getMatchOpponentId(user, match);
 
 								if (matchOpponentId) {

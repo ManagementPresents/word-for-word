@@ -1,8 +1,7 @@
 import { FC, useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { doc, setDoc } from 'firebase/firestore';
-import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
-import { faUserClock } from '@fortawesome/free-solid-svg-icons';
+import { faCircleUser, faUserClock, faUserSlash } from '@fortawesome/free-solid-svg-icons';
 
 import Button from './buttons/Button';
 
@@ -62,12 +61,21 @@ const MatchCard: FC<Props> = ({
 			cardDetailsColor = 'green';
 		} 
 		
+		if (match.outcome === 'declined') {
+			return (
+				<div className={`${cardDetailsColor}-match-opponent`}>
+					<span className={`${cardDetailsColor}-match-title`}>Opponent Declined</span>
+					<FontAwesomeIcon icon={faUserSlash} size="4x" className={`${cardDetailsColor}-match-avatar`} />
+				</div>
+			);
+		}
+
 		if (!players.guestId) {
 			return (
 				<div className="green-match-opponent">
-					<span className="green-match-title">Awaiting a Challenger</span>
+					<span className="green-match-title">{match.type === 'invite' ? 'Awaiting Your Opponent' : 'Awaiting a Challenger'}</span>
 					<FontAwesomeIcon icon={faUserClock} size="4x" className="green-match-avatar" />
-					<span className="green-match-user">Who will it be?</span>
+					<span className="green-match-user">{match.type === 'invite' ? 'Will They Answer Your Call?' : 'Who Will It Be?'}</span>
 				</div>
 			);
 		}
@@ -91,6 +99,10 @@ const MatchCard: FC<Props> = ({
 		}
 
 		if (match.outcome) {
+			if (match.outcome === 'declined') {
+				return <Button copy="Click to Archive Match" customStyle="yellow-match-button" />;
+			} 
+
 			if (!match.isWinnerNotified) {
 				return <Button copy="The results are in ..." customStyle="yellow-match-button" />;
 			}
@@ -114,14 +126,27 @@ const MatchCard: FC<Props> = ({
 		}
 
 		if (!players.guestId) {
-			return <Button copy="Waiting for an Opponent" customStyle="green-match-button" />;
+			const copy = match.type === 'invite' ? 'Waiting for Your Opponent' : 'Waiting for an Opponent';
+
+			return <Button copy={copy} customStyle="green-match-button" />;
 		}
 	};
+
+	const renderCardLabelCopy = () => {
+		if (match.outcome === 'declined') return 'Your Word Was';
+
+		return match.outcome ? 'Final Word' : 'You last played';
+	}
 
 	const handleCardClick = async () => {
 		setCurrentMatch(match);
 
 		if (match.outcome) {
+			if (match.outcome === 'declined') {
+				console.log('handle clicking a declined card');
+			}
+
+
 			if (hasUserWonMatch(match, user.uid) && !match.isWinnerNotified) {
 				// TODO: Some kind of throbber will be necessary here
 				const currentMatchRef = doc(db, 'matches', match.id);
@@ -166,9 +191,9 @@ const MatchCard: FC<Props> = ({
 	}, [match, user.uid]);
 
 	useEffect(() => {
-		if (hasUserWonMatch(match, user.uid) && match.isWinnerNotified) {
+		if (hasUserWonMatch(match, user.uid) && match.isWinnerNotified && match) {
 			setIsArchived(true);
-		} else if (!hasUserWonMatch(match, user.uid) && match.outcome) {
+		} else if (!hasUserWonMatch(match, user.uid) && match.outcome && match.outcome !== 'declined') {
 			setIsArchived(true);
 		} else if (match.outcome) {
 			const userIsHost = user.uid === match.players.hostId;
@@ -196,7 +221,7 @@ const MatchCard: FC<Props> = ({
 		>
 			<div className="card-label">
 				{renderCardDetails()}
-				<span className={`${handleCardColor()}-match-text`}>{match.outcome ? 'Final Word' : 'You last played'}</span>
+				<span className={`${handleCardColor()}-match-text`}>{renderCardLabelCopy()}</span>
 			</div>
 
 			{/* TODO: investigate repsonsiveness at REALLY small screen sizes ( < 360px) */}

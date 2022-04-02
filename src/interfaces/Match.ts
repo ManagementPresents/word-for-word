@@ -2,6 +2,7 @@ import Turn from './Turn';
 
 interface Match {
 	id: string;
+	type: string;
 	outcome: string,
 	players: {
 		guestId: string;
