@@ -101,7 +101,7 @@ const MatchCard: FC<Props> = ({
 				return <Button copy="Send Back a Wordle!" customStyle="yellow-match-button" />;
 			}	
 
-			if (!currentTurn?.hasActivePlayerStartedTurn) {
+			if (!currentTurn?.hasActivePlayerStartedTurn && !isPlayerCurrentTurn(match, user.uid)) {
 				return <Button copy="The results are in ..." customStyle="yellow-match-button" />
 			}
 

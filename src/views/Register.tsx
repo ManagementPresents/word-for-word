@@ -42,7 +42,11 @@ const Register = () => {
 	const [validationErrors, setValidationErrors] = useState([]);
 	const [serverErrors, setServerErrors] = useState([]);
 
-	const { db, setUser } = useStore();
+	const { 
+		db, 
+		setUser,
+		inviteMatchId,	
+	} = useStore();
 
 	const navigate = useNavigate();
 
@@ -81,6 +85,15 @@ const Register = () => {
 				TODO: This setUser here may not be necessary, as registering a user will trigger the onAuthStateChanged function in App.tsx
 			*/
 			setUser(user);
+
+			console.log({ inviteMatchId });
+			if (inviteMatchId) {
+				// TODO: This navigate, in tandem with some weirdness on another component, might be causing a memory leak
+				navigate(`/match/${inviteMatchId}`);
+				console.log('yeah!');
+				return;
+			}
+
 			navigate('/');
 		} catch (err) {
 			const { code } = err as FirebaseError;

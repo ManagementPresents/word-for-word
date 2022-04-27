@@ -11,18 +11,33 @@ import Match from '../../interfaces/Match';
 import { isPlayerCurrentTurn } from '../../utils/misc';
 
 const AuthRoute = ({ children, redirectTo }: any) => {
-	const { isLoading, setIsLoading, user, db, setCurrentMatch } = useStore();
+	const { 
+		isLoading, 
+		setIsLoading, 
+		user, 
+		db, 
+		setCurrentMatch,
+		setInviteMatchId, 
+	} = useStore();
 
 	const navigate = useNavigate();
 	const params = useParams();
 
 	const [hasMatchId, setHasMatchId] = useState();
 
+	const { matchId } = params;
+
 	useEffect(() => {
 		setTimeout(() => {
 			setIsLoading(false);
 
 			if (!useStore.getState().user) {
+				if (matchId) {
+					setInviteMatchId(matchId);
+					navigate('/');
+					return;
+				}
+
 				navigate(redirectTo);
 			}
 		}, TIMEOUT_DURATION);
@@ -32,8 +47,6 @@ const AuthRoute = ({ children, redirectTo }: any) => {
 	useEffect(() => {
 		(async () => {
 			if (user) {
-				const { matchId } = params;
-
 				const docRef = doc(db, 'matches', matchId as string);
 				const match = await getDoc(docRef);
 
@@ -58,7 +71,7 @@ const AuthRoute = ({ children, redirectTo }: any) => {
 				}
 			}
 		})();
-	}, [user, setIsLoading]);
+	}, [user, setIsLoading, db, navigate, params, redirectTo, setCurrentMatch]);
 
 	return isLoading && !user && hasMatchId ? <Loading /> : children;
 };

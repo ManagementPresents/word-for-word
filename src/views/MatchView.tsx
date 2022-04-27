@@ -301,6 +301,8 @@ function MatchView() {
 		opponentPlayer,
 		currentMatch,
 		user,
+		inviteMatchId,
+		setInviteMatchId,
 		setCurrentMatch,
 		setCurrentTurn,
 	} = useStore();
@@ -482,7 +484,7 @@ function MatchView() {
 				}
 			}
 		})();
-	}, [user]);
+	}, [user, board, currentMatch, db, params.matchId, setCurrentMatch, setOpponentPlayer]);
 
 	// For handling end game state changes and showing the correct 'game over' modals
 	useEffect(() => {
@@ -507,9 +509,12 @@ function MatchView() {
 
 	useEffect(() => {
 		// TODO: This could be simplified by having a single state variable that signifies whether or not any modal is open
-
 		setIsAModalOpen(isLandingModalOpen || isHowToPlayModalOpen || isEndTurnModalOpen || isWordleSentModalOpen);
 	}, [isLandingModalOpen, isHowToPlayModalOpen, isEndTurnModalOpen, isWordleSentModalOpen]);
+
+	useEffect(() => {
+		if (user && inviteMatchId) setInviteMatchId('');
+	}, [inviteMatchId, setInviteMatchId, user]);
 
 	return (
 		<div className={`flex flex-col justify-between h-fill bg-background min-h-[100vh]`}>
