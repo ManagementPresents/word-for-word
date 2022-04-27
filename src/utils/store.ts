@@ -18,6 +18,7 @@ interface State {
 	currentTurn: Turn;
 	// All the people you are currently involved in matches with
 	matchOpponents: Players;
+	inviteMatchId: string;
 	removeMatchById: any;
 	setMatchOpponents: any;
 	setOpponentPlayer: any;
@@ -28,6 +29,7 @@ interface State {
 	setUser: any;
 	setIsLoading: any;
 	setMatches: any;
+	setInviteMatchId: any;
 }
 
 const useStore = create<State>((set, get) => ({
@@ -35,11 +37,13 @@ const useStore = create<State>((set, get) => ({
 	isLoading: true,
 	db: null,
 	app: null,
+	inviteMatchId: '',
 	currentMatch: {} as Match,
 	currentTurn: {} as Turn,
 	matches: {},
 	opponentPlayer: {} as Player,
 	hasCheckedUser: false,
+	setInviteMatchId: (inviteMatchId: string) => set({ inviteMatchId }),
 	setHasCheckedUser: (hasCheckedUser: boolean) => set({ hasCheckedUser }),
 	setOpponentPlayer: (opponentPlayer: Player) => set({ opponentPlayer }),
 	addMatch: (match: Match) => {

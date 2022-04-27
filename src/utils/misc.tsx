@@ -70,7 +70,7 @@ const getMatchOpponentId = (user: any, match: Match): string => {
 	const { uid } = user;
 	const { players } = match;
 	
-	if (!players?.guestId && uid !== players?.hostId) return uid;
+	if (!players?.guestId && uid !== players?.hostId) return players?.hostId;
 
 	return uid === players?.guestId ? players?.hostId : players?.guestId;
 };

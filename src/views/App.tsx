@@ -19,9 +19,12 @@ import AuthMatchRoute from '../components/wrappers/AuthMatchRoute';
 
 interface Props {}
 
+// This initialization happens outside the App component because it MUST run before anything else
+const { app, db } = initializeFirebase();
+useStore.setState({ app, db });
+
 const App = ({}: Props) => {
 	useEffect(() => {
-		const { app, db } = initializeFirebase();
 		const auth = getAuth();
 
 		// @ts-ignore
@@ -30,16 +33,10 @@ const App = ({}: Props) => {
 		onAuthStateChanged(auth, (user) => {
 			if (user) {
 				console.log('sensing a user', { user });
-				// User is signed in, see docs for a list of available properties
-				// https://firebase.google.com/docs/reference/js/firebase.User
-				const uid = user.uid;
 
 				useStore.setState({ user });
 			} else {
 				console.log('no user, for some reason');
-				// User is signed out
-				// ...
-				// console.log('no user. signed out. something like that');
 			}
 		});
 	}, []);

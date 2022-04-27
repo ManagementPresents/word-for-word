@@ -13,6 +13,10 @@ const Login = () => {
 	const [password, setPassword] = useState('');
 	const [serverErrors, setServerErrors] = useState([]);
 
+	const {
+		inviteMatchId,
+	} = useStore();
+ 
 	// https://atomizedobjects.com/blog/react/how-to-use-useref-with-typescript/
 	const emailInputRef = useRef<null | HTMLInputElement>(null);
 	const passwordInputRef = useRef<null | HTMLInputElement>(null);
@@ -38,6 +42,11 @@ const Login = () => {
 				// Signed in
 				const user = userCredential.user;
 				useStore.setState({ user });
+
+				if (inviteMatchId) {
+					// TODO: This navigate, in tandem with some weirdness on another component, might be causing a memory leak
+					navigate(`/match/${inviteMatchId}`);
+				}
 			})
 			.catch((error) => {
 				const { code } = error;
@@ -74,6 +83,13 @@ const Login = () => {
 	return (
 		<div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
 			<div className="flex flex-col items-center justify-center max-w-lg w-full gap-y-4">
+				{inviteMatchId && (
+					<div className="border-b-2 border-white p-2 text-center text-[18px]">
+						<p>You've been invited to a match!</p> 
+						<p>Register your totally free account, or log in, to play now.</p>
+					</div>
+				)}
+				
 				<h1 className="text-center text-6xl">Word for Word</h1>
 
 				<div className="rounded-md shadow-sm w-[inherit]">

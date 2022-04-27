@@ -1,3 +1,4 @@
+// TODO: There seems to be a memory leak here, caused by commit bd9aa92b58d084226eefd8f38da114b0746552dd (implement "logged out, accept match invite" flow). Seems innocuous, but is worth investigating
 import { useEffect, useState } from 'react';
 
 import { TIMEOUT_DURATION } from '../../data/constants';
