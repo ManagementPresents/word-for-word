@@ -6,8 +6,8 @@ import initializeFirebase from '../utils/firebase';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 import MatchView from './MatchView';
-import Login from './Login';
-import Register from './Register';
+import LoginView from './LoginView';
+import RegisterView from './RegisterView';
 import Lobby from './Lobby';
 import Logout from './Logout';
 import MakeUpADude from './MakeUpADude';
@@ -49,7 +49,7 @@ const App = ({}: Props) => {
 					element={
 						<AuthRedirectRoute
 							authRedirectTarget={<Navigate to="/lobby" />}
-							noAuthRedirectTarget={<Login />}
+							noAuthRedirectTarget={<LoginView />}
 						/>
 					}
 				/>
@@ -60,7 +60,7 @@ const App = ({}: Props) => {
 					element={
 						<AuthRedirectRoute
 							authRedirectTarget={<Lobby />}
-							noAuthRedirectTarget={<Login />}
+							noAuthRedirectTarget={<LoginView />}
 						/>
 					}
 				/>
@@ -74,7 +74,7 @@ const App = ({}: Props) => {
 					}
 				/>
 
-				<Route path="/register" element={<Register />} />
+				<Route path="/register" element={<RegisterView />} />
 
 				<Route path="/logout" element={<Logout />} />
 

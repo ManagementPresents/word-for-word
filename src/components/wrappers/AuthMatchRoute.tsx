@@ -34,7 +34,7 @@ const AuthRoute = ({ children, redirectTo }: any) => {
 			if (!useStore.getState().user) {
 				if (matchId) {
 					setInviteMatchId(matchId);
-					navigate('/');
+					navigate(`/match/${matchId}`);
 					return;
 				}
 
