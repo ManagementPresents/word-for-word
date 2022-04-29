@@ -32,8 +32,12 @@ interface EmailError {
 	isEmailError: boolean;
 }
 
+interface Props {
+    handleReturnClick: () => void;
+}
+
 // TODO: Need to add logic for if the email already exists
-const Register = () => {
+const Register = ({ handleReturnClick }: Props) => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [verifyPassword, setVerifyPassword] = useState('');
@@ -86,15 +90,9 @@ const Register = () => {
 			*/
 			setUser(user);
 
-			console.log({ inviteMatchId });
-			if (inviteMatchId) {
-				// TODO: This navigate, in tandem with some weirdness on another component, might be causing a memory leak
-				navigate(`/match/${inviteMatchId}`);
-				console.log('yeah!');
-				return;
-			}
-
-			navigate('/');
+            if (!inviteMatchId) {
+                navigate('/');
+            }
 		} catch (err) {
 			const { code } = err as FirebaseError;
 
@@ -190,102 +188,98 @@ const Register = () => {
 	});
 
 	return (
-		<div className="min-h-full flex flex-col gap-y-4 items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-			<div className="flex flex-col gap-y-4 w-80">
-				<div>
-					<label htmlFor="email-address" className="sr-only">
-						Email address
-					</label>
+        <div className="flex flex-col gap-y-4 w-80">
+            <div>
+                <label htmlFor="email-address" className="sr-only">
+                    Email address
+                </label>
 
-					<input
-						ref={emailInputRef}
-						id="email-address"
-						name="email"
-						type="email"
-						autoComplete="email"
-						required
-						className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm ${
-							!isValidEmail()
-								? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-								: ''
-						}`}
-						placeholder="Email address"
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
-					/>
-				</div>
+                <input
+                    ref={emailInputRef}
+                    id="email-address"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm ${
+                        !isValidEmail()
+                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                            : ''
+                    }`}
+                    placeholder="Email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                />
+            </div>
 
-				<div>
-					<label htmlFor="password" className="sr-only">
-						Password
-					</label>
+            <div>
+                <label htmlFor="password" className="sr-only">
+                    Password
+                </label>
 
-					<input
-						ref={passwordInputRef}
-						id="password"
-						name="password"
-						type="password"
-						autoComplete="current-password"
-						required
-						className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm ${
-							!isValidPassword()
-								? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-								: ''
-						}`}
-						placeholder="Password"
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-					/>
-				</div>
+                <input
+                    ref={passwordInputRef}
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm ${
+                        !isValidPassword()
+                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                            : ''
+                    }`}
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+            </div>
 
-				<div>
-					<label htmlFor="password" className="sr-only">
-						Verify Password
-					</label>
+            <div>
+                <label htmlFor="password" className="sr-only">
+                    Verify Password
+                </label>
 
-					<input
-						ref={verifyPasswordInputRef}
-						id="password"
-						name="password"
-						type="password"
-						autoComplete="current-password"
-						required
-						className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm ${
-							!isValidPassword()
-								? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-								: ''
-						}`}
-						placeholder="Verify password"
-						value={verifyPassword}
-						onChange={(e) => setVerifyPassword(e.target.value)}
-					/>
-				</div>
+                <input
+                    ref={verifyPasswordInputRef}
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm ${
+                        !isValidPassword()
+                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                            : ''
+                    }`}
+                    placeholder="Verify password"
+                    value={verifyPassword}
+                    onChange={(e) => setVerifyPassword(e.target.value)}
+                />
+            </div>
 
-				<div className="flex flex-col">
-					{renderErrors(validationErrors, 'text-red-600 text-sm')}
-				</div>
+            <div className="flex flex-col">
+                {renderErrors(validationErrors, 'text-red-600 text-sm')}
+            </div>
 
-				<LoadingButton
-					onClick={handleRegistration}
-					copy={'Sign Up'}
-					isLoadingCopy={'Registering...'}
-					disabled={!isRegistrationReady}
-					isLoading={isRegistering}
-					customStyle={'green-button'}
-				/>
-				<Button
-					onClick={() => {
-						navigate('/');
-					}}
-					copy={'Return'}
-					customStyle={'yellow-button-hollow'}
-				/>
+            <LoadingButton
+                onClick={handleRegistration}
+                copy={'Sign Up'}
+                isLoadingCopy={'Registering...'}
+                disabled={!isRegistrationReady}
+                isLoading={isRegistering}
+                customStyle={'green-button'}
+            />
+            <Button
+                onClick={handleReturnClick}
+                copy={'Return'}
+                customStyle={'yellow-button-hollow'}
+            />
 
-				<div className="flex flex-col">
-					{renderErrors(serverErrors, 'text-blue-600 text-sm')}
-				</div>
-			</div>
-		</div>
+            <div className="flex flex-col">
+                {renderErrors(serverErrors, 'text-blue-600 text-sm')}
+            </div>
+        </div>
 	);
 };
 

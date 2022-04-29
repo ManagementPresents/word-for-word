@@ -14,6 +14,8 @@ import EndTurnModal from '../components/modals/EndTurnModal';
 import NewMatchModal from '../components/modals/NewMatchModal';
 import WordleSentModal from '../components/modals/WordleSentModal';
 import ForfeitModal from '../components/modals/ForfeitModal';
+import Login from '../components/Login';
+import Register from '../components/Register';
 
 import useStore from '../utils/store';
 import {
@@ -101,6 +103,8 @@ function MatchView() {
 	const [isOpenMatchChallenge, setIsOpenMatchChallenge] = useState(false);
 	const [isAModalOpen, setIsAModalOpen] = useState(false);
 	const [isForfeitModalOpen, setIsForfeitModalOpen] = useState(false);
+	const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+	const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
 	const navigate = useNavigate();
 
@@ -327,14 +331,14 @@ function MatchView() {
 
 	const handleAcceptMatch = async () => {
 		const matchDocRef = doc(db, 'matches', currentMatch.id as string);
-		const playerDocRef = doc(db, 'players', user.uid as string);
+		const playerDocRef = doc(db, 'players', user?.uid as string);
 
 		/*
             TODO: This feels stupid. We shouldn't have to follow this with a 'get' just to update the local store. consider bringing in a firebase listener that, well, listens to changes to the 'matches' collection and automatically updates the store accordingly.
             a firebase transaction might be the solution here.
         */
 		const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
-			turn.activePlayer = user.uid;
+			turn.activePlayer = user?.uid;
 
 			return turn;
 		});
@@ -346,7 +350,7 @@ function MatchView() {
 		await setDoc(
 			matchDocRef,
 			{
-				players: { guestId: user.uid },
+				players: { guestId: user?.uid },
 				turns: updatedTurns,
 			},
 			{ merge: true },
@@ -406,7 +410,7 @@ function MatchView() {
 			}
 		}
 
-		if (isMatchWon && currentTurn.activePlayer === user.uid) {
+		if (isMatchWon && currentTurn.activePlayer === user?.uid) {
 			/* 
 				TODO: It feels abrupt showing this modal with no delay.
 				In the long term, perhaps a fun victory animation? 
@@ -419,12 +423,15 @@ function MatchView() {
 				setIsEndTurnModalOpen(true);
 			}, 500);
 		}
-	}, [board, currentRowIndex, currentMatch, db, setCurrentMatch]);
+	}, [board, currentRowIndex, currentMatch, db, setCurrentMatch, user?.uid]);
 
 	useEffect(() => {
 		(async () => {
 			// TODO: This runs every time there's an update to user. This could potentially lead to this running multiple times, which would not be good.
 			if (user) {
+				setIsLoginModalOpen(false);
+				setIsRegisterModalOpen(false);
+
 				const matchDocRef = doc(db, 'matches', params.matchId || '');
 				const matchDocSnap = await getDoc(matchDocRef);
 
@@ -482,9 +489,12 @@ function MatchView() {
 						}
 					}
 				}
+			} else if (inviteMatchId) {
+				setIsLoadingMatch(false);
+				setIsLoginModalOpen(true);
 			}
 		})();
-	}, [user, board, currentMatch, db, params.matchId, setCurrentMatch, setOpponentPlayer]);
+	}, [user, board, currentMatch, db, params.matchId, setCurrentMatch, setOpponentPlayer, inviteMatchId]);
 
 	// For handling end game state changes and showing the correct 'game over' modals
 	useEffect(() => {
@@ -496,7 +506,7 @@ function MatchView() {
 			if (
 				currentTurn.activePlayer &&
 				currentTurn.turnState === 'playing' &&
-				currentTurn.activePlayer !== user.uid
+				currentTurn.activePlayer !== user?.uid
 			) {
 				setIsEndTurnModalOpen(false);
 				setIsWordleSentModalOpen(true);
@@ -509,12 +519,12 @@ function MatchView() {
 
 	useEffect(() => {
 		// TODO: This could be simplified by having a single state variable that signifies whether or not any modal is open
-		setIsAModalOpen(isLandingModalOpen || isHowToPlayModalOpen || isEndTurnModalOpen || isWordleSentModalOpen);
-	}, [isLandingModalOpen, isHowToPlayModalOpen, isEndTurnModalOpen, isWordleSentModalOpen]);
+		setIsAModalOpen(isLandingModalOpen || isHowToPlayModalOpen || isEndTurnModalOpen || isWordleSentModalOpen || isLoginModalOpen || isRegisterModalOpen);
+	}, [isLandingModalOpen, isHowToPlayModalOpen, isEndTurnModalOpen, isWordleSentModalOpen, isLoginModalOpen, isRegisterModalOpen]);
 
-	useEffect(() => {
-		if (user && inviteMatchId) setInviteMatchId('');
-	}, [inviteMatchId, setInviteMatchId, user]);
+	// useEffect(() => {
+	// 	if (user && inviteMatchId) setInviteMatchId('');
+	// }, [inviteMatchId, setInviteMatchId, user]);
 
 	return (
 		<div className={`flex flex-col justify-between h-fill bg-background min-h-[100vh]`}>
@@ -673,6 +683,34 @@ function MatchView() {
 									Check out how to play.
 								</span>
 							</div>
+						</Modal>
+
+						<Modal
+							isOpen={isLoginModalOpen}
+							onRequestClose={() => {
+								setIsLoginModalOpen(false);
+							}}
+							shouldCloseOnOverlayClick={false}
+							hideCloseButton={true}
+						>
+							<Login handleRegisterClick={() => { 
+								setIsLoginModalOpen(false);
+								setIsRegisterModalOpen(true);
+							}}/>
+						</Modal>
+
+						<Modal
+							isOpen={isRegisterModalOpen}
+							onRequestClose={() => {
+								setIsRegisterModalOpen(false);
+							}}
+							shouldCloseOnOverlayClick={false}
+							hideCloseButton={true}
+						>
+							<Register handleReturnClick={() => { 
+								setIsRegisterModalOpen(false);
+								setIsLoginModalOpen(true);
+							}}/>
 						</Modal>
 
 						<EndTurnModal

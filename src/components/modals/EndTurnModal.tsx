@@ -270,7 +270,7 @@ const EndTurnModal: FC<Props> = ({
 
 	useEffect(() => {
 		if (Object.keys(currentMatch).length) {
-			const userIsHost = user.uid === currentMatch.players.hostId;
+			const userIsHost = user?.uid === currentMatch.players.hostId;
 
 			if (userIsHost || !userIsHost) {
 				if (currentMatch.outcome === MatchOutcome.DRAW) {
@@ -296,7 +296,7 @@ const EndTurnModal: FC<Props> = ({
 				}
 			}
 		}
-	}, [currentMatch, user.uid]);
+	}, [currentMatch, user?.uid]);
 
 	useEffect(() => {
 		setAnswer(getCurrentTurn(currentMatch.turns)?.wordle.toUpperCase());
@@ -318,7 +318,7 @@ const EndTurnModal: FC<Props> = ({
 
 					<div className="flex flex-col gap-y-2">
 						<FontAwesomeIcon icon={faCircleUser} size="4x" />
-						<span>{user.email}</span>
+						<span>{user?.email}</span>
 					</div>
 				</div>
 			</div>
