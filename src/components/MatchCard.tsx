@@ -22,14 +22,14 @@ import MatchOutcome from '../enums/MatchOutcome';
 
 interface Props {
 	match: Match;
-	isLobbyMatchModalOpen: boolean;
-	setIsLobbyMatchModalOpen: any;
+	isMatchModalOpen: boolean;
+	setIsMatchModalOpen: any;
 	setIsEndTurnModalOpen?: any;
 }
 
 const MatchCard: FC<Props> = ({ 
 	match, 
-	setIsLobbyMatchModalOpen,
+	setIsMatchModalOpen,
 	setIsEndTurnModalOpen, 
 }: Props) => {
 	const { 
@@ -135,11 +135,11 @@ const MatchCard: FC<Props> = ({
 				);
 			}
 
-			setIsLobbyMatchModalOpen(true);
+			setIsMatchModalOpen(true);
 		} else if (hasPlayerWonCurrentTurn(match, user.uid)) {
 			setIsEndTurnModalOpen(true);
 		} else {
-			setIsLobbyMatchModalOpen(true);
+			setIsMatchModalOpen(true);
 		}
 	};
 
