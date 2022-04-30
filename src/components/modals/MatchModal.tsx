@@ -1,11 +1,12 @@
 import { FC, useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, DocumentData } from 'firebase/firestore';
 
 import CopyInput from '../CopyInput';
 import Button from '../buttons/Button';
 import Modal from './Modal';
 import WordleHistory from '../WordleHistory';
+import Loading from '../Loading';
 
 import Player from '../../interfaces/Player';
 import Turn from '../../interfaces/Turn';
@@ -54,6 +55,7 @@ const MatchModal: FC<Props> = ({
 	const [isUserTurn, setIsUserTurn] = useState(isPlayerCurrentTurn(currentMatch, user?.uid));
 	const [isOpponentTurn, setIsOpponentTurn] = useState(false);
 	const [hasUserWon, setHasUserWon] = useState(false);
+	const [isLoading, setIsLoading] = useState(true);
 
 	const navigate = useNavigate();
 
@@ -125,7 +127,7 @@ const MatchModal: FC<Props> = ({
 					<Button
 						copy="Return to Lobby"
 						customStyle="yellow-button-hollow"
-						onClick={onRequestClose}
+						onClick={handleReturn ? handleReturn : onRequestClose}
 					/>
 
 					{!currentMatch.outcome &&
@@ -244,15 +246,29 @@ const MatchModal: FC<Props> = ({
 	};
 
 	useEffect(() => {
-		setMatchOpponent(matchOpponents[getMatchOpponentId(user, currentMatch)]);
-	}, [user, matchOpponents, currentMatch]);
+		const matchOpponentId = getMatchOpponentId(user, currentMatch);
+
+		if (Object.keys(matchOpponents).length) {
+			setMatchOpponent(matchOpponents[matchOpponentId]);
+			setIsLoading(false);
+		} else if (currentMatch?.players?.guestId) {
+			(async () => {
+				// TODO: Now that MatchModal can be present on both the lobby AND the match view, it would probably be wise to rethink how "matchOpponents" is retrieved
+				const playerDocRef = doc(db, 'players', matchOpponentId);
+				const playerSnap = await getDoc(playerDocRef);
+
+				setMatchOpponent({ ...playerSnap.data(), id: matchOpponentId,  } as Player);
+				setIsLoading(false);
+			})();            
+		}
+	}, [user, matchOpponents, currentMatch, db]);
 
 	useEffect(() => {
 		setIsUserTurn(isPlayerCurrentTurn(currentMatch, user?.uid));
 	}, [user, currentMatch]);
 
 	useEffect(() => {
-		setIsOpponentTurn(isPlayerCurrentTurn(currentMatch, matchOpponent?.id as string),);
+		setIsOpponentTurn(isPlayerCurrentTurn(currentMatch, matchOpponent?.id as string));
 	}, [currentMatch, matchOpponent]);
 
 	useEffect(() => {
@@ -261,23 +277,29 @@ const MatchModal: FC<Props> = ({
 
 	return (
 		<Modal isOpen={isOpen} onRequestClose={onRequestClose} shouldCloseOnOverlayClick={shouldCloseOnOverlayClick} hideCloseButton={hideCloseButton}>
-			<h1 className="modal-header">{renderTitle()}</h1>
+			{
+				isLoading ?
+				<Loading fullHeight={false} enableCentering={true} /> :
+				<>
+					<h1 className="modal-header">{renderTitle()}</h1>
 
-			<div className="flex flex-col justify-center gap-y-2 ">{renderTurns()}</div>
+					<div className="flex flex-col justify-center gap-y-2 ">{renderTurns()}</div>
 
-			{renderMatchCopy()}
+					{renderMatchCopy()}
 
-			<div className="modal-label">
-				{!currentMatch.outcome &&
-					<>
-						<h3 className="text-[16px]">Match Link</h3>
+					<div className="modal-label">
+						{!currentMatch.outcome &&
+							<>
+								<h3 className="text-[16px]">Match Link</h3>
 
-						<CopyInput copyText={createMatchUrl(currentMatch)} />
-					</>
-				}
-				
-				{renderMatchButtons()}
-			</div>
+								<CopyInput copyText={createMatchUrl(currentMatch)} />
+							</>
+						}
+						
+						{renderMatchButtons()}
+					</div>
+				</>
+			}
 		</Modal>
 	);
 };

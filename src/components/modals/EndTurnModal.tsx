@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, Dispatch, SetStateAction } from 'react';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
@@ -20,12 +20,16 @@ import Player from '../../interfaces/Player';
 
 interface Props {
 	isOpen: boolean;
-	onRequestClose: any;
+	onRequestClose: () => void;
 	nextWordle: string;
-	setNextWordle: any;
-	returnAction: any;
-	setIsOpenMatchChallenge: any;
-	setIsForfeitModalOpen: any;
+	setNextWordle: Dispatch<SetStateAction<string>>;
+	returnAction: () => void;
+	setMatchLink: Dispatch<SetStateAction<string>>;
+	setIsOpenMatchChallenge: Dispatch<SetStateAction<boolean>>;
+	setIsForfeitModalOpen: Dispatch<SetStateAction<boolean>>;
+	setIsWordleSentModalOpen?: Dispatch<SetStateAction<boolean>>;
+	hideCloseButton?: boolean;
+	setIsConfirmModalOpen?: Dispatch<SetStateAction<boolean>>;
 	shouldCloseOnOverlayClick?: boolean;
 	isLobbyReturn?: boolean;
 	lazyLoadOpponentPlayer?: boolean;
@@ -40,8 +44,12 @@ const EndTurnModal: FC<Props> = ({
 	lazyLoadOpponentPlayer,
 	returnAction,
 	isLobbyReturn,
+	hideCloseButton,
 	shouldCloseOnOverlayClick,
+	setMatchLink,
 	setIsForfeitModalOpen,
+	setIsWordleSentModalOpen = () => {},
+	setIsConfirmModalOpen = () => {},
 }: Props) => {
 	const { 
 		opponentPlayer, 
@@ -92,8 +100,6 @@ const EndTurnModal: FC<Props> = ({
 		};
 		const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
 			turn.isCurrentTurn = false;
-			// TODO: This state obviously needs to depend on whether they won or lost
-			turn.turnState = 'won';
 
 			return turn;
 		});
@@ -118,8 +124,16 @@ const EndTurnModal: FC<Props> = ({
         */
 		setCurrentMatch({ ...currentMatch, turns: newTurns });
 		setIsSendingWordle(false);
+		setIsWordleSentModalOpen(true);	
+		// @ts-ignore
+		setMatchLink(`${process.env.REACT_APP_URL}/match/${currentMatch.id}`);
 		onRequestClose();
 	};
+
+	const handleReturnConfirm = () => {
+		onRequestClose();
+		setIsConfirmModalOpen(true);
+	}
 
 	const renderEndTurnCopy = () => {
 		if (!currentMatch.outcome) {
@@ -199,6 +213,12 @@ const EndTurnModal: FC<Props> = ({
 						isLoading={isSendingWordle}
 						disabled={!!wordleValidationErrors.length}
 						onClick={handleSendWordle}
+					/>
+
+					<Button
+						copy="Return to Lobby"
+						customStyle="yellow-button-hollow"
+						onClick={ handleReturnConfirm }
 					/>
 
 					<div className="flex flex-row gap-x-1 justify-center items-center">
@@ -303,7 +323,7 @@ const EndTurnModal: FC<Props> = ({
 	}, [currentMatch.turns]);
 
 	return (
-		<Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={isLobbyReturn} shouldCloseOnOverlayClick={shouldCloseOnOverlayClick}>
+		<Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={isLobbyReturn} shouldCloseOnOverlayClick={shouldCloseOnOverlayClick} hideCloseButton={hideCloseButton}>
 			{/* TODO: Think about using a random "Word for Word" generator here */}
 			<div className="flex flex-col gap-y-2">
 				<h1 className="text-4xl text-center">Turn {currentMatch?.turns?.length}</h1>

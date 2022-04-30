@@ -32,7 +32,7 @@ const AuthRedirectRoute = ({ authRedirectTarget, noAuthRedirectTarget }: any) =>
 		if (user) setIsLoading(false);
 	}, [user, setIsLoading]);
 
-	if (isLoading) return <Loading enableCentering={true} />;
+	if (isLoading) return <Loading fullHeight={true} enableCentering={true} />;
 
 	if (user) return authRedirectTarget;
 
