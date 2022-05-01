@@ -64,14 +64,14 @@ const AuthRoute = ({ children, redirectTo }: any) => {
 					} else if (isUserTurn || (user.uid !== players.hostId && !players.guestId)) {
 						setCurrentMatch(matchData);
 					} else {
-						navigate('/');
+						// navigate('/');
 					}
 				} else {
 					navigate(redirectTo);
 				}
 			}
 		})();
-	}, [user, setIsLoading, db, navigate, params, redirectTo, setCurrentMatch]);
+	}, [user, setIsLoading, db, navigate, params, redirectTo, setCurrentMatch, matchId]);
 
 	return isLoading && !user && hasMatchId ? <Loading /> : children;
 };

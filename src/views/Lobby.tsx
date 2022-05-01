@@ -5,7 +5,7 @@ import useEventListener from '@use-it/event-listener';
 import MatchCard from '../components/MatchCard';
 import Loading from '../components/Loading';
 import Button from '../components/buttons/Button';
-import LobbyMatchModal from '../components/modals/LobbyMatchModal';
+import MatchModal from '../components/modals/MatchModal';
 import NewMatchModal from '../components/modals/NewMatchModal';
 import EndTurnModal from '../components/modals/EndTurnModal';
 import ForfeitModal from '../components/modals/ForfeitModal';
@@ -35,7 +35,7 @@ const Lobby = () => {
 
 	const [isNewMatchModalOpen, setIsNewMatchModalOpen] = useState(false);
 	const [isLoadingMatches, setIsLoadingMatches] = useState(true);
-	const [isLobbyMatchModalOpen, setIsLobbyMatchModalOpen] = useState(false);
+	const [isMatchModalOpen, setIsMatchModalOpen] = useState(false);
 	const [isEndTurnModalOpen, setIsEndTurnModalOpen] = useState(false);
 	const [isWordleSentModalOpen, setIsWordleSentModalOpen] = useState(false);
 	const [isForfeitModalOpen, setIsForfeitModalOpen] = useState(false);
@@ -196,7 +196,7 @@ const Lobby = () => {
 		// setIsGeneratingLink(false);
 		// setWordleValidationErrors([]);
 		// setWordle('');
-		handleLobbyMatchModalClose();
+		handleMatchModalClose();
 		setIsNewMatchModalOpen(true);
 		// handleValidateWordle();
 	};
@@ -218,8 +218,8 @@ const Lobby = () => {
 		return matchesArray.map((match) => (
 			<MatchCard
 				match={match}
-				isLobbyMatchModalOpen={isLobbyMatchModalOpen}
-				setIsLobbyMatchModalOpen={setIsLobbyMatchModalOpen}
+				isMatchModalOpen={isMatchModalOpen}
+				setIsMatchModalOpen={setIsMatchModalOpen}
 				setIsEndTurnModalOpen={setIsEndTurnModalOpen}
 			/>
 		));
@@ -244,8 +244,8 @@ const Lobby = () => {
 		);
 	};
 
-	const handleLobbyMatchModalClose = () => {
-		setIsLobbyMatchModalOpen(false);
+	const handleMatchModalClose = () => {
+		setIsMatchModalOpen(false);
 	};
 
 	// TODO: Bring back once you figure out why tooltips prevent the click-copy library from working
@@ -276,9 +276,9 @@ const Lobby = () => {
 				returnAction={handleNewMatchModalClose}
 			/>
 
-			<LobbyMatchModal
-				isOpen={isLobbyMatchModalOpen}
-				onRequestClose={handleLobbyMatchModalClose}
+			<MatchModal
+				isOpen={isMatchModalOpen}
+				onRequestClose={handleMatchModalClose}
 				handleStartNewMatch={handleStartNewMatch}
 				setIsForfeitModalOpen={setIsForfeitModalOpen}
 				setIsCancelModalOpen={setIsCancelModalOpen}

@@ -14,6 +14,8 @@ import EndTurnModal from '../components/modals/EndTurnModal';
 import NewMatchModal from '../components/modals/NewMatchModal';
 import WordleSentModal from '../components/modals/WordleSentModal';
 import ForfeitModal from '../components/modals/ForfeitModal';
+import MatchModal from '../components/modals/MatchModal';
+import CancelModal from '../components/modals/CancelModal';
 import Login from '../components/Login';
 import Register from '../components/Register';
 
@@ -105,6 +107,8 @@ function MatchView() {
 	const [isForfeitModalOpen, setIsForfeitModalOpen] = useState(false);
 	const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 	const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+	const [isMatchModalOpen, setIsMatchModalOpen] = useState(false);
+	const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
 	const navigate = useNavigate();
 
@@ -519,12 +523,15 @@ function MatchView() {
 
 	useEffect(() => {
 		// TODO: This could be simplified by having a single state variable that signifies whether or not any modal is open
-		setIsAModalOpen(isLandingModalOpen || isHowToPlayModalOpen || isEndTurnModalOpen || isWordleSentModalOpen || isLoginModalOpen || isRegisterModalOpen);
-	}, [isLandingModalOpen, isHowToPlayModalOpen, isEndTurnModalOpen, isWordleSentModalOpen, isLoginModalOpen, isRegisterModalOpen]);
+		setIsAModalOpen(isLandingModalOpen || isHowToPlayModalOpen || isEndTurnModalOpen || isWordleSentModalOpen || isLoginModalOpen || isRegisterModalOpen || isMatchModalOpen || isCancelModalOpen);
+	}, [isLandingModalOpen, isHowToPlayModalOpen, isEndTurnModalOpen, isWordleSentModalOpen, isLoginModalOpen, isRegisterModalOpen, isMatchModalOpen, isCancelModalOpen]);
 
-	// useEffect(() => {
-	// 	if (user && inviteMatchId) setInviteMatchId('');
-	// }, [inviteMatchId, setInviteMatchId, user]);
+	useEffect(() => {
+		if (!currentMatch.players?.guestId && user && currentMatch.players?.hostId === user?.uid) {
+			setIsLoadingMatch(false);
+			setIsMatchModalOpen(true);
+		}
+	}, [currentMatch, user]);
 
 	return (
 		<div className={`flex flex-col justify-between h-fill bg-background min-h-[100vh]`}>
@@ -712,6 +719,28 @@ function MatchView() {
 								setIsLoginModalOpen(true);
 							}}/>
 						</Modal>
+
+						<MatchModal
+							isOpen={isMatchModalOpen}
+							shouldCloseOnOverlayClick={false}
+							hideCloseButton={true}
+							handleStartNewMatch={() => {}}
+							setIsForfeitModalOpen={() => {}}
+							handleReturn={() => navigate('/')}
+							setIsCancelModalOpen={setIsCancelModalOpen}
+							onRequestClose={() => setIsMatchModalOpen(false)}
+						/>
+						
+						<CancelModal
+							isOpen={isCancelModalOpen}
+							onRequestClose={() => navigate('/')}
+							shouldCloseOnOverlayClick={false}
+							hideCloseButton={true}
+							handleReturn={() => {
+								setIsMatchModalOpen(true);
+								setIsCancelModalOpen(false);
+							}}
+						/>
 
 						<EndTurnModal
 							isOpen={isEndTurnModalOpen}

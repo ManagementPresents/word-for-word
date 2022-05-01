@@ -26,6 +26,8 @@ const CancelModal: FC<Props> = ({
     isOpen,
     onRequestClose,
     handleReturn,
+    shouldCloseOnOverlayClick,
+    hideCloseButton,
 }: Props) => {
     const {
         removeMatchById,
@@ -61,7 +63,7 @@ const CancelModal: FC<Props> = ({
     }
 
     return (
-        <Modal isOpen={isOpen} onRequestClose={onRequestClose}>
+        <Modal isOpen={isOpen} onRequestClose={onRequestClose} shouldCloseOnOverlayClick={shouldCloseOnOverlayClick} hideCloseButton={hideCloseButton}>
             <h1 className="modal-header">Cancel Invite</h1>
 
             <p className="max-w-xs">A prudent choice. Discretion is the better part of valor.</p>

@@ -17,8 +17,8 @@ const modalStyle = {
 
 interface Props {
 	isOpen: boolean;
-	onRequestClose: any;
 	children: any;
+	onRequestClose?: any;
 	isLobbyReturn?: boolean;
 	shouldCloseOnOverlayClick?: boolean;
 	hideCloseButton?: boolean;

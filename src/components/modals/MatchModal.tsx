@@ -23,18 +23,24 @@ import {
 
 interface Props {
 	isOpen: boolean;
-	onRequestClose: any;
 	handleStartNewMatch: any;
 	setIsForfeitModalOpen: any;
 	setIsCancelModalOpen: any;
+	handleReturn?: any;
+	onRequestClose?: any;
+	shouldCloseOnOverlayClick?: any;
+	hideCloseButton?: any;
 }
 
-const LobbyMatchModal: FC<Props> = ({ 
+const MatchModal: FC<Props> = ({ 
 	isOpen, 
 	onRequestClose, 
-	handleStartNewMatch ,
+	handleStartNewMatch,
 	setIsForfeitModalOpen,
 	setIsCancelModalOpen,
+	shouldCloseOnOverlayClick,
+	hideCloseButton,
+	handleReturn,
 }: Props) => {
 	const { 
 		currentMatch, 
@@ -45,7 +51,7 @@ const LobbyMatchModal: FC<Props> = ({
 	} = useStore();
 
 	const [matchOpponent, setMatchOpponent] = useState({} as Player);
-	const [isUserTurn, setIsUserTurn] = useState(isPlayerCurrentTurn(currentMatch, user.uid));
+	const [isUserTurn, setIsUserTurn] = useState(isPlayerCurrentTurn(currentMatch, user?.uid));
 	const [isOpponentTurn, setIsOpponentTurn] = useState(false);
 	const [hasUserWon, setHasUserWon] = useState(false);
 
@@ -55,13 +61,13 @@ const LobbyMatchModal: FC<Props> = ({
 		const currentTurn = getCurrentTurn(currentMatch.turns);
 
 		if (isUserTurn && !currentTurn.hasActivePlayerStartedTurn) {
-			console.log('updating hasActivePlayerStartedTurn')
 			// TODO: Need a loading throbber
 			const updatedTurns: Turn[] = updateCurrentTurn(currentMatch.turns, (turn: Turn) => {
 				turn.hasActivePlayerStartedTurn = true;
 				return turn;
 			});
 
+			// TODO: Something here, or around here, is throwing a "invalid document reference" error. i think, maybe, either 'db' is undefined, or the third arg of a 'doc' call
 			const currentMatchRef = doc(db, 'matches', currentMatch.id);
 
 			await setDoc(
@@ -133,6 +139,27 @@ const LobbyMatchModal: FC<Props> = ({
 						/>
 					}
 				</div>
+			);
+		}
+
+		if (handleReturn) {
+			return (
+				<>
+					<Button 
+						copy="Return to Lobby"
+						customStyle="yellow-button mb-4"
+						onClick={handleReturn}
+					/>
+
+					<Button
+						copy="Cancel Invite"
+						customStyle="grey-button-hollow w-full"
+						onClick={() => {
+							onRequestClose();
+							setIsCancelModalOpen(true)
+						}}
+					/>
+				</>
 			);
 		}
 
@@ -221,7 +248,7 @@ const LobbyMatchModal: FC<Props> = ({
 	}, [user, matchOpponents, currentMatch]);
 
 	useEffect(() => {
-		setIsUserTurn(isPlayerCurrentTurn(currentMatch, user.uid));
+		setIsUserTurn(isPlayerCurrentTurn(currentMatch, user?.uid));
 	}, [user, currentMatch]);
 
 	useEffect(() => {
@@ -229,11 +256,11 @@ const LobbyMatchModal: FC<Props> = ({
 	}, [currentMatch, matchOpponent]);
 
 	useEffect(() => {
-		setHasUserWon(hasUserWonMatch(currentMatch, user.uid));
-	}, [currentMatch, user.uid]);
+		setHasUserWon(hasUserWonMatch(currentMatch, user?.uid));
+	}, [currentMatch, user?.uid]);
 
 	return (
-		<Modal isOpen={isOpen} onRequestClose={onRequestClose}>
+		<Modal isOpen={isOpen} onRequestClose={onRequestClose} shouldCloseOnOverlayClick={shouldCloseOnOverlayClick} hideCloseButton={hideCloseButton}>
 			<h1 className="modal-header">{renderTitle()}</h1>
 
 			<div className="flex flex-col justify-center gap-y-2 ">{renderTurns()}</div>
@@ -255,4 +282,4 @@ const LobbyMatchModal: FC<Props> = ({
 	);
 };
 
-export default LobbyMatchModal;
+export default MatchModal;
