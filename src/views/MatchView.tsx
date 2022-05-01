@@ -29,6 +29,7 @@ import {
 	getMatchOpponentId,
 	determineMatchOutcome,
 	isPlayerCurrentTurn,
+	hasUserWonMatch,
 } from '../utils/misc';
 import { LETTERS } from '../data/constants';
 import Turn from '../interfaces/Turn';
@@ -37,6 +38,7 @@ import Player from '../interfaces/Player';
 import Cell from '../interfaces/Cell';
 
 import { ReactComponent as Lobby } from '../assets/Lobby.svg';
+import { match } from 'assert';
 
 const words = require('../data/words').default as { [key: string]: boolean };
 
@@ -315,7 +317,6 @@ function MatchView() {
 		currentMatch,
 		user,
 		inviteMatchId,
-		setInviteMatchId,
 		setCurrentMatch,
 		setCurrentTurn,
 	} = useStore();
@@ -419,17 +420,19 @@ function MatchView() {
 			}
 		}
 
-		if (isMatchWon && currentTurn?.activePlayer === user?.uid && !isConfirmModalOpen && !isEndTurnModalOpen) {
-			//	TODO: It feels abrupt showing this modal with no delay. In the long term, perhaps a fun victory animation?			
-			setTimeout(() => {
-				setIsEndTurnModalOpen(true);
-				setPreviousModal('endTurn');
-			}, 500);
-		} else if (isGameLost) {
-			setTimeout(() => {
-				setIsEndTurnModalOpen(true);
-				setPreviousModal('endTurn');
-			}, 500);
+		if (!currentMatch.outcome) {
+			if (isMatchWon && currentTurn?.activePlayer === user?.uid && !isConfirmModalOpen && !isEndTurnModalOpen) {
+				//	TODO: It feels abrupt showing this modal with no delay. In the long term, perhaps a fun victory animation?			
+				setTimeout(() => {
+					setIsEndTurnModalOpen(true);
+					setPreviousModal('endTurn');
+				}, 500);
+			} else if (isGameLost) {
+				setTimeout(() => {
+					setIsEndTurnModalOpen(true);
+					setPreviousModal('endTurn');
+				}, 500);
+			}
 		}
 	}, [board, currentRowIndex, currentMatch, db, setCurrentMatch, user?.uid, isConfirmModalOpen, isEndTurnModalOpen]);
 
@@ -536,7 +539,7 @@ function MatchView() {
 			setIsLoadingMatch(false);
 			setIsMatchModalOpen(true);
 			setPreviousModal('match');
-		} else if (isOpponentTurn && currentMatch.players?.guestId ) {
+		} else if (isOpponentTurn && currentMatch.players?.guestId) {
 			// TODO: The match modal currently "flashes" through other states while its requests are processed. Could use a loading throbber to hide the interstitial states.
 			setIsLoadingMatch(false);
 			setIsMatchModalOpen(true);
@@ -544,9 +547,6 @@ function MatchView() {
 		}
 	}, [currentMatch, user, isOpponentTurn]);
 
-	useEffect(() => {
-
-	}, []);
 
 	// TODO: This is essentially duplicated from MatchModal. Now that the lobby card modals are also being used here in MatchView, there may be a case for creating another store just for match state.
 	useEffect(() => {
@@ -751,8 +751,29 @@ function MatchView() {
 							shouldCloseOnOverlayClick={false}
 							hideCloseButton={true}
 							handleStartNewMatch={() => {}}
+							hideNewMatchButton={!!currentMatch?.outcome}
 							setIsForfeitModalOpen={setIsForfeitModalOpen}
-							handleReturn={() => navigate('/')}
+							handleReturn={async () => {
+								// TODO: This is almost exactly duplicated from MatchCard's "handleCardClick". Should be a way to DRY it up.
+								if (currentMatch.outcome) {
+									if (hasUserWonMatch(currentMatch, user.uid) && !currentMatch.isWinnerNotified) {
+										// TODO: Some kind of throbber will be necessary here
+										const currentMatchRef = doc(db, 'matches', currentMatch.id);
+						
+										await setDoc(
+											currentMatchRef,
+											{
+												isWinnerNotified: true,
+											},
+											{ merge: true },
+										);
+									}
+
+									navigate('/')
+								} else {
+									navigate('/')
+								}
+							}}
 							setIsCancelModalOpen={setIsCancelModalOpen}
 							onRequestClose={() => setIsMatchModalOpen(false)}
 						/>

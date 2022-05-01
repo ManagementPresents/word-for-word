@@ -79,6 +79,7 @@ const Register = ({ handleReturnClick }: Props) => {
 			*/
 
 			const newPlayer: Player = {
+				id: user.uid,
 				matches: [],
 				email: user.email as string,
 			};
