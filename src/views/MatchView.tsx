@@ -16,6 +16,7 @@ import WordleSentModal from '../components/modals/WordleSentModal';
 import ForfeitModal from '../components/modals/ForfeitModal';
 import MatchModal from '../components/modals/MatchModal';
 import CancelModal from '../components/modals/CancelModal';
+import ConfirmModal from '../components/modals/ConfirmModal';
 import Login from '../components/Login';
 import Register from '../components/Register';
 
@@ -27,6 +28,7 @@ import {
 	getCurrentTurn,
 	getMatchOpponentId,
 	determineMatchOutcome,
+	isPlayerCurrentTurn,
 } from '../utils/misc';
 import { LETTERS } from '../data/constants';
 import Turn from '../interfaces/Turn';
@@ -94,6 +96,8 @@ function MatchView() {
 		submittedInvalidWord: false,
 	};
 
+	const [previousModal, setPreviousModal] = useState('');
+	const [isOpponentTurn, setIsOpponentTurn] = useState(false);
 	const [currentRowIndex, setCurrentRowIndex] = useState(initialStates.currentRowIndex);
 	const [currentCol, setCurrentCol] = useState(initialStates.currentCol);
 	const [keyboardStatus, setKeyboardStatus] = useState(initialStates.keyboardStatus());
@@ -109,6 +113,7 @@ function MatchView() {
 	const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 	const [isMatchModalOpen, setIsMatchModalOpen] = useState(false);
 	const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+	const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
 	const navigate = useNavigate();
 
@@ -414,20 +419,19 @@ function MatchView() {
 			}
 		}
 
-		if (isMatchWon && currentTurn.activePlayer === user?.uid) {
-			/* 
-				TODO: It feels abrupt showing this modal with no delay.
-				In the long term, perhaps a fun victory animation? 
-			*/
+		if (isMatchWon && currentTurn?.activePlayer === user?.uid && !isConfirmModalOpen && !isEndTurnModalOpen) {
+			//	TODO: It feels abrupt showing this modal with no delay. In the long term, perhaps a fun victory animation?			
 			setTimeout(() => {
 				setIsEndTurnModalOpen(true);
+				setPreviousModal('endTurn');
 			}, 500);
 		} else if (isGameLost) {
 			setTimeout(() => {
 				setIsEndTurnModalOpen(true);
+				setPreviousModal('endTurn');
 			}, 500);
 		}
-	}, [board, currentRowIndex, currentMatch, db, setCurrentMatch, user?.uid]);
+	}, [board, currentRowIndex, currentMatch, db, setCurrentMatch, user?.uid, isConfirmModalOpen, isEndTurnModalOpen]);
 
 	useEffect(() => {
 		(async () => {
@@ -502,36 +506,55 @@ function MatchView() {
 
 	// For handling end game state changes and showing the correct 'game over' modals
 	useEffect(() => {
-		const hasCurrentMatch = Object.keys(currentMatch).length;
+		// TODO: This can probably be deleted, but it's staying until I'm sure that's the case
+		// const hasCurrentMatch = Object.keys(currentMatch).length;
 
-		if (hasCurrentMatch && currentMatch?.turns?.length && user) {
-			const currentTurn: Turn = getCurrentTurn(currentMatch.turns);
+		// if (hasCurrentMatch && currentMatch?.turns?.length && user) {
+		// 	const currentTurn: Turn = getCurrentTurn(currentMatch.turns);
 
-			if (
-				currentTurn.activePlayer &&
-				currentTurn.turnState === 'playing' &&
-				currentTurn.activePlayer !== user?.uid
-			) {
-				setIsEndTurnModalOpen(false);
-				setIsWordleSentModalOpen(true);
-				// TODO: This setOpenMatchLink thing probably needs to be abstracted
-				// @ts-ignore
-				setMatchLink(`${process.env.REACT_APP_URL}/match/${currentMatch.id}`);
-			}
-		}
+		// 	if (
+		// 		currentTurn.activePlayer &&
+		// 		currentTurn.turnState === 'playing' &&
+		// 		currentTurn.activePlayer !== user?.uid
+		// 	) {
+		// 		setIsEndTurnModalOpen(false);
+		// 		setIsWordleSentModalOpen(true);	
+		// 		// @ts-ignore
+		// 		setMatchLink(`${process.env.REACT_APP_URL}/match/${currentMatch.id}`);
+		// 	}
+		// }
 	}, [currentMatch, user]);
 
 	useEffect(() => {
 		// TODO: This could be simplified by having a single state variable that signifies whether or not any modal is open
-		setIsAModalOpen(isLandingModalOpen || isHowToPlayModalOpen || isEndTurnModalOpen || isWordleSentModalOpen || isLoginModalOpen || isRegisterModalOpen || isMatchModalOpen || isCancelModalOpen);
-	}, [isLandingModalOpen, isHowToPlayModalOpen, isEndTurnModalOpen, isWordleSentModalOpen, isLoginModalOpen, isRegisterModalOpen, isMatchModalOpen, isCancelModalOpen]);
+		setIsAModalOpen(isLandingModalOpen || isHowToPlayModalOpen || isEndTurnModalOpen || isWordleSentModalOpen || isLoginModalOpen || isRegisterModalOpen || isMatchModalOpen || isCancelModalOpen || isConfirmModalOpen);
+	}, [isLandingModalOpen, isHowToPlayModalOpen, isEndTurnModalOpen, isWordleSentModalOpen, isLoginModalOpen, isRegisterModalOpen, isMatchModalOpen, isCancelModalOpen, isConfirmModalOpen]);
 
 	useEffect(() => {
+		// You created the game, and no one has accepted it yet
 		if (!currentMatch.players?.guestId && user && currentMatch.players?.hostId === user?.uid) {
 			setIsLoadingMatch(false);
 			setIsMatchModalOpen(true);
+			setPreviousModal('match');
+		} else if (isOpponentTurn && currentMatch.players?.guestId ) {
+			// TODO: The match modal currently "flashes" through other states while its requests are processed. Could use a loading throbber to hide the interstitial states.
+			setIsLoadingMatch(false);
+			setIsMatchModalOpen(true);
+			setPreviousModal('match');
 		}
-	}, [currentMatch, user]);
+	}, [currentMatch, user, isOpponentTurn]);
+
+	useEffect(() => {
+
+	}, []);
+
+	// TODO: This is essentially duplicated from MatchModal. Now that the lobby card modals are also being used here in MatchView, there may be a case for creating another store just for match state.
+	useEffect(() => {
+		// TODO: This useEffect is running infinitely ... why?
+		if (Object.keys(currentMatch).length) {
+			setIsOpponentTurn(isPlayerCurrentTurn(currentMatch, opponentPlayer?.id as string));
+		}
+	}, [currentMatch, opponentPlayer]);
 
 	return (
 		<div className={`flex flex-col justify-between h-fill bg-background min-h-[100vh]`}>
@@ -551,7 +574,10 @@ function MatchView() {
 
 			<div className="flex items-center flex-col py-3 flex-1 justify-center relative">
 				{isLoadingMatch ? (
-					<Loading />
+					<Loading 
+						fullHeight={true}
+						enableCentering={true}
+					/>
 				) : (
 					<>
 						<div className="relative">
@@ -725,7 +751,7 @@ function MatchView() {
 							shouldCloseOnOverlayClick={false}
 							hideCloseButton={true}
 							handleStartNewMatch={() => {}}
-							setIsForfeitModalOpen={() => {}}
+							setIsForfeitModalOpen={setIsForfeitModalOpen}
 							handleReturn={() => navigate('/')}
 							setIsCancelModalOpen={setIsCancelModalOpen}
 							onRequestClose={() => setIsMatchModalOpen(false)}
@@ -748,10 +774,25 @@ function MatchView() {
 							nextWordle={nextWordle}
 							setNextWordle={setNextWordle}
 							setIsOpenMatchChallenge={setIsOpenMatchChallenge}
-							isLobbyReturn={true}
+							isLobbyReturn={false}
+							hideCloseButton={true}
 							returnAction={() => navigate('/lobby')}
 							shouldCloseOnOverlayClick={false}
+							setMatchLink={setMatchLink}
 							setIsForfeitModalOpen={setIsForfeitModalOpen}
+							setIsConfirmModalOpen={setIsConfirmModalOpen}
+							setIsWordleSentModalOpen={setIsWordleSentModalOpen}
+						/>
+
+						<ConfirmModal 
+							isOpen={isConfirmModalOpen}
+							handleReturn={() => {
+								setIsEndTurnModalOpen(true);
+								setIsConfirmModalOpen(false);
+							}}
+							handleConfirm={() => navigate('/')}
+							shouldCloseOnOverlayClick={false}
+							hideCloseButton={true}
 						/>
 
 						<NewMatchModal
@@ -780,10 +821,17 @@ function MatchView() {
 							onRequestClose={() => { setIsForfeitModalOpen(false) }}
 							setIsEndTurnModalOpen={setIsEndTurnModalOpen}
 							shouldCloseOnOverlayClick={false}
-							isLobbyReturn={true}
+							isLobbyReturn={false}
+							hideCloseButton={true}
 							handleKeepPlaying={() => {
-								setIsForfeitModalOpen(false);
-								setIsEndTurnModalOpen(true);
+								if (previousModal === 'endTurn') {
+									setIsForfeitModalOpen(false);
+									setIsEndTurnModalOpen(true);
+									setPreviousModal('');
+								} else if (previousModal === 'match') {
+									navigate('/');
+									setPreviousModal('');
+								}
 							}}
 						/>
 

@@ -41,6 +41,7 @@ const Lobby = () => {
 	const [isForfeitModalOpen, setIsForfeitModalOpen] = useState(false);
 	const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 	const [nextWordle, setNextWordle] = useState('');
+	const [matchLink, setMatchLink] = useState('');
 
 	const keyMap = {};
 	
@@ -76,7 +77,7 @@ const Lobby = () => {
 			}, TIMEOUT_DURATION);
 
 			(async () => {
-				// TODO: Data like the user's "player" objecet should be cached, and updated when changes happen in firebase
+				// TODO: Data like the user's "player" object should be cached, and updated when changes happen in firebase
 				const playerRef = doc(db, 'players', user.uid);
 				const playerSnap = await getDoc(playerRef);
 
@@ -227,7 +228,7 @@ const Lobby = () => {
 
 	const handleMatchBox = () => {
 		// TODO: There is some kind of over-rendering nonsense going on here
-		if (isLoadingMatches) return <Loading enableCentering={false} />;
+		if (isLoadingMatches) return <Loading fullHeight={true} enableCentering={false} />;
 
 		return Object.keys(matches).length ? (
 			<Fragment>{renderMatches(matches)}</Fragment>
@@ -290,18 +291,19 @@ const Lobby = () => {
 				nextWordle={nextWordle}
 				setNextWordle={setNextWordle}
 				lazyLoadOpponentPlayer={true}
-				isLobbyReturn={true}
+				isLobbyReturn={false}
 				returnAction={() => setIsEndTurnModalOpen(false)}
 				// TODO: A bit confusing that these don't have the same name
 				setIsOpenMatchChallenge={setIsNewMatchModalOpen}
 				setIsForfeitModalOpen={setIsForfeitModalOpen}
+				setMatchLink={setMatchLink}
 			/>
 
 			<WordleSentModal 
 				nextWordle={nextWordle}
 				isOpen={isWordleSentModalOpen}
 				onRequestClose={() => setIsWordleSentModalOpen(false)}
-				matchLink={`${process.env.REACT_APP_URL}/match/${currentMatch.id}`}
+				matchLink={matchLink}
 				returnAction={() => setIsWordleSentModalOpen(false)}
 			/>
 
@@ -311,8 +313,7 @@ const Lobby = () => {
 				setIsEndTurnModalOpen={setIsEndTurnModalOpen}
 				handleKeepPlaying={() => {
 					setIsForfeitModalOpen(false);
-					// TODO: Figure out how best to determine what modal needs to be opened again
-					// setIsEndTurnModalOpen(true);
+					setIsMatchModalOpen(true);
 				}}
 			/>
 

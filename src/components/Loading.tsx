@@ -1,9 +1,17 @@
 // import { Navigate } from 'react-router-dom';
 import { Ripple } from 'react-spinners-css';
 
-const Loading = ({ enableCentering }: any) => {
+interface Props {
+	enableCentering: boolean;
+	fullHeight: boolean;
+}
+
+const Loading = ({ 
+	enableCentering,
+	fullHeight,
+ }: Props) => {
 	return (
-		<div className={`grid h-screen ${enableCentering ? 'place-items-center' : ''}`}>
+		<div className={`grid ${fullHeight && 'h-screen'} ${enableCentering && 'place-items-center'}`}>
 			<Ripple color={'#FFCE47'} size={200} />
 		</div>
 	);

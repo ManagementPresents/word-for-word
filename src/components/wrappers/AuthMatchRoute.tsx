@@ -73,7 +73,7 @@ const AuthRoute = ({ children, redirectTo }: any) => {
 		})();
 	}, [user, setIsLoading, db, navigate, params, redirectTo, setCurrentMatch, matchId]);
 
-	return isLoading && !user && hasMatchId ? <Loading /> : children;
+	return isLoading && !user && hasMatchId ? <Loading fullHeight={true} enableCentering={true}/> : children;
 };
 
 export default AuthRoute;
