@@ -27,6 +27,7 @@ interface Props {
 	handleStartNewMatch: any;
 	setIsForfeitModalOpen: any;
 	setIsCancelModalOpen: any;
+	hideNewMatchButton?: boolean;
 	handleReturn?: any;
 	onRequestClose?: any;
 	shouldCloseOnOverlayClick?: any;
@@ -42,6 +43,7 @@ const MatchModal: FC<Props> = ({
 	shouldCloseOnOverlayClick,
 	hideCloseButton,
 	handleReturn,
+	hideNewMatchButton,
 }: Props) => {
 	const { 
 		currentMatch, 
@@ -116,7 +118,7 @@ const MatchModal: FC<Props> = ({
 						/>
 					}
 
-					{currentMatch.outcome &&
+					{(currentMatch.outcome && !hideNewMatchButton) &&
 						<Button
 							customStyle="green-button"
 							copy="Start a New Match"
@@ -181,7 +183,7 @@ const MatchModal: FC<Props> = ({
 		const isSelectedMatch = Object.keys(currentMatch).length;
 
 		if (isSelectedMatch) {
-			const renderedTurns = currentMatch?.turns.map((turn: Turn) => {
+			const renderedTurns = currentMatch?.turns?.map((turn: Turn) => {
 				const guessesArray: Cell[][] = numericalObjToArray(turn.guesses) as Cell[][];
 
 				return (

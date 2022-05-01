@@ -313,6 +313,8 @@ const EndTurnModal: FC<Props> = ({
 				} else if (currentMatch.outcome === MatchOutcome.GUEST_FORFEIT) {
 					// TODO: Do we need special copy for if your opponent forfeits?
 					setHasUserForfeit(true);
+				} else if (currentMatch.outcome === MatchOutcome.HOST_WIN) {
+					setHasUserLost(true);
 				}
 			}
 		}

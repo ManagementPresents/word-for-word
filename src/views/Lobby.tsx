@@ -105,7 +105,7 @@ const Lobby = () => {
 						);
 
 						const opponentPlayersArray: Player[] = await Promise.all(
-							playerMatches.map(async (match: Match): Promise<Player> => {
+							playerMatches?.map(async (match: Match): Promise<Player> => {
 								const matchOpponentId = getMatchOpponentId(user, match);
 
 								if (matchOpponentId) {
@@ -216,7 +216,7 @@ const Lobby = () => {
 			matchesArray.push(matches[matchId]);
 		}
 
-		return matchesArray.map((match) => (
+		return matchesArray?.map((match) => (
 			<MatchCard
 				match={match}
 				isMatchModalOpen={isMatchModalOpen}

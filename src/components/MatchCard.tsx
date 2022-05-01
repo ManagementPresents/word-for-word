@@ -133,6 +133,8 @@ const MatchCard: FC<Props> = ({
 					},
 					{ merge: true },
 				);
+
+				setCurrentMatch({ ...match, isWinnerNotified: true });
 			}
 
 			setIsMatchModalOpen(true);
