@@ -30,7 +30,8 @@ const Lobby = () => {
 		matches, 
 		setMatches, 
 		setMatchOpponents, 
-		currentMatch 
+		currentMatch,
+		previousModal,
 	} = useStore();
 
 	const [isNewMatchModalOpen, setIsNewMatchModalOpen] = useState(false);
@@ -40,6 +41,7 @@ const Lobby = () => {
 	const [isWordleSentModalOpen, setIsWordleSentModalOpen] = useState(false);
 	const [isForfeitModalOpen, setIsForfeitModalOpen] = useState(false);
 	const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+	const [userIsInMatch, setUserIsInMatch] = useState(false);
 	const [nextWordle, setNextWordle] = useState('');
 	const [matchLink, setMatchLink] = useState('');
 
@@ -181,7 +183,8 @@ const Lobby = () => {
 				currentTurn.activePlayer &&
 				currentTurn.turnState === 'playing' &&
 				currentTurn.activePlayer !== user.uid &&
-				isEndTurnModalOpen
+				isEndTurnModalOpen &&
+				previousModal !== 'forfeit'
 			) {
 				setIsEndTurnModalOpen(false);
 				setIsWordleSentModalOpen(true);
@@ -189,17 +192,17 @@ const Lobby = () => {
 		}
 	}, [currentMatch, user, isEndTurnModalOpen]);
 
+	useEffect(() => {
+		// TODO: this is a direct copy from MatchView. DRY it up.
+		if (currentMatch?.players) {
+			setUserIsInMatch(Object.values(currentMatch?.players).some((playerId) => user?.uid === playerId));
+		}
+	}, [currentMatch.players, user?.uid]);
+
 	const handleStartNewMatch = () => {
 		// TODO: The idea here is totally reset the game creation modal whenever it is closed. There may be a more elegant way to handle this.
-		// setIsOpenMatch(false);
-		// setOpenMatchLink('');
-		// setIsGenerateLinkReady(false);
-		// setIsGeneratingLink(false);
-		// setWordleValidationErrors([]);
-		// setWordle('');
 		handleMatchModalClose();
 		setIsNewMatchModalOpen(true);
-		// handleValidateWordle();
 	};
 
 	const handleNewMatchModalClose = () => {
@@ -283,6 +286,7 @@ const Lobby = () => {
 				handleStartNewMatch={handleStartNewMatch}
 				setIsForfeitModalOpen={setIsForfeitModalOpen}
 				setIsCancelModalOpen={setIsCancelModalOpen}
+				userIsInMatch={userIsInMatch}
 			/>
 
 			<EndTurnModal
@@ -309,7 +313,9 @@ const Lobby = () => {
 
 			<ForfeitModal 
 				isOpen={isForfeitModalOpen}
-				onRequestClose={() => setIsForfeitModalOpen(false)}
+				onRequestClose={() => {
+					setIsForfeitModalOpen(false);
+				}}
 				setIsEndTurnModalOpen={setIsEndTurnModalOpen}
 				handleKeepPlaying={() => {
 					setIsForfeitModalOpen(false);

@@ -76,6 +76,8 @@ const getMatchOpponentId = (user: any, match: Match): string => {
 };
 
 const isPlayerCurrentTurn = (match: Match = {} as Match, id: string): boolean => {
+	if (!Object.keys(match).length || !id) return false;
+	
 	const currentTurn: Turn = getCurrentTurn(match.turns) as Turn;
 	
 	return currentTurn?.activePlayer === id;

@@ -38,7 +38,6 @@ import Player from '../interfaces/Player';
 import Cell from '../interfaces/Cell';
 
 import { ReactComponent as Lobby } from '../assets/Lobby.svg';
-import { match } from 'assert';
 
 const words = require('../data/words').default as { [key: string]: boolean };
 
@@ -98,7 +97,6 @@ function MatchView() {
 		submittedInvalidWord: false,
 	};
 
-	const [previousModal, setPreviousModal] = useState('');
 	const [isOpponentTurn, setIsOpponentTurn] = useState(false);
 	const [currentRowIndex, setCurrentRowIndex] = useState(initialStates.currentRowIndex);
 	const [currentCol, setCurrentCol] = useState(initialStates.currentCol);
@@ -108,6 +106,7 @@ function MatchView() {
 	);
 	const [nextWordle, setNextWordle] = useState('');
 	const [matchLink, setMatchLink] = useState('');
+	const [userIsInMatch, setUserIsInMatch] = useState(false);
 	const [isOpenMatchChallenge, setIsOpenMatchChallenge] = useState(false);
 	const [isAModalOpen, setIsAModalOpen] = useState(false);
 	const [isForfeitModalOpen, setIsForfeitModalOpen] = useState(false);
@@ -316,6 +315,8 @@ function MatchView() {
 		opponentPlayer,
 		currentMatch,
 		user,
+		previousModal,
+		setPreviousModal,
 		inviteMatchId,
 		setCurrentMatch,
 		setCurrentTurn,
@@ -383,169 +384,172 @@ function MatchView() {
 	};
 
 	useEffect(() => {
-		const reversedBoard = board.slice().reverse();
-		const lastFilledRow = reversedBoard.find((row) => {
-			return row.every((cell) => cell.status !== 'unguessed');
-		});
+		// Handle match victory/loss states
+		if (Object.keys(currentMatch).length) {
+			const reversedBoard = board.slice().reverse();
+			const lastFilledRow = reversedBoard.find((row) => {
+				return row.every((cell) => cell.status !== 'unguessed');
+			});
 
-		const isMatchWon: boolean = (lastFilledRow && isRowAllGreen(lastFilledRow)) as boolean;
-		const isGameLost: boolean = ((currentRowIndex === 6) && !isMatchWon) as boolean;
+			const isMatchWon: boolean = (lastFilledRow && isRowAllGreen(lastFilledRow)) as boolean;
+			const isGameLost: boolean = ((currentRowIndex === 6) && !isMatchWon) as boolean;
 
-		const currentTurn = getCurrentTurn(currentMatch.turns);
+			const currentTurn = getCurrentTurn(currentMatch.turns);
 
-		if (isGameLost) {
-			if (!currentMatch.outcome) {
-				const currentMatchRef = doc(db, 'matches', currentMatch.id);
-				const outcome = determineMatchOutcome(currentMatch);
+			if (isGameLost) {
+				if (!currentMatch.outcome) {
+					const currentMatchRef = doc(db, 'matches', currentMatch.id);
+					const outcome = determineMatchOutcome(currentMatch);
 
-				// TODO: Update local state AND firestore. this feels ... fragile, to say the least
-				setCurrentMatch({
-					...currentMatch,
-					outcome,
-				});
+					// TODO: Update local state AND firestore. this feels ... fragile, to say the least
+					setCurrentMatch({
+						...currentMatch,
+						outcome,
+					});
 
-				/*
-					TODO: In a perfect world, anything that has to do with determining fundamental game logic should probably not be present in the client. This should be abstracted out to an end point
-				*/
+					/*
+						TODO: In a perfect world, anything that has to do with determining fundamental game logic should probably not be present in the client. This should be abstracted out to an end point
+					*/
 
-				(async () => {
-					await setDoc(
-						currentMatchRef,
-						{
-							outcome,
-						},
-						{ merge: true },
-					);
-				})();
+					(async () => {
+						await setDoc(
+							currentMatchRef,
+							{
+								outcome,
+							},
+							{ merge: true },
+						);
+					})();
+				}
 			}
-		}
 
-		if (!currentMatch.outcome) {
-			if (isMatchWon && currentTurn?.activePlayer === user?.uid && !isConfirmModalOpen && !isEndTurnModalOpen) {
-				//	TODO: It feels abrupt showing this modal with no delay. In the long term, perhaps a fun victory animation?			
-				setTimeout(() => {
-					setIsEndTurnModalOpen(true);
-					setPreviousModal('endTurn');
-				}, 500);
-			} else if (isGameLost) {
-				setTimeout(() => {
-					setIsEndTurnModalOpen(true);
-					setPreviousModal('endTurn');
-				}, 500);
+			if (!currentMatch.outcome) {
+				if (isMatchWon && currentTurn?.activePlayer === user?.uid && !isConfirmModalOpen && !isEndTurnModalOpen) {
+					//	TODO: It feels abrupt showing this modal with no delay. In the long term, perhaps a fun victory animation?			
+					setTimeout(() => {
+						setIsLoadingMatch(false);
+						setIsEndTurnModalOpen(true);
+						setPreviousModal('endTurn');
+					}, 500);
+				} else if (isGameLost) {
+					setTimeout(() => {
+						setIsLoadingMatch(false);
+						setIsEndTurnModalOpen(true);
+						setPreviousModal('endTurn');
+					}, 500);
+				}
+			} else {
+				setIsLoadingMatch(false);
+				setIsMatchModalOpen(true);
 			}
 		}
 	}, [board, currentRowIndex, currentMatch, db, setCurrentMatch, user?.uid, isConfirmModalOpen, isEndTurnModalOpen]);
 
 	useEffect(() => {
+		if (currentMatch?.players) {
+			setUserIsInMatch(Object.values(currentMatch?.players).some((playerId) => user?.uid === playerId));
+		}
+	}, [currentMatch.players, user?.uid]);
+
+	useEffect(() => {
+		// This handles match logic specific to whether or not you are the host or guest, or are logged in/logged out
 		(async () => {
 			// TODO: This runs every time there's an update to user. This could potentially lead to this running multiple times, which would not be good.
+			const userIsHost = currentMatch?.players?.hostId === user?.uid;
+
 			if (user) {
+				// These clear out the login/register modals in the case that the user hit the /match page, was not logged in/registered, and logged in/registered using the modal flow
 				setIsLoginModalOpen(false);
 				setIsRegisterModalOpen(false);
 
-				const matchDocRef = doc(db, 'matches', params.matchId || '');
-				const matchDocSnap = await getDoc(matchDocRef);
+				// You are logged in...
+				if (userIsHost) {
+					// ... you created the game...
+					if (!currentMatch.players?.guestId) {
+						// ... and no one has accepted it
+						setIsLoadingMatch(false);
+						setIsMatchModalOpen(true);
+						setPreviousModal('match');
+					}
+				} else if (!currentMatch.players?.guestId) {
+					// ... you did not create the game, and no one has accepted it ...
+					const opponentPlayerDocRef = doc(db, 'players', getMatchOpponentId(user, currentMatch));
+					const opponentPlayerSnap = await getDoc(opponentPlayerDocRef);
 
-				/*
-                    TODO: There's probably a neater way to handle multiple, sequential,
-                    doc retrievals. Something like 'async.parallel', but for awaits
-                */
-				if (matchDocSnap.exists()) {
-					const matchData: Match = matchDocSnap.data() as Match;
-					const hasCurrentMatch = Object.keys(currentMatch).length;
+					if (opponentPlayerSnap.exists()) {
+						const opponentPlayerData: Player = opponentPlayerSnap.data() as Player;
 
-					if (!hasCurrentMatch) setCurrentMatch(matchData);
+						setOpponentPlayer(opponentPlayerData);
 
-					const currentTurn: Turn = getCurrentTurn(matchData.turns);
-
-					if (currentTurn) {
-						// TODO: The capitalization for the wordle needs to be standardized universally, at some point
-						setAnswer(currentTurn.wordle.toUpperCase());
-
-						const opponentPlayerDocRef = doc(db, 'players', getMatchOpponentId(user, matchData));
-						const opponentPlayerSnap = await getDoc(opponentPlayerDocRef);
-
-						if (opponentPlayerSnap.exists()) {
-							const opponentPlayerData: Player = opponentPlayerSnap.data() as Player;
-
-							setOpponentPlayer(opponentPlayerData);
-
-							if (!currentTurn.activePlayer) {
-								// TODO: Need a loading throbber or something for the landing modal
-								setIsLandingModalOpen(true);
-							} else {
-								// TODO: There's probably a need for a loading screen over the entire match while all these async actions happen
-								const guessArray: Cell[][] = numericalObjToArray(
-									currentTurn.guesses,
-								);
-								const newBoard: Cell[][] = board.map(
-									(row: Cell[], index: number) => {
-										if (guessArray[index]) return guessArray[index];
-
-										return row;
-									},
-								);
-
-								const hasKeyboardStatus = Object.keys(
-									currentTurn.keyboardStatus,
-								).length;
-
-								if (hasKeyboardStatus) setKeyboardStatus(currentTurn.keyboardStatus);
-								
-								setCurrentRowIndex(guessArray.length);
-								setBoard(newBoard);
-							}
-
+						if (!currentMatch.players?.guestId) {
+							// ... you have not accepted the match
 							setIsLoadingMatch(false);
+							setIsLandingModalOpen(true);
+							setPreviousModal('landing');
 						}
+					} else {
+						console.log('error trying to get the opponent');
 					}
 				}
 			} else if (inviteMatchId) {
+				// You are not logged in, and you opened /match/:matchId ...
 				setIsLoadingMatch(false);
 				setIsLoginModalOpen(true);
+				setPreviousModal('login')
 			}
 		})();
 	}, [user, board, currentMatch, db, params.matchId, setCurrentMatch, setOpponentPlayer, inviteMatchId]);
 
-	// For handling end game state changes and showing the correct 'game over' modals
 	useEffect(() => {
-		// TODO: This can probably be deleted, but it's staying until I'm sure that's the case
-		// const hasCurrentMatch = Object.keys(currentMatch).length;
+		// Handles game state based on whether or not the user is the active player
+		// This presupposes the user is authenticated and the match has been accepted
+		if (user && currentMatch.players?.guestId) {
+			const currentTurn: Turn = getCurrentTurn(currentMatch?.turns);
+			const userIsActivePlayer = isPlayerCurrentTurn(currentMatch, user?.uid);
+	
+			if (userIsActivePlayer) {
+				if (!currentTurn.hasActivePlayerStartedTurn && !Object.keys(currentTurn.guesses).length) {
+					// Your opponent has guessed your word and sent you a new word, but you haven't started guessing yet
+					if (previousModal !== 'landing') {
+						// if you go to /match/:matchId while not logged in, log in there, then accept the match, the match modal will pop up unnecessarily. this prevents that
+						setIsMatchModalOpen(true);
+					}
+				}
 
-		// if (hasCurrentMatch && currentMatch?.turns?.length && user) {
-		// 	const currentTurn: Turn = getCurrentTurn(currentMatch.turns);
+				setIsLoadingMatch(false);
 
-		// 	if (
-		// 		currentTurn.activePlayer &&
-		// 		currentTurn.turnState === 'playing' &&
-		// 		currentTurn.activePlayer !== user?.uid
-		// 	) {
-		// 		setIsEndTurnModalOpen(false);
-		// 		setIsWordleSentModalOpen(true);	
-		// 		// @ts-ignore
-		// 		setMatchLink(`${process.env.REACT_APP_URL}/match/${currentMatch.id}`);
-		// 	}
-		// }
-	}, [currentMatch, user]);
+				setAnswer(currentTurn?.wordle?.toUpperCase());
+	
+				const guessArray: Cell[][] = numericalObjToArray(
+					currentTurn.guesses,
+				);
+				const newBoard: Cell[][] = board.map(
+					(row: Cell[], index: number) => {
+						if (guessArray[index]) return guessArray[index];
+	
+						return row;
+					},
+				);
+	
+				const hasKeyboardStatus = Object.keys(
+					currentTurn.keyboardStatus,
+				).length;
+	
+				if (hasKeyboardStatus) setKeyboardStatus(currentTurn.keyboardStatus);
+				
+				setCurrentRowIndex(guessArray.length);
+				setBoard(newBoard);
+			} else {
+				setIsLoadingMatch(false);
+				setIsMatchModalOpen(true);
+			}
+		}
+	}, [currentMatch, user?.uid]); // eslint-disable-line
 
 	useEffect(() => {
 		// TODO: This could be simplified by having a single state variable that signifies whether or not any modal is open
-		setIsAModalOpen(isLandingModalOpen || isHowToPlayModalOpen || isEndTurnModalOpen || isWordleSentModalOpen || isLoginModalOpen || isRegisterModalOpen || isMatchModalOpen || isCancelModalOpen || isConfirmModalOpen);
-	}, [isLandingModalOpen, isHowToPlayModalOpen, isEndTurnModalOpen, isWordleSentModalOpen, isLoginModalOpen, isRegisterModalOpen, isMatchModalOpen, isCancelModalOpen, isConfirmModalOpen]);
-
-	useEffect(() => {
-		// You created the game, and no one has accepted it yet
-		if (!currentMatch.players?.guestId && user && currentMatch.players?.hostId === user?.uid) {
-			setIsLoadingMatch(false);
-			setIsMatchModalOpen(true);
-			setPreviousModal('match');
-		} else if (isOpponentTurn && currentMatch.players?.guestId) {
-			// TODO: The match modal currently "flashes" through other states while its requests are processed. Could use a loading throbber to hide the interstitial states.
-			setIsLoadingMatch(false);
-			setIsMatchModalOpen(true);
-			setPreviousModal('match');
-		}
-	}, [currentMatch, user, isOpponentTurn]);
+		setIsAModalOpen(isLandingModalOpen || isHowToPlayModalOpen || isEndTurnModalOpen || isWordleSentModalOpen || isLoginModalOpen || isRegisterModalOpen || isMatchModalOpen || isCancelModalOpen || isConfirmModalOpen || isOpenMatchChallenge);
+	}, [isLandingModalOpen, isHowToPlayModalOpen, isEndTurnModalOpen, isWordleSentModalOpen, isLoginModalOpen, isRegisterModalOpen, isMatchModalOpen, isCancelModalOpen, isConfirmModalOpen, isOpenMatchChallenge]);
 
 
 	// TODO: This is essentially duplicated from MatchModal. Now that the lobby card modals are also being used here in MatchView, there may be a case for creating another store just for match state.
@@ -726,10 +730,13 @@ function MatchView() {
 							shouldCloseOnOverlayClick={false}
 							hideCloseButton={true}
 						>
-							<Login handleRegisterClick={() => { 
-								setIsLoginModalOpen(false);
-								setIsRegisterModalOpen(true);
-							}}/>
+							<Login 
+								handleRegisterClick={() => { 
+									setIsLoginModalOpen(false);
+									setIsRegisterModalOpen(true);
+								}}
+								setIsLoadingMatch={setIsLoadingMatch}
+							/>
 						</Modal>
 
 						<Modal
@@ -740,19 +747,27 @@ function MatchView() {
 							shouldCloseOnOverlayClick={false}
 							hideCloseButton={true}
 						>
-							<Register handleReturnClick={() => { 
-								setIsRegisterModalOpen(false);
-								setIsLoginModalOpen(true);
-							}}/>
+							<Register 
+								handleReturnClick={() => { 
+									setIsRegisterModalOpen(false);
+									setIsLoginModalOpen(true);
+								}}
+								setIsLoadingMatch={setIsLoadingMatch}
+							/>
 						</Modal>
 
 						<MatchModal
 							isOpen={isMatchModalOpen}
 							shouldCloseOnOverlayClick={false}
 							hideCloseButton={true}
-							handleStartNewMatch={() => {}}
-							hideNewMatchButton={!!currentMatch?.outcome}
+							handleStartNewMatch={() => {
+								setIsOpenMatchChallenge(true);
+								setIsMatchModalOpen(false);
+								setPreviousModal('match');
+							}}
+							hideNewMatchButton={!currentMatch?.outcome}
 							setIsForfeitModalOpen={setIsForfeitModalOpen}
+							userIsInMatch={userIsInMatch}
 							handleReturn={async () => {
 								// TODO: This is almost exactly duplicated from MatchCard's "handleCardClick". Should be a way to DRY it up.
 								if (currentMatch.outcome) {
@@ -803,6 +818,7 @@ function MatchView() {
 							setIsForfeitModalOpen={setIsForfeitModalOpen}
 							setIsConfirmModalOpen={setIsConfirmModalOpen}
 							setIsWordleSentModalOpen={setIsWordleSentModalOpen}
+							setIsMatchModalOpen={setIsMatchModalOpen}
 						/>
 
 						<ConfirmModal 
@@ -820,11 +836,17 @@ function MatchView() {
 							isOpen={isOpenMatchChallenge}
 							onRequestClose={() => console.log('close')}
 							returnAction={() => {
-								setIsOpenMatchChallenge(false);
-								setIsEndTurnModalOpen(true);
+								if (previousModal === 'match') {
+									setIsOpenMatchChallenge(false);
+									setIsMatchModalOpen(true);
+								} else {
+									setIsOpenMatchChallenge(false);
+									setIsEndTurnModalOpen(true);
+								}
 							}}
+							hideCloseButton={true}
 							returnCopy={'Return'}
-							isLobbyReturn={true}
+							isLobbyReturn={false}
 						/>
 
 						<WordleSentModal 

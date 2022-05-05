@@ -27,6 +27,7 @@ interface Props {
 	setMatchLink: Dispatch<SetStateAction<string>>;
 	setIsOpenMatchChallenge: Dispatch<SetStateAction<boolean>>;
 	setIsForfeitModalOpen: Dispatch<SetStateAction<boolean>>;
+	setIsMatchModalOpen?: Dispatch<SetStateAction<boolean>>;
 	setIsWordleSentModalOpen?: Dispatch<SetStateAction<boolean>>;
 	hideCloseButton?: boolean;
 	setIsConfirmModalOpen?: Dispatch<SetStateAction<boolean>>;
@@ -50,6 +51,7 @@ const EndTurnModal: FC<Props> = ({
 	setIsForfeitModalOpen,
 	setIsWordleSentModalOpen = () => {},
 	setIsConfirmModalOpen = () => {},
+	setIsMatchModalOpen = () => {},
 }: Props) => {
 	const { 
 		opponentPlayer, 
@@ -125,6 +127,7 @@ const EndTurnModal: FC<Props> = ({
 		setCurrentMatch({ ...currentMatch, turns: newTurns });
 		setIsSendingWordle(false);
 		setIsWordleSentModalOpen(true);	
+		setIsMatchModalOpen(false);
 		// @ts-ignore
 		setMatchLink(`${process.env.REACT_APP_URL}/match/${currentMatch.id}`);
 		onRequestClose();

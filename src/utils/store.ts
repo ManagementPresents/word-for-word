@@ -19,6 +19,7 @@ interface State {
 	// All the people you are currently involved in matches with
 	matchOpponents: Players;
 	inviteMatchId: string;
+	previousModal: string;
 	removeMatchById: any;
 	setMatchOpponents: any;
 	setOpponentPlayer: any;
@@ -30,6 +31,7 @@ interface State {
 	setIsLoading: any;
 	setMatches: any;
 	setInviteMatchId: any;
+	setPreviousModal: any;
 }
 
 const useStore = create<State>((set, get) => ({
@@ -43,6 +45,7 @@ const useStore = create<State>((set, get) => ({
 	matches: {},
 	opponentPlayer: {} as Player,
 	hasCheckedUser: false,
+	previousModal: '',
 	setInviteMatchId: (inviteMatchId: string) => set({ inviteMatchId }),
 	setHasCheckedUser: (hasCheckedUser: boolean) => set({ hasCheckedUser }),
 	setOpponentPlayer: (opponentPlayer: Player) => set({ opponentPlayer }),
@@ -66,6 +69,7 @@ const useStore = create<State>((set, get) => ({
 			matches,
 		});
 	},
+	setPreviousModal: (previousModal: string) => set({ previousModal }),
 	setMatches: (matches: {}) => set({ matches }),
 	setIsLoading: (isLoading: boolean) => set({ isLoading }),
 	setUser: (user: any) => set({ user }),

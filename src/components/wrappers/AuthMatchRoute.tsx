@@ -52,22 +52,12 @@ const AuthRoute = ({ children, redirectTo }: any) => {
 
 				if (match.exists()) {
 					const matchData: Match = match.data() as Match;
-					// const isUserTurn: boolean = isPlayerCurrentTurn(matchData, user.uid);
-					// const { players, outcome } = matchData;
 
 					setIsLoading(false);
 					// @ts-ignore
 					setHasMatchId(true);
 
 					setCurrentMatch(matchData);
-					// if (outcome) {
-					// 	// navigate('/');
-					// 	console.log('OH FUCK STICKS');
-					// } else if (isUserTurn || (user.uid !== players.hostId && !players.guestId)) {
-					// 	setCurrentMatch(matchData);
-					// } else {
-					// 	// navigate('/');
-					// }
 				} else {
 					navigate(redirectTo);
 				}

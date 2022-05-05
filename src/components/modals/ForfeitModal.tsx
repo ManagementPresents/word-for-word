@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { doc, setDoc } from 'firebase/firestore';
 import { useState } from 'react';
 
@@ -32,10 +32,15 @@ const ForfeitModal: FC<Props> = ({
         setCurrentMatch,
         currentMatch,
         db,
-        user
+        user,
+        setPreviousModal,
     } = useStore();
 
     const [isForfeiting, setIsForfeiting] = useState(false);
+
+    useEffect(() => {
+        setPreviousModal('forfeit');
+    }, []);
 
     const handleForfeit = async () => {
         const { players } = currentMatch;
@@ -55,7 +60,6 @@ const ForfeitModal: FC<Props> = ({
         );
 
         // TODO: It continues to feel fragile, manually updating the 'global' state after making firestore calls. What would likely be better is ensuring these updates happen in one of the firestore document change event listeners, so it's automatic.
-
         setCurrentMatch({
             ...currentMatch,
             outcome

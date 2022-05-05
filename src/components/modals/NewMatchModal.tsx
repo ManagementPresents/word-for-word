@@ -17,6 +17,7 @@ import { validateWordle } from '../../utils/validation';
 interface Props {
 	isOpen: boolean;
 	onRequestClose: any;
+	hideCloseButton?: boolean;
 	returnAction?: any;
 	returnCopy: string;
 	isLobbyReturn?: boolean;
@@ -28,6 +29,7 @@ const NewMatchModal: FC<Props> = ({
 	returnAction,
 	returnCopy,
 	isLobbyReturn,
+	hideCloseButton,
 }: Props) => {
 	const [isSpecificPlayer, setIsSpecificPlayer] = useState(false);
 	const [openMatchLink, setOpenMatchLink] = useState('');
@@ -120,7 +122,7 @@ const NewMatchModal: FC<Props> = ({
 	};
 
 	return (
-		<Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={isLobbyReturn}>
+		<Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={isLobbyReturn} hideCloseButton={hideCloseButton}>
 			{!isSpecificPlayer && !isOpenMatch && (
 				<>
 					<h2 className="modal-header">Start a New Match</h2>
