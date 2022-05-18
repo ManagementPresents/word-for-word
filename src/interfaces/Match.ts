@@ -9,6 +9,7 @@ interface Match {
 	};
 	turns: Turn[];
 	isWinnerNotified: boolean;
+	wordList: string;
 }
 
 export default Match;

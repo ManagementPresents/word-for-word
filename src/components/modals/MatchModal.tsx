@@ -8,9 +8,11 @@ import Modal from './Modal';
 import WordleHistory from '../WordleHistory';
 import Loading from '../Loading';
 
+import { WORD_LISTS } from '../../data/constants';
 import Player from '../../interfaces/Player';
 import Turn from '../../interfaces/Turn';
 import Cell from '../../interfaces/Cell';
+import WordList from '../../interfaces/WordList';
 import useStore from '../../utils/store';
 import {
 	createMatchUrl,
@@ -60,6 +62,7 @@ const MatchModal: FC<Props> = ({
 	const [isOpponentTurn, setIsOpponentTurn] = useState(false);
 	const [hasUserWon, setHasUserWon] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
+	const [currentWordList, setCurrentWordList] = useState({} as WordList);
 
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -294,6 +297,15 @@ const MatchModal: FC<Props> = ({
 	};
 
 	useEffect(() => {
+		// TODO: This exact useEffect is copy/pasted across the app
+		if (Object.keys(currentMatch)) {
+			const wordListObj = WORD_LISTS.find((wordList) => wordList.name === currentMatch.wordList) as WordList;
+
+			setCurrentWordList(wordListObj);
+		}
+	}, [currentMatch]);
+
+	useEffect(() => {
 		const matchOpponentId = getMatchOpponentId(user, currentMatch);
 
 		if (Object.keys(matchOpponents).length) {
@@ -337,6 +349,16 @@ const MatchModal: FC<Props> = ({
 					{userIsInMatch && <div className="flex flex-col justify-center gap-y-2 ">{renderTurns()}</div>}
 
 					{renderMatchCopy()}
+
+
+					<div className="flex flex-col gap-y-1">
+						<div className="flex flex-row gap-x-1 justify-center">
+							<span className="text-lg">Word List:</span>
+							<span className="text-lg uppercase text-[#15B097]">{currentMatch?.wordList}</span>
+						</div>
+
+						<p className="text-sm text-gray-400">{currentWordList?.description}</p>
+					</div>
 
 					<div className="modal-label">
 						{(!currentMatch.outcome && userIsInMatch) &&

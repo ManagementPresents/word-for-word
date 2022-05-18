@@ -1,23 +1,13 @@
-import answers from '../data/answers';
-import words from '../data/answers';
+import humanWords from '../data/humanWords';
 import Cell from '../interfaces/Cell';
 
-/**
- *
- * @returns {string}
- */
 const getRandomWord = (): string => {
-	const randomIndex = Math.floor(Math.random() * answers.length);
+	const formattedWords = Object.keys(humanWords);
+	const randomIndex = Math.floor(Math.random() * formattedWords.length);
 
-	return words[randomIndex].toLowerCase();
+	return formattedWords[randomIndex].toLowerCase();
 };
 
-/**
- *
- * @param numWords
- * @param char
- * @returns {string}
- */
 const generateMatchUri = (numWords: number, char = '-'): string => {
 	let matchUri = [];
 
@@ -52,13 +42,6 @@ const makeUpADude = (): string => {
 	return dude;
 };
 
-/**
- *
- * @param {string} wordle
- * @param {string | []} color
- * @returns {JSX.Element[]}
- */
-// TODO: Need to change this to be able to render green, yellow, and grey squares
 const renderWordleSquares = (wordle: string, color?: string | []): JSX.Element[] => {
 	if (!wordle) return [] as JSX.Element[];
 

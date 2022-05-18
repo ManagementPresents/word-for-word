@@ -9,6 +9,7 @@ import Modal from './Modal';
 import WordleInput from '../../components/WordleInput';
 import LoadingButton from '../../components/buttons/LoadingButton';
 
+import { WORD_LISTS } from '../../data/constants';
 import useStore from '../../utils/store';
 import { getCurrentTurn, getMatchOpponentId, updateCurrentTurn, addTurn } from '../../utils/misc';
 import { renderWordleSquares } from '../../utils/wordUtils';
@@ -17,6 +18,7 @@ import ValidationError from '../../interfaces/ValidationError';
 import Turn from '../../interfaces/Turn';
 import MatchOutcome from '../../enums/MatchOutcome';
 import Player from '../../interfaces/Player';
+import WordList from '../../interfaces/WordList';
 
 interface Props {
 	isOpen: boolean;
@@ -74,12 +76,13 @@ const EndTurnModal: FC<Props> = ({
 	const [hasUserForfeit, setHasUserForfeit] = useState(false);
 	const [hasOpponentForfeited, setHasOpponentForfeited] = useState(false);
 	const [isDraw, setIsDraw] = useState(false);
+	const [currentWordList, setCurrentWordList] = useState({} as WordList);
 
 	const navigate = useNavigate();
 
 	const handleValidateWordle = (wordle: string = ''): void => {
 		// TODO: this 'message' property can be refactored away when we stop using 'password-validator.js'
-		const validationErrors: ValidationError[] = validateWordle(wordle).map(
+		const validationErrors: ValidationError[] = validateWordle(wordle, currentWordList).map(
 			(error) => ({ message: error } as ValidationError),
 		);
 
@@ -274,6 +277,22 @@ const EndTurnModal: FC<Props> = ({
 		// TODO: Clunky way to ensure we see the validation errors the first time the wordle input renders
 		handleValidateWordle();
 	}, []);
+
+
+	useEffect(() => {
+		// TODO: This exact useEffect is copy/pasted across the app
+		if (Object.keys(currentMatch)) {
+			const wordListObj = WORD_LISTS.find((wordList) => wordList.name === currentMatch.wordList) as WordList;
+
+			setCurrentWordList(wordListObj);
+		}
+	}, [currentMatch]);
+
+	useEffect(() => {
+		if (!currentWordList) {
+
+		}
+	}, [currentWordList]);
 
 	useEffect(() => {
 		if (!Object.keys(opponentPlayer).length && lazyLoadOpponentPlayer) {
