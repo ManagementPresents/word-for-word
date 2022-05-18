@@ -157,7 +157,7 @@ const MatchCard: FC<Props> = ({
 		if (match.outcome) {
 			const currentTurn = getCurrentTurn(match.turns);
 
-			return renderWordleSquares(currentTurn.wordle);
+			return renderWordleSquares(currentTurn?.wordle);
 		} else {
 			return renderWordleSquares(getLastPlayedWordByPlayerId(user.uid, match.turns));
 		}

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, Dispatch, SetStateAction } from 'react';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import useEventListener from '@use-it/event-listener';
 
@@ -8,10 +8,14 @@ import useStore from '../utils/store';
 import Button from '../components/buttons/Button';
 
 interface Props {
-    handleRegisterClick: () => void
+    handleRegisterClick: () => void;
+    setIsLoadingMatch?: Dispatch<SetStateAction<boolean>>;
 }
 
-const Login = ({ handleRegisterClick }: Props) => {
+const Login = ({ 
+    handleRegisterClick,
+    setIsLoadingMatch,
+ }: Props) => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [serverErrors, setServerErrors] = useState([]);
@@ -43,6 +47,8 @@ const Login = ({ handleRegisterClick }: Props) => {
 				// Signed in
 				const user = userCredential.user;
 				useStore.setState({ user });
+
+                if (setIsLoadingMatch) setIsLoadingMatch(true);
 			})
 			.catch((error) => {
 				const { code } = error;

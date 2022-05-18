@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState, useRef } from 'react';
+import { useEffect, useCallback, useState, useRef, Dispatch, SetStateAction } from 'react';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 // TODO: Should probably replace this with the other 'validator.js' library
@@ -34,10 +34,14 @@ interface EmailError {
 
 interface Props {
     handleReturnClick: () => void;
+	setIsLoadingMatch?: Dispatch<SetStateAction<boolean>>;
 }
 
 // TODO: Need to add logic for if the email already exists
-const Register = ({ handleReturnClick }: Props) => {
+const Register = ({ 
+	handleReturnClick,
+	setIsLoadingMatch 
+}: Props) => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [verifyPassword, setVerifyPassword] = useState('');
@@ -90,6 +94,10 @@ const Register = ({ handleReturnClick }: Props) => {
 				TODO: This setUser here may not be necessary, as registering a user will trigger the onAuthStateChanged function in App.tsx
 			*/
 			setUser(user);
+
+			if (setIsLoadingMatch) {
+				setIsLoadingMatch(true);
+			}
 
             if (!inviteMatchId) {
                 navigate('/');

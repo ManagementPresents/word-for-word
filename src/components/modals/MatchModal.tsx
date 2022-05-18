@@ -1,6 +1,6 @@
-import { FC, useState, useEffect} from 'react';
-import { useNavigate } from 'react-router-dom';
-import { doc, setDoc, getDoc, DocumentData } from 'firebase/firestore';
+import { FC, useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { doc, setDoc, getDoc, } from 'firebase/firestore';
 
 import CopyInput from '../CopyInput';
 import Button from '../buttons/Button';
@@ -27,6 +27,7 @@ interface Props {
 	handleStartNewMatch: any;
 	setIsForfeitModalOpen: any;
 	setIsCancelModalOpen: any;
+	userIsInMatch: boolean;
 	hideNewMatchButton?: boolean;
 	handleReturn?: any;
 	onRequestClose?: any;
@@ -44,6 +45,7 @@ const MatchModal: FC<Props> = ({
 	hideCloseButton,
 	handleReturn,
 	hideNewMatchButton,
+	userIsInMatch,
 }: Props) => {
 	const { 
 		currentMatch, 
@@ -60,6 +62,7 @@ const MatchModal: FC<Props> = ({
 	const [isLoading, setIsLoading] = useState(true);
 
 	const navigate = useNavigate();
+	const location = useLocation();
 
 	const handleGoToMatch = async () => {
 		const currentTurn = getCurrentTurn(currentMatch.turns);
@@ -90,10 +93,19 @@ const MatchModal: FC<Props> = ({
 			setCurrentMatch({ ...currentMatch, turns: updatedTurns });
 		}
 
-		navigate(`/match/${currentMatch.id}`);
+		if (location.pathname.includes('/match')) {
+			// this accounts for the possibility that you're seeing this modal on the /match route
+			onRequestClose();
+		} else {
+			navigate(`/match/${currentMatch.id}`);
+		}
 	}
 
 	const renderTitle = () => {
+		if (!userIsInMatch) {
+			return <span>Match in Progress</span>
+		}
+
 		if (matchOpponent || isUserTurn) {
 			return (
 				<span className="flex flex-col">
@@ -107,6 +119,24 @@ const MatchModal: FC<Props> = ({
 	};
 
 	const renderMatchButtons = () => {
+		if (!userIsInMatch) {
+			return (
+				<div className="flex flex-col gap-y-2 mt-4">
+					<Button
+						customStyle="green-button"
+						copy="Start a New Match"
+						onClick={handleStartNewMatch}
+					></Button>
+
+					<Button
+						copy="Return to Lobby"
+						customStyle="yellow-button-hollow"
+						onClick={handleReturn ? handleReturn : onRequestClose}
+					/>
+				</div>
+			)
+		}
+
 		if (matchOpponent) {
 			return (
 				<div className="flex flex-col gap-y-2 mt-4">
@@ -138,7 +168,7 @@ const MatchModal: FC<Props> = ({
 							customStyle="grey-button-hollow mt-4 "
 							onClick={() => {
 								onRequestClose();
-								setIsForfeitModalOpen(true);
+								setIsForfeitModalOpen(true); 
 							}}
 						/>
 					}
@@ -202,11 +232,27 @@ const MatchModal: FC<Props> = ({
 	};
 
 	const renderMatchCopy = () => { 
+		if (!userIsInMatch) {
+			return (
+				<>
+					<p>You are unable to join this match in progress.</p>
+					<p>However, you can always make a new match! No time like the present.</p>
+				</>
+			);
+		}
+
 		if (currentMatch.outcome) {
 			if (hasUserWon) {
 				return (
 					<div className="modal-content">
 						<p className="modal-header">You Won!</p>
+						
+						{/* TODO: this does not feel smart */}
+						{(() => {
+							if (currentMatch.outcome.toLowerCase().includes('forfeit')) {
+								return <p>Your opponent has forfeited.</p>;
+							}
+						})()}
 					</div>
 				);
 			}
@@ -262,6 +308,9 @@ const MatchModal: FC<Props> = ({
 				setMatchOpponent({ ...playerSnap.data(), id: matchOpponentId,  } as Player);
 				setIsLoading(false);
 			})();            
+		} else {
+			// There is no opponent player
+			setIsLoading(false);
 		}
 	}, [user, matchOpponents, currentMatch, db]);
 
@@ -285,12 +334,12 @@ const MatchModal: FC<Props> = ({
 				<>
 					<h1 className="modal-header">{renderTitle()}</h1>
 
-					<div className="flex flex-col justify-center gap-y-2 ">{renderTurns()}</div>
+					{userIsInMatch && <div className="flex flex-col justify-center gap-y-2 ">{renderTurns()}</div>}
 
 					{renderMatchCopy()}
 
 					<div className="modal-label">
-						{!currentMatch.outcome &&
+						{(!currentMatch.outcome && userIsInMatch) &&
 							<>
 								<h3 className="text-[16px]">Match Link</h3>
 
