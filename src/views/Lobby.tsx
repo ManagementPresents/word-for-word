@@ -264,7 +264,13 @@ const Lobby = () => {
 
 	return (
 		<Fragment>
-			<div className="max-w-7xl flex flex-col gap-y-3 h-full md:gap-x-6 md:flex-row mx-auto py-6 px-4 sm:px-6 lg:px-8">
+			<div className="max-w-7xl flex flex-col gap-y-3 h-full md:gap-x-6 md:mx-auto py-6 px-4 sm:px-6 lg:px-8">
+				<Button
+					customStyle="green-button"
+					copy="Start a New Match"
+					onClick={handleStartNewMatch}
+				></Button>
+				
 				{/* Hi gabriel, I added "lobby-matchbox-style here to control some colors and such from index.css in case you're wondering wtf this is. Also, you lookin fine as hell over there just fyi. ;) */}
 				<div
 					className={`lobby-matchbox-style ${Object.keys(matches).length ? '' : 'grid grid-cols-1'} `}
