@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import Loading from '../Loading';
 
-import { TIMEOUT_DURATION } from '../../utils/constants';
+import { TIMEOUT_DURATION } from '../../data/constants';
 import useStore from '../../utils/store';
 import Match from '../../interfaces/Match';
 import { isPlayerCurrentTurn } from '../../utils/misc';

@@ -4,6 +4,7 @@ import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
 import Players from '../interfaces/Players';
 import Turn from '../interfaces/Turn';
+import WordList from '../interfaces/WordList';
 
 // TODO: Figure out the correct type for the 'set's
 interface State {
@@ -13,6 +14,7 @@ interface State {
 	app: any;
 	matches: {};
 	currentMatch: Match;
+	currentWordList: WordList;
 	opponentPlayer: Player;
 	hasCheckedUser: boolean;
 	currentTurn: Turn;
@@ -46,6 +48,7 @@ const useStore = create<State>((set, get) => ({
 	opponentPlayer: {} as Player,
 	hasCheckedUser: false,
 	previousModal: '',
+	currentWordList: {} as WordList,
 	setInviteMatchId: (inviteMatchId: string) => set({ inviteMatchId }),
 	setHasCheckedUser: (hasCheckedUser: boolean) => set({ hasCheckedUser }),
 	setOpponentPlayer: (opponentPlayer: Player) => set({ opponentPlayer }),

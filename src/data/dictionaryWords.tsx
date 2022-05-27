@@ -3,7 +3,7 @@
   * wordle
   * the n word, but with the soft 'a' (we're not allowing that, i just don't want to deal with it)
 */
-const words: { [key: string]: boolean } = {
+const dictionaryWords: { [key: string]: boolean } = {
 	aahed: true,
 	aalii: true,
 	aargh: true,
@@ -9346,4 +9346,4 @@ const words: { [key: string]: boolean } = {
 	zymes: true,
 };
 
-export default words;
+export default dictionaryWords;

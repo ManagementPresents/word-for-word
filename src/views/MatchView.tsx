@@ -31,15 +31,14 @@ import {
 	isPlayerCurrentTurn,
 	hasUserWonMatch,
 } from '../utils/misc';
-import { LETTERS } from '../data/constants';
+import { LETTERS, WORD_LISTS } from '../data/constants';
 import Turn from '../interfaces/Turn';
 import Match from '../interfaces/Match';
 import Player from '../interfaces/Player';
 import Cell from '../interfaces/Cell';
+import WordList from '../interfaces/WordList';
 
 import { ReactComponent as Lobby } from '../assets/Lobby.svg';
-
-const words = require('../data/words').default as { [key: string]: boolean };
 
 export const difficulty = {
 	easy: 'easy',
@@ -173,7 +172,8 @@ function MatchView() {
 	const isValidWord = (word: string): [boolean] | [boolean, string] => {
 		if (word.length < 5) return [false, `please enter a 5 letter word`];
 
-		if (!words[word.toLowerCase()])
+		// @ts-ignore
+		if (!currentWordList.words[word.toLowerCase()])
 			return [false, `${word} is not a valid word. Please try again.`];
 
 		return [true];
@@ -326,6 +326,7 @@ function MatchView() {
 	const [isHowToPlayModalOpen, setIsHowToPlayModalOpen] = useState(false);
 	const [answer, setAnswer] = useState('');
 	const [board, setBoard] = useState(initialStates.board);
+	const [currentWordList, setCurrentWordList] = useState({} as WordList);
 	const [isEndTurnModalOpen, setIsEndTurnModalOpen] = useState(false);
 	const [isLoadingMatch, setIsLoadingMatch] = useState(true);
 	const [isWordleSentModalOpen, setIsWordleSentModalOpen] = useState(false);
@@ -382,6 +383,14 @@ function MatchView() {
 			setIsLandingModalOpen(false);
 		}
 	};
+
+	useEffect(() => {
+		if (Object.keys(currentMatch)) {
+			const wordListObj = WORD_LISTS.find((wordList) => wordList.name === currentMatch.wordList) as WordList;
+
+			setCurrentWordList(wordListObj);
+		}
+	}, [currentMatch]);
 
 	useEffect(() => {
 		// Handle match victory/loss states
@@ -688,6 +697,15 @@ function MatchView() {
 								</span>{' '}
 								would like to have a Wordle with you!
 							</h1>
+
+							<div className="flex flex-col gap-y-1">
+								<div className="flex flex-row gap-x-1 justify-center">
+									<span className="text-lg">Word List:</span>
+									<span className="text-lg uppercase text-[#15B097]">{currentMatch?.wordList}</span>
+								</div>
+
+								<p className="text-sm text-gray-400">{currentWordList?.description}</p>
+							</div>
 
 							<div className="flex flex-col gap-y-3">
 								{/* TODO: Should be a LoadingButton */}

@@ -12,7 +12,9 @@ import { generateMatchUri } from '../../utils/wordUtils';
 import Match from '../../interfaces/Match';
 import useStore from '../../utils/store';
 import ValidationError from '../../interfaces/ValidationError';
+import WordList from '../../interfaces/WordList';
 import { validateWordle } from '../../utils/validation';
+import { WORD_LISTS } from '../../data/constants';
 
 interface Props {
 	isOpen: boolean;
@@ -39,8 +41,13 @@ const NewMatchModal: FC<Props> = ({
 	const [isGenerateLinkReady, setIsGenerateLinkReady] = useState(false);
 	const [isOpenMatch, setIsOpenMatch] = useState(false);
 	const [wordleValidationErrors, setWordleValidationErrors] = useState([]);
+	const [currentWordList, setCurrentWordList] = useState(WORD_LISTS[0] as WordList);
 
-	const { db, user, addMatch } = useStore();
+	const { 
+		db, 
+		user, 
+		addMatch, 
+	} = useStore();
 
 	const handleGoBack = () => {
 		setOpenMatchLink('');
@@ -55,10 +62,12 @@ const NewMatchModal: FC<Props> = ({
 		setIsGeneratingLink(true);
 
 		// TODO: Schemas need to be permanently stored and reused
+		// TODO: Some kind of validation might be necessary here. For example, checking if 'wordList' actually has a value
 		const generatedUri = generateMatchUri(3);
 		const newMatch: Match = {
 			id: generatedUri,
 			outcome: '',
+			wordList: currentWordList.name,
 			players: {
 				guestId: '',
 				hostId: user.uid,
@@ -94,9 +103,9 @@ const NewMatchModal: FC<Props> = ({
 		setOpenMatchLink(`${process.env.REACT_APP_URL}/match/${generatedUri}`); // TODO: Figure out if there's any danger using this ID in the match url
 	};
 
-	const handleValidateWordle = (wordle: string = ''): void => {
+	const handleValidateWordle = (wordle: string = '', currentWordList: WordList = {} as WordList): void => {
 		// TODO: this 'message' property can be refactored away when we stop using 'password-validator.js'
-		const validationErrors: ValidationError[] = validateWordle(wordle).map(
+		const validationErrors: ValidationError[] = validateWordle(wordle, currentWordList).map(
 			(error) => ({ message: error } as ValidationError),
 		);
 
@@ -120,6 +129,13 @@ const NewMatchModal: FC<Props> = ({
 			setIsSpecificPlayer(true);
 		}
 	};
+
+	const handleSelectWordList = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const wordListObj = WORD_LISTS.find((wordList) => wordList.name === e.target.value) as WordList;
+
+		setCurrentWordList(wordListObj);
+		handleValidateWordle(wordle, wordListObj);
+	}
 
 	return (
 		<Modal isOpen={isOpen} onRequestClose={onRequestClose} isLobbyReturn={isLobbyReturn} hideCloseButton={hideCloseButton}>
@@ -151,6 +167,7 @@ const NewMatchModal: FC<Props> = ({
 					<p className="modals-body">
 						Get a match link only you and a specific player can use.
 					</p>
+
 
 					<div className="modal-label">
 						<span>Your Word</span>
@@ -195,12 +212,39 @@ const NewMatchModal: FC<Props> = ({
 						<p className="modal-body">Play with the first person who opens the link!</p>
 					</section>
 
+					{!openMatchLink && (
+						<div className="modal-label">
+							<span>Select a Word List</span>
+
+							<select onChange={handleSelectWordList} value={currentWordList.name} className="form-select appearance-none
+							block
+							w-full
+							px-3
+							py-1.5
+							text-base
+							font-normal
+							text-gray-700
+							bg-white bg-clip-padding bg-no-repeat
+							border border-solid border-gray-300
+							rounded
+							transition
+							ease-in-out
+							m-0
+							capitalize
+							focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" aria-label="Default select example">
+								{WORD_LISTS.map((wordList) => <option className="capitalize" value={wordList.name}>{wordList.name}</option>)}
+							</select>
+
+							<p className="text-sm text-gray-400">{currentWordList?.description}</p>
+						</div>
+					)}
+
 					<div className="modal-label">
 						<span>Your Word</span>
 
 						<WordleInput
 							validationErrors={wordleValidationErrors}
-							handleInputChange={(e: any) => handleValidateWordle(e.target.value)}
+							handleInputChange={(e: any) => handleValidateWordle(e.target.value, currentWordList)}
 							value={wordle}
 							isReadOnly={!!openMatchLink}
 						/>
