@@ -11,10 +11,7 @@ import EndTurnModal from '../components/modals/EndTurnModal';
 import ForfeitModal from '../components/modals/ForfeitModal';
 import CancelModal from '../components/modals/CancelModal';
 
-import { 
-	getMatchOpponentId, 
-	getCurrentTurn,
-} from '../utils/misc';
+import { getMatchOpponentId, getCurrentTurn } from '../utils/misc';
 import useStore from '../utils/store';
 import { TIMEOUT_DURATION } from '../data/constants';
 import Match from '../interfaces/Match';
@@ -24,15 +21,8 @@ import WordleSentModal from '../components/modals/WordleSentModal';
 import Turn from '../interfaces/Turn';
 
 const Lobby = () => {
-	const { 
-		user, 
-		db, 
-		matches, 
-		setMatches, 
-		setMatchOpponents, 
-		currentMatch,
-		previousModal,
-	} = useStore();
+	const { user, db, matches, setMatches, setMatchOpponents, currentMatch, previousModal } =
+		useStore();
 
 	const [isNewMatchModalOpen, setIsNewMatchModalOpen] = useState(false);
 	const [isLoadingMatches, setIsLoadingMatches] = useState(true);
@@ -46,23 +36,23 @@ const Lobby = () => {
 	const [matchLink, setMatchLink] = useState('');
 
 	const keyMap = {};
-	
+
 	// TODO: Kludgy way to create new matches, while still developing
 	useEventListener('keydown', (e: KeyboardEvent) => {
 		// @ts-ignore
 		if (keyMap['ControlLeft'] && keyMap['KeyN']) return;
 
-		if ((e.code === 'ControlLeft' || e.code === 'KeyN')) {
+		if (e.code === 'ControlLeft' || e.code === 'KeyN') {
 			// @ts-ignore
 			keyMap[e.code] = true;
 		}
 
-		if (e.code === "KeyN") {
+		if (e.code === 'KeyN') {
 			// @ts-ignore
 			if (keyMap['ControlLeft'] && keyMap['KeyN']) {
 				if (!isNewMatchModalOpen) handleStartNewMatch();
 			}
-		}	
+		}
 	});
 
 	useEventListener('keyup', (e: KeyboardEvent) => {
@@ -195,7 +185,9 @@ const Lobby = () => {
 	useEffect(() => {
 		// TODO: this is a direct copy from MatchView. DRY it up.
 		if (currentMatch?.players) {
-			setUserIsInMatch(Object.values(currentMatch?.players).some((playerId) => user?.uid === playerId));
+			setUserIsInMatch(
+				Object.values(currentMatch?.players).some((playerId) => user?.uid === playerId),
+			);
 		}
 	}, [currentMatch.players, user?.uid]);
 
@@ -244,6 +236,12 @@ const Lobby = () => {
 					copy="Start a New Match"
 					onClick={handleStartNewMatch}
 				></Button>
+
+				{/* <Button
+					customStyle="yellow-button"
+					copy="How to Play"
+					onClick={handleStartNewMatch}
+				></Button> */}
 			</div>
 		);
 	};
@@ -270,10 +268,12 @@ const Lobby = () => {
 					copy="Start a New Match"
 					onClick={handleStartNewMatch}
 				></Button>
-				
+
 				{/* Hi gabriel, I added "lobby-matchbox-style here to control some colors and such from index.css in case you're wondering wtf this is. Also, you lookin fine as hell over there just fyi. ;) */}
 				<div
-					className={`lobby-matchbox-style ${Object.keys(matches).length ? '' : 'grid grid-cols-1'} `}
+					className={`lobby-matchbox-style ${
+						Object.keys(matches).length ? '' : 'grid grid-cols-1'
+					} `}
 				>
 					{handleMatchBox()}
 				</div>
@@ -309,7 +309,7 @@ const Lobby = () => {
 				setMatchLink={setMatchLink}
 			/>
 
-			<WordleSentModal 
+			<WordleSentModal
 				nextWordle={nextWordle}
 				isOpen={isWordleSentModalOpen}
 				onRequestClose={() => setIsWordleSentModalOpen(false)}
@@ -317,7 +317,7 @@ const Lobby = () => {
 				returnAction={() => setIsWordleSentModalOpen(false)}
 			/>
 
-			<ForfeitModal 
+			<ForfeitModal
 				isOpen={isForfeitModalOpen}
 				onRequestClose={() => {
 					setIsForfeitModalOpen(false);

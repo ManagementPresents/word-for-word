@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import initializeFirebase from '../utils/firebase';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
+import Footer from '../components/Footer';
 import MatchView from './MatchView';
 import LoginView from './LoginView';
 import RegisterView from './RegisterView';
@@ -42,45 +43,49 @@ const App = ({}: Props) => {
 	}, []);
 
 	return (
-		<BrowserRouter>
-			<Routes>
-				<Route
-					path="/"
-					element={
-						<AuthRedirectRoute
-							authRedirectTarget={<Navigate to="/lobby" />}
-							noAuthRedirectTarget={<LoginView />}
-						/>
-					}
-				/>
+		<>
+			<BrowserRouter>
+				<Routes>
+					<Route
+						path="/"
+						element={
+							<AuthRedirectRoute
+								authRedirectTarget={<Navigate to="/lobby" />}
+								noAuthRedirectTarget={<LoginView />}
+							/>
+						}
+					/>
 
-				{/* TODO: For some reason, when this redirects back to Login, the url remains as '/lobby' */}
-				<Route
-					path="/lobby"
-					element={
-						<AuthRedirectRoute
-							authRedirectTarget={<Lobby />}
-							noAuthRedirectTarget={<LoginView />}
-						/>
-					}
-				/>
+					{/* TODO: For some reason, when this redirects back to Login, the url remains as '/lobby' */}
+					<Route
+						path="/lobby"
+						element={
+							<AuthRedirectRoute
+								authRedirectTarget={<Lobby />}
+								noAuthRedirectTarget={<LoginView />}
+							/>
+						}
+					/>
 
-				<Route
-					path="/match/:matchId"
-					element={
-						<AuthMatchRoute redirectTo="/">
-							<MatchView />
-						</AuthMatchRoute>
-					}
-				/>
+					<Route
+						path="/match/:matchId"
+						element={
+							<AuthMatchRoute redirectTo="/">
+								<MatchView />
+							</AuthMatchRoute>
+						}
+					/>
 
-				<Route path="/register" element={<RegisterView />} />
+					<Route path="/register" element={<RegisterView />} />
 
-				<Route path="/logout" element={<Logout />} />
+					<Route path="/logout" element={<Logout />} />
 
-				<Route path="/makeupadude" element={<MakeUpADude />} />
-			</Routes>
-		</BrowserRouter>
+					<Route path="/makeupadude" element={<MakeUpADude />} />
+				</Routes>
+			</BrowserRouter>
+
+			<Footer />
+		</>
 	);
 };
 
