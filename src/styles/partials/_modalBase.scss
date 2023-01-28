@@ -8,7 +8,7 @@
 }
 
 @mixin header {
-	@apply flex flex-col text-3xl sm:text-4xl text-center font-bold tracking-tight md:text-2xl;
+	@apply flex flex-col text-3xl sm:text-4xl text-center tracking-tight md:text-2xl;
 }
 
 @mixin body {

@@ -13,7 +13,7 @@ const Button: FC<Props> = ({ onClick, copy, disabled, customStyle = '' }: Props)
 		<button
 			className={`${customStyle} ${
 				disabled ? 'opacity-50 cursor-not-allowed' : ''
-			}font-bold py-2 px-4 rounded w-full`}
+			} py-2 px-4 rounded w-full`}
 			onClick={onClick}
 		>
 			{copy}

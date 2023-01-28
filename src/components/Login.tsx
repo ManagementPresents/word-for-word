@@ -8,6 +8,7 @@ import useStore from '../utils/store';
 import Button from '../components/buttons/Button';
 import WhatIsThisModal from '../components/modals/WhatIsThisModal';
 
+import Footer from './Footer';
 interface Props {
 	handleRegisterClick: () => void;
 	setIsLoadingMatch?: Dispatch<SetStateAction<boolean>>;
@@ -170,6 +171,8 @@ const Login = ({ handleRegisterClick, setIsLoadingMatch }: Props) => {
 				isOpen={isWhatIsThisModalOpen}
 				onRequestClose={() => setIsWhatIsThisModalOpen(false)}
 			/>
+
+			<Footer />
 		</div>
 	);
 };

@@ -83,8 +83,6 @@ const App = ({}: Props) => {
 					<Route path="/makeupadude" element={<MakeUpADude />} />
 				</Routes>
 			</BrowserRouter>
-
-			<Footer />
 		</>
 	);
 };
